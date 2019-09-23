@@ -1,13 +1,11 @@
 
 /** ************************************************************************* */
 /**
- * @file
+ * @file     main.c
  * @author   Edward Parkinson
- * @date
+ * @date     September 2019
  *
- * @brief
- *
- * @details
+ * @brief    The main functions related to running this program.
  *
  * ************************************************************************** */
 
@@ -21,17 +19,45 @@
 
 /* ************************************************************************* */
 /**
- * @brief
+ * @brief   Print a line of dashes to the screen.
  *
- * @param[in]        argc
- * @param[in, out]   argv
- * @param[in, out]   fname
- * @param[in, out]   wmin
- * @param[in, out]   wmax
+ * @details
+ *
+ * The number of dashes is controlled by the constant ndash.
+ *
+ * ************************************************************************** */
+
+void
+print_separator (void)
+{
+  int i;
+  const int ndash = 80;
+  for (i = 0; i < ndash - 1; ++i)
+    Log ("-");
+  Log ("-\n");
+}
+
+/* ************************************************************************* */
+/**
+ * @brief   Parse inputs from the command line.
+ *
+ * @param[in]        argc   The number of arguments provided.
+ * @param[in, out]   argv   The arguments provided.
+ * @param[in, out]   fname  The name of the Python data master file.
+ * @param[in, out]   wmin   The lower wavelength boundary.
+ * @param[in, out]   wmax   The upper wavelength boundary.
  *
  * @return          void
  *
  * @details
+ *
+ * Variables are returned from this function via pointers. If the incorrect
+ * number of arguments are passed, then the program should exit.
+ *
+ * ### Programming Notes ###
+ *
+ * Nothing has been done to check the input or order of the arguments, so good
+ * luck!
  *
  * ************************************************************************** */
 
@@ -65,13 +91,12 @@ parse_input (int argc, char *argv[], char *fname, double *wmin, double *wmax)
 
 /* ************************************************************************* */
 /**
- * @brief
+ * @brief   The main function of the program.
  *
+ * @param[in]   argc    The number of arguments provided.
+ * @param[in]   argv    The arguments provided.
  *
- * @param[in]   argc
- * @param[in]   argv
- *
- * @return          void
+ * @return      EXIT_SUCCESS
  *
  * @details
  *
@@ -87,7 +112,10 @@ main (int argc, char *argv[])
 
   Log_init ("lines.out");
   parse_input (argc, argv, fname, &wmin, &wmax);
+
+  print_separator ();
   get_atomic_data (fname);
+  print_separator ();
 
   fmax = C / (wmin  * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
