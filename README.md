@@ -1,5 +1,3 @@
-# lines
-
 The purpose of this program is to query the line transitions between two provided wavelength boundaries.
 
  Usage:  lines [-h] data wmin wmax
