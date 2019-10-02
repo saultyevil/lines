@@ -30,7 +30,7 @@ void
 print_separator (void)
 {
   int i;
-  const int ndash = 80;
+  const int ndash = 84;
   for (i = 0; i < ndash - 1; ++i)
     Log ("-");
   Log ("-\n");
@@ -104,13 +104,14 @@ parse_input (int argc, char *argv[], char *fname, double *wmin, double *wmax)
 int
 main (int argc, char *argv[])
 {
-  int i;
+  int i, j;
   int z, nion, istate;
   int levu, levl;
   double wl;
   double wmin, wmax;
   double fmin, fmax;
- char atomic_data_name[LINELEN];
+  char atomic_data_name[LINELEN];
+  char element[LINELEN];
 
 
   Log_init ("lines.out");
@@ -124,7 +125,7 @@ main (int argc, char *argv[])
   fmin = C / (wmax * ANGSTROM);
   limit_lines (fmin, fmax);
 
-  Log ("%-15s %-15s %-15s %-15s %-15s %-15s\n\n", "Wavelength", "z", "nion", "istate", "levu", "levl");
+  Log (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n\n", "Wavelength", "element", "z", "istate", "levu", "levl",  "nion");
 
   for (i = nline_min; i < nline_max; ++i)
   {
@@ -134,7 +135,17 @@ main (int argc, char *argv[])
     levl = lin_ptr[i]->levl;
     nion = lin_ptr[i]->nion;
     wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
-    Log ("%-15f %-15i %-15i %-15i %-15i %-15i\n", wl, z, nion, istate, levu, levl);
+
+    for (j = 0; j < nelements; ++j)
+    {
+      if (ele[j].z == z)
+      {
+        strcpy (element, ele[j].name);
+        break;
+      }
+    }
+
+    Log (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu, levl, nion);
   }
 
   print_separator ();
