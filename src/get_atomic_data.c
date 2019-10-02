@@ -153,6 +153,7 @@ get_atomic_data (masterfile)
   double en, gf, hlt, sp;       //Parameters in collision strangth file
   int type;                     //used in collision strength
 
+
   /* define which files to read as data files */
 
 
@@ -479,13 +480,31 @@ structure does not have this property! */
 
   /* OK now we can try to read in the data from the data files */
 
-  if ((mptr = fopen (masterfile, "r")) == NULL)
+  char data[LINELENGTH];
+  char *atomic_data_file_path = calloc (LINELENGTH, sizeof (char));
+  char *sub_atomic_data_file_path = calloc (LINELENGTH, sizeof (char));
+  char *python_file_path;
+
+  if ((python_file_path = getenv ("PYTHON")) == NULL)
   {
-    Error ("Get_atomic_data: Could not find masterfile %s in current directory\n", masterfile);
+    Log ("Unable to find $PYTHON environment variable.\n");
+    exit (EXIT_FAILURE);
+  }
+
+  if (python_file_path[strlen (python_file_path) - 1] != '/')
+    strcat (python_file_path, "/");
+
+  strcpy (atomic_data_file_path, python_file_path);
+  sprintf (data, "data/%s", masterfile);
+  strcat (atomic_data_file_path, data);
+
+  if ((mptr = fopen (atomic_data_file_path, "r")) == NULL)
+  {
+    Error ("Get_atomic_data: Could not find atomic data %s\n", atomic_data_file_path);
     exit (1);
   }
 
-  Log ("Get_atomic_data: Reading from masterfile %s\n", masterfile);
+  Log ("Get_atomic_data: Reading from %s\n", atomic_data_file_path);
 
 /* Open and read each line in the masterfile in turn */
 
@@ -498,13 +517,16 @@ structure does not have this property! */
        * Open one of the files designated in the masterfile and begin to read it
        */
 
-      if ((fptr = fopen (file, "r")) == NULL)
+      strcpy (sub_atomic_data_file_path, python_file_path);
+      strcat (sub_atomic_data_file_path, file);
+
+      if ((fptr = fopen (sub_atomic_data_file_path, "r")) == NULL)
       {
-        Error ("Get_atomic_data: Could not open %s in current directory\n", file);
+        Error ("Get_atomic_data: Could not open %s \n", sub_atomic_data_file_path);
         exit (1);
       }
 
-      Log_silent ("Get_atomic_data: Reading data from %s\n", atomic_file);
+      Log_silent ("Get_atomic_data: Reading data from %s\n", sub_atomic_data_file_path);
       lineno = 1;
 
       /* Main loop for reading each data file line by line */
@@ -2915,6 +2937,9 @@ or zero so that simple checks of true and false can be used for them */
 
 
   check_xsections ();           // debug routine, only prints if verbosity > 4
+
+  free (sub_atomic_data_file_path);
+  free (atomic_data_file_path);
 
   return (0);
 }

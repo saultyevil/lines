@@ -1,4 +1,3 @@
-
 /** ************************************************************************* */
 /**
  * @file     main.c
@@ -15,7 +14,7 @@
 #include "templates.h"
 
 #define LINELEN 256
-#define C_SI 299792458
+#define const_C_SI 299792458
 
 /* ************************************************************************* */
 /**
@@ -111,13 +110,14 @@ main (int argc, char *argv[])
   double wl;
   double wmin, wmax;
   double fmin, fmax;
-  char fname[LINELEN];
+ char atomic_data_name[LINELEN];
+
 
   Log_init ("lines.out");
-  parse_input (argc, argv, fname, &wmin, &wmax);
+  parse_input (argc, argv, atomic_data_name, &wmin, &wmax);
 
   print_separator ();
-  get_atomic_data (fname);
+  get_atomic_data (atomic_data_name);
   print_separator ();
 
   fmax = C / (wmin  * ANGSTROM);
@@ -133,7 +133,7 @@ main (int argc, char *argv[])
     levu = lin_ptr[i]->levu;
     levl = lin_ptr[i]->levl;
     nion = lin_ptr[i]->nion;
-    wl = C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
+    wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
     Log ("%-15f %-15i %-15i %-15i %-15i %-15i\n", wl, z, nion, istate, levu, levl);
   }
 
