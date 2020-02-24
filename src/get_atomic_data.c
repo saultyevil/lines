@@ -495,7 +495,7 @@ structure does not have this property! */
     strcat (python_file_path, "/");
 
   strcpy (atomic_data_file_path, python_file_path);
-  sprintf (data, "data/%s", masterfile);
+  sprintf (data, "xdata/%s", masterfile);
   strcat (atomic_data_file_path, data);
 
   if ((mptr = fopen (atomic_data_file_path, "r")) == NULL)
@@ -517,8 +517,12 @@ structure does not have this property! */
        * Open one of the files designated in the masterfile and begin to read it
        */
 
+      char adata[LINELENGTH];
+      
+      sprintf (adata, "x");
+      strcat (adata, file);
       strcpy (sub_atomic_data_file_path, python_file_path);
-      strcat (sub_atomic_data_file_path, file);
+      strcat (sub_atomic_data_file_path, adata);
 
       if ((fptr = fopen (sub_atomic_data_file_path, "r")) == NULL)
       {

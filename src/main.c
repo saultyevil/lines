@@ -118,7 +118,12 @@ main (int argc, char *argv[])
   parse_input (argc, argv, atomic_data_name, &wmin, &wmax);
 
   print_separator ();
+
+  if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat"))
+    strcat (atomic_data_name, ".dat");
+
   get_atomic_data (atomic_data_name);
+  
   print_separator ();
 
   fmax = C / (wmin  * ANGSTROM);
