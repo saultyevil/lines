@@ -75,9 +75,6 @@
  *
  ***********************************************************/
 
-#ifdef MPI_ON
-#include <mpi.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -496,39 +493,6 @@ Log_flush ()
     Log_init ("logfile");
 
   fflush (diagptr);
-  return (0);
-}
-
-
-
-
-
-/**********************************************************/
-/**
- * @brief      Store the rank of this particular thread
- *
- * @param [in] int  rank   The rank of this thread
- * @param [in] int  n_mpi   The total number of threads
- * @return     Always returns 0
- *
- * The routine simply sets the rank of the process
- * if not in parallel mode then we set my_rank to zero
- *
- * ###Notes###
- *
- * The number of thread is not used by the program even though it
- * is passed.
- *
- **********************************************************/
-
-int
-Log_set_mpi_rank (rank, n_mpi)
-     int rank, n_mpi;
-{
-  my_rank = rank;
-  n_mpi_procs = n_mpi;
-  rdpar_set_mpi_rank (rank);    //this just communicates the rank to rdpar
-
   return (0);
 }
 

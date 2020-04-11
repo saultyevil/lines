@@ -10,31 +10,9 @@
 
 #include <string.h>
 #include <stdlib.h>
+
+#include "pyAtomic.h"
 #include "atomic.h"
-#include "templates.h"
-
-#define LINELEN 256
-#define const_C_SI 299792458
-
-/* ************************************************************************* */
-/**
- * @brief   Print a line of dashes to the screen.
- *
- * @details
- *
- * The number of dashes is controlled by the constant ndash.
- *
- * ************************************************************************** */
-
-void
-print_separator (void)
-{
-  int i;
-  const int ndash = 84;
-  for (i = 0; i < ndash - 1; ++i)
-    Log ("-");
-  Log ("-\n");
-}
 
 /* ************************************************************************* */
 /**
@@ -71,6 +49,8 @@ parse_input (int argc, char *argv[], char *fname, double *wmin, double *wmax)
                "  wmin: the lower wavelength boundary\n"
                "  wmax: the upper wavelength boundary\n";
 
+	double tmp;
+
   if (argc == 2 && strcmp (argv[1], "-h") == 0)
   {
     Log ("%s", help);
@@ -104,56 +84,34 @@ parse_input (int argc, char *argv[], char *fname, double *wmin, double *wmax)
 int
 main (int argc, char *argv[])
 {
-  int i, j;
-  int z, nion, istate;
-  int levu, levl;
-  double wl;
   double wmin, wmax;
-  double fmin, fmax;
   char atomic_data_name[LINELEN];
-  char element[LINELEN];
+  ScreenBuffer_t sb = SB_INIT;
 
+  /*
+   * Initialise the output file and read in the atomic data files
+   */
 
-  Log_init ("lines.out");
+  Log_init ("pyAtomic.output.txt");
   parse_input (argc, argv, atomic_data_name, &wmin, &wmax);
-
-  print_separator ();
-
-  if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat"))
+  if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
     strcat (atomic_data_name, ".dat");
-
+  print_separator (NULL);
   get_atomic_data (atomic_data_name);
-  
-  print_separator ();
 
-  fmax = C / (wmin  * ANGSTROM);
-  fmin = C / (wmax * ANGSTROM);
-  limit_lines (fmin, fmax);
+  /*
+   * Handle the different queries
+   */
 
-  Log (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n\n", "Wavelength", "element", "z", "istate", "levu", "levl",  "nion");
+  query_line_wavelength_range (&sb, wmin, wmax);
+  query_photoionization_cross_sections (&sb, wmin, wmax);
 
-  for (i = nline_min; i < nline_max; ++i)
-  {
-    z = lin_ptr[i]->z;
-    istate = lin_ptr[i]->istate;
-    levu = lin_ptr[i]->levu;
-    levl = lin_ptr[i]->levl;
-    nion = lin_ptr[i]->nion;
-    wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
+  /*
+   * Final output to the screen and close the output file
+   */
 
-    for (j = 0; j < nelements; ++j)
-    {
-      if (ele[j].z == z)
-      {
-        strcpy (element, ele[j].name);
-        break;
-      }
-    }
-
-    Log (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu, levl, nion);
-  }
-
-  print_separator ();
+  display_text_buffer(&sb);
+  print_separator (NULL);
   Log_close ();
 
   return EXIT_SUCCESS;

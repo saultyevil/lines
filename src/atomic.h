@@ -123,11 +123,11 @@ typedef struct ions
                                    the same as first_nlte_level  (Name changed 080810 -- 62 */
   int nlte;                     /* Actual number of nlte levels for this ion */
   int phot_info;                /*-1 means there are no photoionization cross sections for this ion, 
-				 0  means the photoionization is given on an ion basis (e.g. for the 
-					ground state using VFKY and the xphot structure
-				   1 means photoionization is given on a level basis, using topbase value
+				                           0  means the photoionization is given on an ion basis (e.g. for the
+                                   ground state using VFKY and the xphot structure
+				                           1 means photoionization is given on a level basis, using topbase value
                                    Topbase photoinization trumps VFKY photoionization
-				  */
+				                          */
   int macro_info;               /* Identifies whether ion is to be treated using a Macro Atom approach.
                                    set to -1 initially (means not known) 
                                    set to 1 if macro atom method is used

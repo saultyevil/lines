@@ -11,23 +11,16 @@
  *
  ***********************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
 #include "atomic.h"
+#include "atomic_functions.h"
 #include "log.h"
-// If routines are added cproto > atomic_proto.h should be run
-#include "atomic_proto.h"
-
-
-
 
 #define LINELENGTH 400
-#define MAXWORDS    20
-
 
 /**********************************************************/
 /**
@@ -93,9 +86,9 @@ get_atomic_data (masterfile)
      char masterfile[];
 {
   int match;
-  FILE *fptr, *mptr;            //, fopen ();
-  char aline[LINELENGTH];       //, *fgets ();
-  char file[LINELENGTH], atomic_file[LINELENGTH];
+  FILE *fptr, *mptr;
+  char aline[LINELENGTH];
+  char file[LINELENGTH];
 
   char word[LINELENGTH];
   int n, m, i, j;
@@ -128,7 +121,6 @@ get_atomic_data (masterfile)
   char configname[15];
   double e, rl;
   double xe[NCROSS], xx[NCROSS];
-  // double a21 ();
   int nlines_simple;
   int nspline;
   double tmin;
@@ -138,7 +130,6 @@ get_atomic_data (masterfile)
   int bb_max, bf_max;
   int lev_type;
   int nn;
-//  double yield;
   double gstemp[BAD_GS_RR_PARAMS];      //Temporary storage for badnell resolved GS RR rates
   double temp[LINELENGTH];      //Temporary storage for data read in off a line this is enogh if every character on the
   char gsflag, drflag;          //Flags to say what part of data is being read in for DR and RR
@@ -146,9 +137,7 @@ get_atomic_data (masterfile)
   double gsqrdtemp, gfftemp, s1temp, s2temp, s3temp;    //Temporary storage for gaunt factors
   int n_elec_yield_tot;         //The number of inner shell cross sections with matching electron yield arrays
   int inner_no_e_yield;         //The number of inner shell cross sections with no yields
-//  int n_fluor_yield_tot;        //The number of inner shell cross sections with matching fluorescent photon yield arrays
   double I, Ea;                 //The ionization energy and mean electron energy for electron yields
-//  double energy;                //The energy of inner shell fluorescent photons
   int c_l, c_u;                 //Chianti level indicators
   double en, gf, hlt, sp;       //Parameters in collision strangth file
   int type;                     //used in collision strength
