@@ -17,41 +17,12 @@
 
 /* ************************************************************************** */
 /**
- *
- * ************************************************************************** */
-
-char *MENU_CHOICES[] = {
-  "Bound-Bound Lines",
-  "Photoionization Cross Sections",
-  "Quit",
-  NULL
-};
-
-const int NCHOICES = sizeof MENU_CHOICES / sizeof MENU_CHOICES[0];
-
-/* ************************************************************************** */
-/**
- *  @brief      Process the menu input choices.
- *
- *  @param[in]  choice  The index for the menu choice
- *
- *  @details
- *
- *
- * ************************************************************************** */
-
-void
-process_main_menu_choices (int choice)
-{
-}
-
-/* ************************************************************************** */
-/**
  *  @brief      Clean up the memory for the menu.
  *
- *  @param[in]  menu       The menu to be cleaned up
- *  @param[in]  items      The items to be cleaned up
- *  @param[in]  win_menu   The window for the menu to be cleaned up
+ *  @param[in]  menu      The menu to be cleaned up
+ *  @param[in]  items     The items to be cleaned up
+ *  @param[in]  nitems    The number of items to clean up
+ *  @param[in]  win_menu  The window for the menu to be cleaned up
  *
  *  @details
  *
@@ -60,12 +31,12 @@ process_main_menu_choices (int choice)
  * ************************************************************************** */
 
 void
-clean_up_menu (MENU *menu, ITEM **items, WINDOW *win_menu)
+clean_up_menu (MENU *menu, ITEM **items, int nitems, WINDOW *win_menu)
 {
   int i;
 
   unpost_menu (menu);
-  for (i = 0; i < NCHOICES; ++i)
+  for (i = 0; i < nitems; ++i)
     free_item (items[i]);
   free_menu (menu);
 
@@ -126,7 +97,7 @@ control_menu (MENU *menu, int c)
 
 /* ************************************************************************** */
 /**
- *  @brief      Displays the home menu containing all of Py Wind's options.
+ *  @brief      Displays a menu given the current items.
  *
  *  @param[in]  int current_index   The index referring to the previously chosen
  *                                  menu entry
@@ -143,36 +114,18 @@ control_menu (MENU *menu, int c)
  * ************************************************************************** */
 
 int
-main_menu (int current_index)
+goto_menu (char *menu_message, char **menu_items, int nitems, int current_index)
 {
   int i, c;
   int the_choice;
 
-  MENU *menu;
-  ITEM **items;
-  WINDOW *win_menu;
+  MENU *menu = NULL;
+  ITEM **items = NULL;
+  WINDOW *win_menu = NULL;
 
-  const int winrowstart = 2;
-  const int wincolstart = 2;
-  const int maxline = LINES - 4;
-  const int maxcol = COLS - 2;
+  create_sub_window (&win_menu);
 
-  /*
-   * Draw the screen: allocate memory for the menu and choices and sub-window
-   */
-
-  write_banner ();
-
-  if (!(win_menu = newwin (maxline, maxcol, winrowstart, wincolstart)))
-  {
-    clean_ncurses_screen ();
-    printf ("BIG ERROR: Unable to allocate memory for menu screen\n");
-    exit (EXIT_FAILURE);
-  }
-
-  keypad (win_menu, TRUE);
-
-  if (!(items = calloc (NCHOICES, sizeof (ITEM *))))
+  if (!(items = calloc (nitems, sizeof (ITEM *))))
   {
     clean_ncurses_screen ();
     printf("BIG ERROR: Unable to allocate memory for menu\n");
@@ -180,7 +133,7 @@ main_menu (int current_index)
   }
 
   wattron (win_menu, A_BOLD);
-  mvwprintw (win_menu, 0, 0, "Please pick some atomic data to inspect:");
+  mvwprintw (win_menu, 0, 0, "%s", menu_message);
   wattroff (win_menu, A_BOLD);
 
   /*
@@ -188,8 +141,8 @@ main_menu (int current_index)
    * name of the label because we are going to hide descriptions anyway (for now)
    */
 
-  for (i = 0; i < NCHOICES; i++)
-    items[i] = new_item (MENU_CHOICES[i], MENU_CHOICES[i]);
+  for (i = 0; i < nitems; i++)
+    items[i] = new_item (menu_items[i], menu_items[i]);
   menu = new_menu (items);
   menu_opts_off (menu, O_SHOWDESC);
 
@@ -199,13 +152,13 @@ main_menu (int current_index)
    */
 
   set_menu_win (menu, win_menu);
-  set_menu_sub (menu, derwin (win_menu, maxline - 2, maxcol - 2, 2, 0));
-  set_menu_format (menu, maxline - 2, 2);
+  set_menu_sub (menu, derwin (win_menu, MAX_ROWS - 2, MAX_COLS - 2, 2, 0));
+  set_menu_format (menu, MAX_ROWS - 2, 2);
   set_menu_mark (menu, "* ");
 
   if (current_index < 0)
     current_index = 0;
-  if (current_index > NCHOICES - 1)
+  if (current_index > nitems - 1)
     current_index = 0;
 
   set_current_item (menu, items[current_index]);
@@ -222,13 +175,14 @@ main_menu (int current_index)
       break;
   }
 
-  if (the_choice == NCHOICES - 2)  // Quit is the 2nd last element
+  if (the_choice == nitems - 2)  // Quit is the 2nd last element
   {
+    clean_up_menu (menu, items, nitems, win_menu);
     clean_ncurses_screen ();
     exit (0);
   }
 
-  clean_up_menu (menu, items, win_menu);
+  clean_up_menu (menu, items, nitems, win_menu);
 
   return the_choice;
 }

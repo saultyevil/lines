@@ -51,22 +51,20 @@ parse_input (int argc, char *argv[], char *fname, double *wmin, double *wmax)
                "  wmin: the lower wavelength boundary\n"
                "  wmax: the upper wavelength boundary\n";
 
-  double tmp;
-
   if (argc == 2 && strcmp (argv[1], "-h") == 0)
   {
-    Log ("%s", help);
+    printf ("%s", help);
     exit (EXIT_SUCCESS);
   }
   else if (argc != 4)
   {
-    Log ("Incorrect parameters provided: expected 3 parameters\n");
-    Log ("\n%s", help);
+    printf ("Incorrect parameters provided: expected 3 parameters\n");
+    printf ("\n%s", help);
     exit (EXIT_FAILURE);
   }
 
   strcpy (fname, argv[1]);
-  *wmin = atof (argv[2]);  // TODO: one should probably error check this
+  *wmin = atof (argv[2]);  // TODO: use strtod
   *wmax = atof (argv[3]);
 }
 
@@ -91,7 +89,7 @@ get_element_name (int z, char *element)
 {
   int i;
 
-  // Probably not the best to do
+  // Probably not the best thing to do
   if (element == NULL)
     return;
 
@@ -118,15 +116,14 @@ get_element_name (int z, char *element)
  * ************************************************************************** */
 
 void
-display_text_buffer (ScreenBuffer_t *sb)
+display_text_buffer (ScreenBuffer_t *sb, WINDOW *win, int y, int x)
 {
+  // TODO: Probably not the best thing to do - print error message in future
   if (!sb->buffer)
-  {
-    Log ("Nothing in the screen buffer to print!\n");
     return;
-  }
 
-  Log ("%s", sb->buffer);
+  mvwprintw (win, y, x, "%s", sb->buffer);
+  wrefresh (win);
   free (sb->buffer);
 }
 
@@ -152,7 +149,8 @@ append_to_buffer (ScreenBuffer_t *sb, char *s, size_t len)
 
   if (!new)
   {
-    Log ("Unable to add additional text to the output buffer :-(\n");
+    clean_ncurses_screen ();
+    printf ("\nUnable to add additional text to the output buffer :-(\n");
     exit (1);
   }
 
@@ -174,7 +172,7 @@ append_to_buffer (ScreenBuffer_t *sb, char *s, size_t len)
  * ************************************************************************** */
 
 void
-print_separator (ScreenBuffer_t *sb)
+append_separator (ScreenBuffer_t *sb)
 {
   int i;
   const int ndash = 84;
@@ -193,7 +191,7 @@ print_separator (ScreenBuffer_t *sb)
 
   if (sb)
   {
-    append_to_buffer (sb, "\r\n", 2);
+    append_to_buffer (sb, "\n", 1);
   }
   else
   {

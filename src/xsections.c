@@ -17,6 +17,24 @@
 /**
  * @brief
  *
+ * @return
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+void
+photoionization_home_menu (void)
+{
+
+}
+
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
  * @param[in] wmin
  * @param[in] wmax
  *
@@ -40,7 +58,7 @@ query_photoionization_cross_sections (ScreenBuffer_t *sb, double wmin, double wm
   fmax = C / (wmin  * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
-  print_separator (sb);
+  append_separator (sb);
   len = sprintf (buffer_line, "Photoionization Cross Sections\r\n");
   append_to_buffer (sb, buffer_line, len);
   len = sprintf (buffer_line, " %-12s %-12s %-12s %-12s %-12s\r\n", "Wavelength", "element", "z", "istate",  "PhotInfo");

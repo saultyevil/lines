@@ -34,4 +34,8 @@ typedef struct
  *
  * ************************************************************************** */
 
+// TODO clean up includes for final release
+
+#include <menu.h>
+#include <curses.h>
 #include "functions.h"
