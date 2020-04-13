@@ -13,10 +13,5 @@ $ make
 
 ## Usage
 
-`lines [-h] data wmin wmax`
-
-* [-h]: print this message and exit
-* data: the path to the Python data master file to use
-* wmin: the lower wavelength boundary
-* wmax: the upper wavelength boundary
+Doesn't work right now because of the WIP UI and I forgot to make a branch! :-(
 
