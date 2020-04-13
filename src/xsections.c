@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 #include "atomic.h"
-#include "pyAtomic.h"
+#include "atomix.h"
 
 /* ************************************************************************** */
 /**

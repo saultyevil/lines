@@ -15,7 +15,6 @@ int Log_parallel(char *format, ...);
 int Debug(char *format, ...);
 void Exit(int error_code);
 /* main.c */
-void parse_input(int argc, char *argv[], char *fname, double *wmin, double *wmax);
 int main(int argc, char *argv[]);
 /* read_atomic_data.c */
 int get_atomic_data(char masterfile[]);
@@ -32,9 +31,16 @@ double upsilon(int n_coll, double u0);
 int fraction(double value, double array[], int npts, int *ival, double *f, int mode);
 int linterp(double x, double xarray[], double yarray[], int xdim, double *y, int mode);
 /* tools.c */
+void parse_input(int argc, char *argv[], char *fname, double *wmin, double *wmax);
 void get_element_name(int z, char *element);
 void display_text_buffer(ScreenBuffer_t *sb);
 void append_to_buffer(ScreenBuffer_t *sb, char *s, size_t len);
 void print_separator(ScreenBuffer_t *sb);
+/* ui.c */
+void init_ncurses_screen (void);
+void clean_ncurses_screen (void);
+void write_banner(void);
+int main_menu (int current_index);
+void process_main_menu_choices (int choice);
 /* xsections.c */
 void query_photoionization_cross_sections(ScreenBuffer_t *sb, double wmin, double wmax);

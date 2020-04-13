@@ -10,12 +10,65 @@
  *
  * ************************************************************************** */
 
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "atomic.h"
-#include "pyAtomic.h"
+#include "atomix.h"
+
+/* ************************************************************************* */
+/**
+ * @brief   Parse inputs from the command line.
+ *
+ * @param[in]        argc   The number of arguments provided.
+ * @param[in, out]   argv   The arguments provided.
+ * @param[in, out]   fname  The name of the Python data master file.
+ * @param[in, out]   wmin   The lower wavelength boundary.
+ * @param[in, out]   wmax   The upper wavelength boundary.
+ *
+ * @return          void
+ *
+ * @details
+ *
+ * Variables are returned from this function via pointers. If the incorrect
+ * number of arguments are passed, then the program should exit.
+ *
+ * ### Programming Notes ###
+ *
+ * Nothing has been done to check the input or order of the arguments, so good
+ * luck!
+ *
+ * ************************************************************************** */
+
+void
+parse_input (int argc, char *argv[], char *fname, double *wmin, double *wmax)
+{
+  char *help = "The purpose of this program is to query the line transitions between two provided wavelength "
+               "boundaries.\n\n"
+               " Usage:  lines [-h] data wmin wmax\n\n"
+               "  [-h]: print this message and exit\n"
+               "  data: the path to the Python data master file to use\n"
+               "  wmin: the lower wavelength boundary\n"
+               "  wmax: the upper wavelength boundary\n";
+
+  double tmp;
+
+  if (argc == 2 && strcmp (argv[1], "-h") == 0)
+  {
+    Log ("%s", help);
+    exit (EXIT_SUCCESS);
+  }
+  else if (argc != 4)
+  {
+    Log ("Incorrect parameters provided: expected 3 parameters\n");
+    Log ("\n%s", help);
+    exit (EXIT_FAILURE);
+  }
+
+  strcpy (fname, argv[1]);
+  *wmin = atof (argv[2]);  // TODO: one should probably error check this
+  *wmax = atof (argv[3]);
+}
 
 /* ************************************************************************** */
 /**

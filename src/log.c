@@ -116,7 +116,7 @@ int nerrors;
 
 FILE *diagptr;
 int init_log = 0;
-int log_verbosity = 2;          // A parameter which can be used to suppress what would normally be logged or printed
+int log_verbosity = 0;          // A parameter which can be used to suppress what would normally be logged or printed
 
 /**********************************************************/
 /**
