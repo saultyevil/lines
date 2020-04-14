@@ -80,8 +80,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <math.h>
-#include "log.h"
+
+#include "log_functions.h"
 
 #define LINELENGTH 256
 #define NERROR_MAX 500          // Number of different errors that are recorded
@@ -116,7 +116,7 @@ int nerrors;
 
 FILE *diagptr;
 int init_log = 0;
-int log_verbosity = 0;          // A parameter which can be used to suppress what would normally be logged or printed
+int log_verbosity = 3;          // A parameter which can be used to suppress what would normally be logged or printed
 
 /**********************************************************/
 /**
@@ -136,8 +136,8 @@ Log_init (filename)
 {
   if ((diagptr = fopen (filename, "w")) == NULL)
   {
-    printf ("Yikes: could not even open log file %s\n", filename);
-    Exit (0);
+    // printf ("Yikes: could not even open log file %s\n", filename);
+    exit (0);
   }
   init_log = 1;
 
@@ -146,8 +146,8 @@ Log_init (filename)
 
   if (errorlog == NULL)
   {
-    printf ("There is a problem in allocating memory for the errorlog structure\n");
-    Exit (0);
+    // printf ("There is a problem in allocating memory for the errorlog structure\n");
+    exit (0);
   }
 
   return (0);
@@ -206,8 +206,8 @@ Log (char *format, ...)
   va_start (ap, format);
   va_copy (ap2, ap);            /* ap is not necessarily preserved by vprintf */
 
-  if (my_rank == 0)
-    result = vprintf (format, ap);
+  // if (my_rank == 0)
+  //   result = vprintf (format, ap);
   result = vfprintf (diagptr, format, ap2);
   va_end (ap);
   return (result);
@@ -282,8 +282,8 @@ Error (char *format, ...)
 
   va_start (ap, format);
   va_copy (ap2, ap);            /*NSH 121212 - Line added to allow error logging to work */
-  if (my_rank == 0)             // only want to print errors if master thread
-    result = vprintf (format, ap);
+  // if (my_rank == 0)             // only want to print errors if master thread
+  //   result = vprintf (format, ap);
 
   fprintf (diagptr, "Error: ");
   result = vfprintf (diagptr, format, ap2);
@@ -325,8 +325,8 @@ Error_silent (char *format, ...)
   va_start (ap, format);
   va_copy (ap2, ap);            /* ap is not necessarily preserved by vprintf */
 
-  if (my_rank == 0)             // only want to print errors if master thread
-    result = vprintf (format, ap);
+  // if (my_rank == 0)             // only want to print errors if master thread
+  //   result = vprintf (format, ap);
   fprintf (diagptr, "Error: ");
   result = vfprintf (diagptr, format, ap2);
   va_end (ap);
@@ -380,9 +380,9 @@ error_count (char *format)
     }
     else
     {
-      printf ("Exceeded number of different errors that can be stored\n");
+      // printf ("Exceeded number of different errors that can be stored\n");
       error_summary ("Quitting because there are too many differnt types of errors\n");
-      Exit (0);
+      exit (0);
     }
   }
   else
@@ -393,7 +393,7 @@ error_count (char *format)
     if (n == max_errors)
     {
       error_summary ("Something is drastically wrong for any error to occur so much!\n");
-      Exit (0);
+      exit (0);
     }
   }
   return (n + 1);
@@ -532,7 +532,7 @@ Log_parallel (char *format, ...)
   va_start (ap, format);
   va_copy (ap2, ap);
 
-  result = vprintf (format, ap);
+  // result = vprintf (format, ap);
 
   fprintf (diagptr, "Para: ");
   result = vfprintf (diagptr, format, ap2);
@@ -578,8 +578,8 @@ Debug (char *format, ...)
 
   va_start (ap, format);
   va_copy (ap2, ap);
-  if (my_rank == 0)
-    vprintf ("Debug: ", ap);
+  // if (my_rank == 0)
+  //   vprintf ("Debug: ", ap);
   result = vprintf (format, ap);
   fprintf (diagptr, "Debug: ");
   result = vfprintf (diagptr, format, ap2);
@@ -616,7 +616,7 @@ Exit (int error_code)
 {
   if (error_code == 0)
   {
-    Log_parallel ("!!Exit: error codes should be non-zero!\n", my_rank);
+    Log_parallel ("!!exit: error codes should be non-zero!\n", my_rank);
     error_code = EXIT_FAILURE;
   }
 

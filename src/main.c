@@ -13,26 +13,28 @@
 
 #include "ui.h"
 #include "atomix.h"
-#include "atomic.h"
 
 /* ************************************************************************** */
 /**
+ * TODO: this is not optimal
  *
  * ************************************************************************** */
 
 char *MAIN_MENU_CHOICES[] = {
   "Bound-Bound Lines",
   "Photoionization Cross Sections",
+  "Switch Atomic Data",
   "Exit",
   NULL
 };
 
 enum MAIN_MENU_CHOICES_ENUM
 {
-  BOUND_BOUND      = 0,
-  PHOTOIONIZATION  = 1,
-  EXIT             = 2,
-  NCHOICES         = 3
+  BOUND_BOUND,
+  PHOTOIONIZATION,
+  SWITCH_ATOMIC_DATA,
+  EXIT,
+  NCHOICES
 };
 
 const int MAIN_MENU_NCHOICES = ARRAY_SIZE (MAIN_MENU_CHOICES);
@@ -89,6 +91,9 @@ process_main_menu_choices (int choice)
     case PHOTOIONIZATION:
       photoionization_home_menu ();
       break;
+    case SWITCH_ATOMIC_DATA:
+      query_atomic_data ();
+      break;
     case EXIT:
       clean_ncurses_screen ();
       exit (0);
@@ -113,34 +118,40 @@ process_main_menu_choices (int choice)
 int
 main (int argc, char *argv[])
 {
-  int the_choice;
-  double wmin, wmax;
-  char atomic_data_name[LINELEN];
-  ScreenBuffer_t sb = SB_INIT;
+  int main_menu_choice;
 
   /*
-   * Initialise the output file and read in the atomic data files
+   * Initialise the log file, this should put AT LEAST the atomic data
+   * diagnostics into the logfile
    */
 
   Log_init ("atomix.out.txt");
-  parse_input (argc, argv, atomic_data_name, &wmin, &wmax);
-  if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
-    strcat (atomic_data_name, ".dat");
-  get_atomic_data (atomic_data_name);
+
+  /*
+   * Initialise ncurses, and draw the window border
+   */
 
   init_ncurses_screen ();
   write_banner_stdscr ();
 
   /*
-   * Handle the different queries
+   * Query the user for the atomic data file name, and read in that atomic
+   * data. If there is an error with reading the atomic data, then the error
+   * is handle in this function
    */
 
-  the_choice = 0;
+  query_atomic_data ();
+
+  /*
+   * Loops over the main menu until it's time to quit
+   */
+
+  main_menu_choice = 0;
   while (TRUE)
   {
-    if ((the_choice = main_menu (the_choice)) == QUIT)
+    if ((main_menu_choice = main_menu (main_menu_choice)) == QUIT)
       break;
-    process_main_menu_choices (the_choice);
+    process_main_menu_choices (main_menu_choice);
   }
 
   clean_ncurses_screen ();

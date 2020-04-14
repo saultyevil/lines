@@ -38,4 +38,9 @@ typedef struct
 
 #include <menu.h>
 #include <curses.h>
+
+#include "atomic.h"
+
+#include "log_functions.h"
+#include "atomic_functions.h"
 #include "functions.h"

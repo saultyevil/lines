@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 
-#include "atomic.h"
 #include "atomix.h"
 
 /* ************************************************************************** */
@@ -21,21 +20,24 @@
  *
  * @details
  *
+ * TODO add more bound-bound features
  *
  * ************************************************************************** */
 
 void
 bound_bound_home_menu (void)
 {
-  WINDOW *win;
-  ScreenBuffer_t sb = SB_INIT;
   double wmin, wmax;
+  ScreenBuffer_t sb = SB_INIT;
+
+  WINDOW *win;
 
   query_wavelength_range (&wmin, &wmax);
 
   create_sub_window (&win);
-  print_bound_bound_lines (&sb, wmin, wmax);
+  get_bound_bound_lines (&sb, wmin, wmax);
   display_text_buffer (&sb, win, 0, 0);
+
   wgetch (win);
 
   delwin (win);
@@ -56,7 +58,7 @@ bound_bound_home_menu (void)
  * ************************************************************************** */
 
 void
-print_bound_bound_lines (ScreenBuffer_t *sb, double wmin, double wmax)
+get_bound_bound_lines (ScreenBuffer_t *sb, double wmin, double wmax)
 {
   int i;
   int len;

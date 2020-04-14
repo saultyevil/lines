@@ -8,6 +8,7 @@
  *
  * ************************************************************************** */
 
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <curses.h>
@@ -107,6 +108,27 @@ write_banner_stdscr (void)
  *
  * @details
  *
+ * TODO add variable argument code
+ *
+ * ************************************************************************** */
+
+
+void
+bold_message (WINDOW *win, int y, int x, char *msg, ...)
+{
+  wattron (win, A_BOLD);
+  mvwprintw (win, y, x, "%s", msg);
+  wattroff (win, A_BOLD);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @return
+ *
+ * @details
+ *
  *
  * ************************************************************************** */
 
@@ -116,8 +138,6 @@ create_sub_window (WINDOW **win)
   const int winrowstart = 2;
   const int wincolstart = 2;
 
-  write_banner_stdscr ();
-
   if ((*win = newwin (MAX_ROWS, MAX_COLS, winrowstart, wincolstart)) == NULL)
   {
     clean_ncurses_screen ();
@@ -126,8 +146,84 @@ create_sub_window (WINDOW **win)
   }
 
   keypad (*win, TRUE);
-//  scrollok (*win, TRUE);
-  wrefresh (*win);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @return
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+void
+query_atomic_data (void)
+{
+  int err;
+  int valid = FALSE;
+  char atomic_data_name[LINELEN];
+
+  WINDOW *win;
+
+  echo ();
+
+  while (valid != TRUE)
+  {
+    create_sub_window (&win);
+    bold_message (win, 0, 0, "Please input the atomic data master file name:");
+    wmove (win, 2, 0);
+    wrefresh (win);
+
+    wscanw (win, "%s", atomic_data_name);
+    if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
+      strcat (atomic_data_name, ".dat");
+
+    if ((err = get_atomic_data (atomic_data_name)))
+    {
+      // TODO increase verbosity of error messages, i.e. write out actual error
+      mvwprintw (win, 4, 0, "!! Invalid atomic data provided, try again.");
+      mvwprintw (win, 5, 0, "!! Atomic data error %i\n", err);
+      sleep (2);
+    }
+    else
+    {
+      // TODO write out atomic data diagnostic output to screen
+      valid = TRUE;
+    }
+
+    wrefresh (win);
+    delwin (win);
+  }
+
+  noecho ();
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @return
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+double
+get_wavelength (WINDOW *win, char *msg, int y, int x, int len)
+{
+  double wl;
+
+  mvwprintw (win, y, x, "%s", msg);
+  wrefresh (win);
+  wscanw (win, "%lf", &wl);
+  mvwprintw (win, y, len, "%5.1f Angstroms", wl);
+  wrefresh (win);
+
+  return wl;
 }
 
 /* ************************************************************************** */
@@ -144,41 +240,20 @@ create_sub_window (WINDOW **win)
 void
 query_wavelength_range (double *wmin, double *wmax)
 {
-  int valid;
+  int valid = FALSE;
   WINDOW *win;
 
-  create_sub_window (&win);
-  wattron (win, A_BOLD);
-  mvwprintw (win, 0, 0, "Please input the wavelength range:");
-  wattroff (win, A_BOLD);
+  echo ();
 
-  valid = FALSE;
+  create_sub_window (&win);
+  bold_message (win, 0, 0, "Please input the wavelength range to query:");
+
   while (valid != TRUE)
   {
-    /*
-     * Get minimum wavelength range
-     */
+    *wmin = get_wavelength (win, "Minimum wavelength range: ", 2, 0, 26);
+    *wmax = get_wavelength (win, "Maximum wavelength range: ", 3, 0, 26);
 
-    mvwprintw (win, 2, 0, "Minimum wavelength range: ");
-    wrefresh (win);
-    wscanw (win, "%lf", wmin);
-    mvwprintw (win, 2, 26, "%5.1f Angstroms", *wmin);
-
-    /*
-     * Get maximum wavelength range
-     */
-
-    mvwprintw (win, 3, 0, "Maximum wavelength range: ");
-    wrefresh (win);
-    wscanw (win, "%lf", wmax);
-    mvwprintw (win, 3, 26, "%5.1f Angstroms", *wmax);
-    wrefresh (win);
-
-    /*
-     * TODO: wait or press key to continue
-     */
-
-    wattron (win, A_BOLD);
+    // TODO: some scheme for either waiting or pressing a key
 
     if (*wmax > *wmin)
     {
@@ -193,8 +268,106 @@ query_wavelength_range (double *wmin, double *wmax)
       wrefresh (win);
       sleep (2);
     }
-    wattroff (win, A_BOLD);
   }
 
   delwin (win);
+  noecho ();
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @param[in] sb
+ *
+ * @return void
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+display_text_buffer (ScreenBuffer_t *sb, WINDOW *win, int y, int x)
+{
+  // TODO: Probably not the best thing to do - print error message in future
+  if (!sb->buffer)
+    return;
+
+  mvwprintw (win, y, x, "%s", sb->buffer);
+  wrefresh (win);
+  free (sb->buffer);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @param[in,out] sb
+ * @param[in]     s
+ * @param[in]     len
+ *
+ * @return void
+ *
+ * @details
+ *
+ * TODO variable argument input and using sprintf would be easier and make nicer code
+ *
+ * ************************************************************************** */
+
+void
+append_to_buffer (ScreenBuffer_t *sb, char *s, size_t len)
+{
+  char *new;
+  new = realloc (sb->buffer, sb->len + len);
+
+  if (!new)
+  {
+    clean_ncurses_screen ();
+    printf ("\nUnable to add additional text to the output buffer :-(\n");
+    exit (1);
+  }
+
+  memcpy (&new[sb->len], s, len);
+  sb->buffer = new;
+  sb->len += len;
+}
+
+/* ************************************************************************* */
+/**
+ * @brief   Print a line of dashes to the screen.
+ *
+ * @param[in,out]  sb   The screen buffer to append to, can be NULL
+ *
+ * @details
+ *
+ * The number of dashes is controlled by the constant ndash.
+ *
+ * ************************************************************************** */
+
+void
+append_separator (ScreenBuffer_t *sb)
+{
+  int i;
+  const int ndash = 84;
+
+  for (i = 0; i < ndash; ++i)
+  {
+    if (sb)
+    {
+      append_to_buffer (sb, "-", 1);
+    }
+    else
+    {
+      Log ("-");
+    }
+  }
+
+  if (sb)
+  {
+    append_to_buffer (sb, "\n", 1);
+  }
+  else
+  {
+    Log ("\n");
+  }
 }

@@ -7,7 +7,6 @@ set(SOURCE_FILES
         src/atomic.h
         src/functions.h
         src/atomix.h
-        src/log.h
         src/log.c
         src/main.c
         src/read_atomic_data.c
