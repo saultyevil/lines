@@ -19,9 +19,10 @@ Tidal Disruption Events.
 `atomix` uses the [ncurses](https://en.wikipedia.org/wiki/Ncurses) library to
 create a basic UI which is navigated using the keyboard.
 
-As of current `atomix` will only work on Linux, this is because it's beyond my
-level of sorcery and effort levels to write a CMake configuration file for it to
-compile on macOS, see this [StackOverflow post](https://stackoverflow.com/questions/56622042/clang-on-macos-fails-linking-lmenu-from-ncurses/56623033?noredirect=1#comment99833073_56623033) for an idea why.
+As of current `atomix` will, or should, work on both linux and macOS. For Linux,
+please use the most up-to-date development version of `libncurses5-dev` and
+`libncursesw5-dev`. On macOS, install the `ncurses` package in Homebrew (or your
+other favourite package manager).
 
 But, if you are on Linux, you can use CMake to build this program, usually as
 follows:
@@ -42,6 +43,5 @@ Here are some of the current plans for future development:
 * Improved and consistent UI design*
 * Scrollable lists
 * Other atomic features to search, i.e. levels, configurations
-* masOS support*
 
 *If we are lucky ;-)
