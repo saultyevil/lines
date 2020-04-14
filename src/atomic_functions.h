@@ -1,4 +1,4 @@
-/* read_atomic_data.c */
+/* ../src/read_atomic_data.c */
 int get_atomic_data(char masterfile[]);
 int index_lines(void);
 int index_phot_top(void);

@@ -16,7 +16,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "ui.h"
 #include "atomic.h"
 #include "atomic_functions.h"
 #include "log_functions.h"

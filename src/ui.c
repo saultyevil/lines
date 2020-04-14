@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <curses.h>
 
-#include "ui.h"
 #include "atomix.h"
 
 /* ************************************************************************** */

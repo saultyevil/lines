@@ -5,8 +5,6 @@ set(CMAKE_C_STANDARD 99)
 # Add main.cpp file of project root directory as source file
 set(SOURCE_FILES
         src/atomic.h
-        src/functions.h
-        src/atomix.h
         src/log.c
         src/main.c
         src/read_atomic_data.c
@@ -14,7 +12,6 @@ set(SOURCE_FILES
         src/xsections.c
         src/tools.c
         src/ui.c
-        src/ui.h
         src/menu.c)
 
 find_package(Curses REQUIRED)

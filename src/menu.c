@@ -12,7 +12,6 @@
 #include <curses.h>
 #include <menu.h>
 
-#include "ui.h"
 #include "atomix.h"
 
 /* ************************************************************************** */
@@ -114,7 +113,7 @@ control_menu (MENU *menu, int c)
  * ************************************************************************** */
 
 int
-goto_menu (char *menu_message, char **menu_items, int nitems, int current_index)
+create_menu (char *menu_message, char **menu_items, int nitems, int current_index)
 {
   int i, c;
   int the_choice;

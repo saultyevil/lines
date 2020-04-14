@@ -11,7 +11,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "ui.h"
 #include "atomix.h"
 
 /* ************************************************************************** */
@@ -63,8 +62,8 @@ main_menu (int current_index)
 {
   int choice;
 
-  choice = goto_menu ("What do you want to inspect?:", MAIN_MENU_CHOICES, MAIN_MENU_NCHOICES,
-                      current_index);
+  choice = create_menu ("What do you want to inspect?:", MAIN_MENU_CHOICES, MAIN_MENU_NCHOICES,
+                        current_index);
 
   return choice;
 }
