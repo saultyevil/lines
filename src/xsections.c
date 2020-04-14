@@ -26,7 +26,19 @@
 void
 photoionization_home_menu (void)
 {
+  double wmin, wmax;
+  Line_t sb = LINE_INIT;
 
+  WINDOW *win;
+
+  query_wavelength_range (&wmin, &wmax);
+
+  create_sub_window (&win);
+  get_photoionization_cross_sections (&sb, wmin, wmax);
+  display_text_buffer (&sb, win, 0, 0);
+
+  wgetch (win);
+  delwin (win);
 }
 
 
@@ -44,24 +56,22 @@ photoionization_home_menu (void)
  * ************************************************************************** */
 
 void
-query_photoionization_cross_sections (Line_t *sb, double wmin, double wmax)
+get_photoionization_cross_sections (Line_t *sb, double wmin, double wmax)
 {
   int i;
-  int len;
   int z, istate, phot_info;
   double wavelength;
   double fmin, fmax, fthreshold;
   char element[LINELEN];
-  char buffer_line[LINELEN];
+  const int ndashes = 64;
 
-  fmax = C / (wmin  * ANGSTROM);
+  fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
-  append_separator (sb, 0);
-  len = sprintf (buffer_line, "Photoionization Cross Sections\r\n");
-  add_to_buffer (sb, buffer_line, len);
-  len = sprintf (buffer_line, " %-12s %-12s %-12s %-12s %-12s\r\n", "Wavelength", "element", "z", "istate",  "PhotInfo");
-  add_to_buffer (sb, buffer_line, len);
+  append_to_buffer (sb, "Photoionization Cross Sections\n");
+  append_separator_to_buffer (sb, ndashes);
+  append_to_buffer (sb, " %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "PhotInfo");
+  append_separator_to_buffer (sb, ndashes);
 
   for (i = 0; i < NLEVELS; ++i)
   {
@@ -73,8 +83,9 @@ query_photoionization_cross_sections (Line_t *sb, double wmin, double wmax)
       phot_info = ion[phot_top[i].nion].phot_info;
       wavelength = const_C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
       get_element_name (z, element);
-      len = sprintf (buffer_line, " %-12f %-12s %-12i %-12i %-12i\r\n", wavelength, element, z, istate, phot_info);
-      add_to_buffer (sb, buffer_line, len);
+      append_to_buffer (sb, " %-12f %-12s %-12i %-12i %-12i\n", wavelength, element, z, istate, phot_info);
     }
   }
+
+  append_separator_to_buffer (sb, ndashes);
 }

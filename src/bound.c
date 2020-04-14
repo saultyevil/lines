@@ -48,7 +48,6 @@ bound_bound_main_menu (void)
   display_text_buffer (&sb, win, 0, 0);
 
   wgetch (win);
-
   delwin (win);
 }
 
@@ -71,21 +70,17 @@ void
 get_bound_bound_lines (Line_t *sb)
 {
   int i;
-  int len;
   const int ndashes = 86;
   int z, istate, nion;
   int levu, levl;
   double wl;
   char element[LINELEN];
-  char buffer_line[LINELEN];
 
-  len = sprintf (buffer_line, "Bound-Bound Lines\n\n");
-  add_to_buffer (sb, buffer_line, len);
-  append_separator (sb, ndashes);
-  len = sprintf (buffer_line, " %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "element", "z",
-                 "istate", "levu", "levl", "nion");
-  add_to_buffer (sb, buffer_line, len);
-  append_separator (sb, ndashes);
+  append_to_buffer (sb, "Bound-Bound Lines\n");
+  append_separator_to_buffer (sb, ndashes);
+  append_to_buffer (sb, " %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "levu",
+                    "levl", "nion");
+  append_separator_to_buffer (sb, ndashes);
 
   for (i = nline_min; i < nline_max; ++i)
   {
@@ -96,11 +91,8 @@ get_bound_bound_lines (Line_t *sb)
     nion = lin_ptr[i]->nion;
     wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
     get_element_name (z, element);
-
-    len = sprintf (buffer_line, " %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu,
-                   levl, nion);
-    add_to_buffer (sb, buffer_line, len);
+    append_to_buffer (sb, " %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu, levl, nion);
   }
 
-  append_separator (sb, ndashes);
+  append_separator_to_buffer (sb, ndashes);
 }

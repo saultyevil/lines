@@ -8,8 +8,11 @@
  *
  * Functions for creating the ncurses ui.
  *
+
  * ************************************************************************** */
 
+#include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -232,6 +235,8 @@ query_atomic_data (void)
  * Originally a function to avoid code duplication. The input value should be
  * echo'd back to the user, but once the value will be updated on the screen.
  *
+ * TODO check for empty input
+ *
  * ************************************************************************** */
 
 double
@@ -258,7 +263,8 @@ get_wavelength (WINDOW *win, char *msg, int y, int x, int len)
  * @details
  *
  * This function will keep looping until either the user quits, or until the
- * input is correct; i.e., wmin < wmax.
+ * input is correct; i.e., wmin < wmax. Echo mode is temporarily turned on for
+ * this function, so the user can see what they are typing.
  *
  * TODO graceful exit of this function
  *
@@ -272,11 +278,11 @@ query_wavelength_range (double *wmin, double *wmax)
 
   echo ();
 
-  create_sub_window (&win);
-  bold_message (win, 0, 0, "Please input the wavelength range to query:");
-
   while (valid != TRUE)
   {
+    create_sub_window (&win);
+    bold_message (win, 0, 0, "Please input the wavelength range to query:");
+
     *wmin = get_wavelength (win, "Minimum wavelength range: ", 2, 0, 26);
     *wmax = get_wavelength (win, "Maximum wavelength range: ", 3, 0, 26);
 
@@ -287,17 +293,17 @@ query_wavelength_range (double *wmin, double *wmax)
       valid = TRUE;
       mvwprintw (win, 5, 0, "Wavelength input accepted.");
       wrefresh (win);
-      sleep (2);
     }
     else
     {
       mvwprintw (win, 5, 0, "Invalid input, the minimum wavelength should be smaller than the maximum. Try again!");
       wrefresh (win);
-      sleep (2);
     }
+
+    sleep (2);
+    delwin (win);
   }
 
-  delwin (win);
   noecho ();
 }
 
@@ -320,6 +326,7 @@ display_text_buffer (Line_t *sb, WINDOW *win, int y, int x)
   if (!sb->buffer)
     return;
 
+  // TODO center the message
   mvwprintw (win, y, x, "%s", sb->buffer);
   wrefresh (win);
   free (sb->buffer);
@@ -331,30 +338,35 @@ display_text_buffer (Line_t *sb, WINDOW *win, int y, int x)
  *
  * @param[in,out] sb
  * @param[in]     s
- * @param[in]     len
+ * @param[in]     ...
  *
  * @return void
  *
  * @details
  *
- * TODO variable argument input and using sprintf would be easier and make nicer code
- *
  * ************************************************************************** */
 
 void
-add_to_buffer (Line_t *sb, char *s, size_t len)
+append_to_buffer (Line_t *sb, char *s, ...)
 {
+  int len;
   char *new;
+  char msg[LINELEN];
+  va_list args;
+
+  va_start (args, s);
+  len = vsprintf (msg, s, args);
   new = realloc (sb->buffer, sb->len + len);
+  va_end (args);
 
   if (!new)
   {
     clean_ncurses_screen ();
-    printf ("\nUnable to add additional text to the output buffer :-(\n");
+    printf ("BIG ERROR: Unable to add additional text to the output buffer :-(\n");
     exit (1);
   }
 
-  memcpy (&new[sb->len], s, len);
+  memcpy (&new[sb->len], msg, len);
   sb->buffer = new;
   sb->len += len;
 }
@@ -366,17 +378,19 @@ add_to_buffer (Line_t *sb, char *s, size_t len)
  * @param[in,out]  sb   The screen buffer to append to, can be NULL
  * @param[in]      len  The number of dashes to draw.
  *
+ * @details
+ *
  * ************************************************************************** */
 
 void
-append_separator (Line_t *sb, const int len)
+append_separator_to_buffer (Line_t *sb, const int len)
 {
   int i;
   char tmp[len + 1];
 
   for (i = 0; i < len; ++i)
-    strcpy (&tmp[i], "-");
-  strcpy (&tmp[len], "\n");
+    memcpy (&tmp[i], "-", 1);
+  memcpy (&tmp[len], "\n", 2);
 
-  add_to_buffer (sb, tmp, len + 1);
+  append_to_buffer (sb, tmp, len + 1);
 }

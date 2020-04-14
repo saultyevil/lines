@@ -11,6 +11,7 @@
  *
  * ************************************************************************** */
 
+#include <string.h>
 #include <stdlib.h>
 #include <curses.h>
 #include <menu.h>
@@ -124,13 +125,14 @@ int
 create_menu (char *menu_message, char **menu_items, int nitems, int current_index)
 {
   int i, c;
+  int len;
   int the_choice;
 
   MENU *menu = NULL;
   ITEM **items = NULL;
-  WINDOW *win_menu = NULL;
+  WINDOW *win = NULL;
 
-  create_sub_window (&win_menu);
+  create_sub_window (&win);
 
   if (!(items = calloc (nitems, sizeof (ITEM *))))
   {
@@ -139,11 +141,14 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
     exit (EXIT_FAILURE);
   }
 
-  // TODO variable messages in bold_message
+  /*
+   * Pad the menu message to the center of the window
+   */
 
-  wattron (win_menu, A_BOLD);
-  mvwprintw (win_menu, 0, 0, "%s", menu_message);
-  wattroff (win_menu, A_BOLD);
+  len = (int) strlen (menu_message);
+  for (i = 0; i < COLS; i++)
+    mvprintw (0, i, " ");
+  bold_message (win, 0, COLS / 2 - len / 2 + 1, menu_message);
 
   /*
    * Populate the menu with items from MENU_CHOICES, set the description as the
@@ -158,10 +163,11 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
   /*
    * Set the menu formatting and place the cursor to the last chosen menu choice
    * using set_current_item
+   * TODO, figure out what this means again :-)
    */
 
-  set_menu_win (menu, win_menu);
-  set_menu_sub (menu, derwin (win_menu, MAX_ROWS_SUB_WIN - 2, MAX_COLS_SUB_WIN - 2, 2, 0));
+  set_menu_win (menu, win);
+  set_menu_sub (menu, derwin (win, MAX_ROWS_SUB_WIN - 2, MAX_COLS_SUB_WIN - 2, 2, 0));
   set_menu_format (menu, MAX_ROWS_SUB_WIN - 2, 2);
   set_menu_mark (menu, "* ");
 
@@ -171,27 +177,26 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
     current_index = 0;
 
   set_current_item (menu, items[current_index]);
-
   post_menu (menu);
-  wrefresh (win_menu);
+  wrefresh (win);
 
   the_choice = MENU_QUIT;
-  while ((c = wgetch (win_menu)) != 'q')
+  while ((c = wgetch (win)) != 'q')
   {
     the_choice = control_menu (menu, c);
-    wrefresh (win_menu);
+    wrefresh (win);
     if (the_choice != MENU_QUIT)
       break;
   }
 
   if (the_choice == nitems - 2)  // Quit is the 2nd last element
   {
-    clean_up_menu (menu, items, nitems, win_menu);
+    clean_up_menu (menu, items, nitems, win);
     clean_ncurses_screen ();
     exit (0);
   }
 
-  clean_up_menu (menu, items, nitems, win_menu);
+  clean_up_menu (menu, items, nitems, win);
 
   return the_choice;
 }

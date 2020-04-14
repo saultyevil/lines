@@ -41,8 +41,7 @@ enum MAIN_MENU_CHOICES_ENUM
   BOUND_BOUND,
   PHOTOIONIZATION,
   SWITCH_ATOMIC_DATA,
-  EXIT,
-  MAIN_MENU_NCHOICES
+  EXIT
 };
 
 int
@@ -50,7 +49,7 @@ main_menu (int current_index)
 {
   int choice;
 
-  choice = create_menu ("Main Menu", MAIN_MENU_CHOICES, MAIN_MENU_NCHOICES, current_index);
+  choice = create_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), current_index);
 
   return choice;
 }
@@ -106,6 +105,7 @@ int
 main (int argc, char *argv[])
 {
   int main_menu_choice;
+  int atomic_provided;
 
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
@@ -113,6 +113,7 @@ main (int argc, char *argv[])
    */
 
   Log_init ("atomix.out.txt");
+  atomic_provided = check_command_line (argc, argv);
 
   /*
    * Initialise ncurses, and draw the window border
@@ -127,16 +128,18 @@ main (int argc, char *argv[])
    * is handle in this function
    */
 
-  query_atomic_data ();
+  if (!atomic_provided)
+    query_atomic_data ();
 
   /*
    * Loops over the main menu until it's time to quit :^)
    */
 
-  main_menu_choice = 0;
+  main_menu_choice = MENU_QUIT;
   while (TRUE)
   {
-    if ((main_menu_choice = main_menu (main_menu_choice)) == MENU_QUIT)
+    main_menu_choice = main_menu (main_menu_choice);
+    if (main_menu_choice == MENU_QUIT)
       break;
     process_main_menu_choices (main_menu_choice);
   }

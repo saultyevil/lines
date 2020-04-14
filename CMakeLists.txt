@@ -12,7 +12,7 @@ set(SOURCE_FILES
         src/log.c
         src/main.c
         src/read_atomic_data.c
-        src/bound_bound.c
+        src/bound.c
         src/xsections.c
         src/tools.c
         src/ui.c

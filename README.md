@@ -41,6 +41,7 @@ To use `atomix`, one simply has to invoke atomix from the command line.
 Here are some of the current plans for future development:
 
 * Improved and consistent UI design*
+* Being able to resize the window without the background UI breaking 
 * Scrollable lists
 * Other atomic features to search, i.e. levels, configurations
 
