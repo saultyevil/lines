@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.0)
 project(atomix)
 set(CMAKE_C_STANDARD 99)
 
@@ -13,7 +13,9 @@ set(SOURCE_FILES
         src/lines.c
         src/xsections.c
         src/tools.c
-        src/ui.c src/ui.h src/menu.c)
+        src/ui.c
+        src/ui.h
+        src/menu.c)
 
 find_package(Curses REQUIRED)
 find_library(menu REQUIRED)
