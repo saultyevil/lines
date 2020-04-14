@@ -1,42 +1,64 @@
 /** ************************************************************************* */
 /**
- * @file
+ * @file     atomix.h
  * @author   Edward Parkinson
- * @date
+ * @date     April 2020
  *
  * @brief
  *
- * ************************************************************************** */
-
-/* ************************************************************************** */
-/**
+ * The main include file for atomix.
  *
  * ************************************************************************** */
 
-#define LINELEN 256
-#define const_C_SI 299792458
+/* ****************************************************************************
+ *
+ *                                  Macros
+ *
+ * ************************************************************************** */
 
-#define VERSION "3.0a"
-#define MAX_ROWS LINES - 4
-#define MAX_COLS COLS - 2
-#define QUIT -1
 #define ARRAY_SIZE(x) (sizeof x / sizeof x[0])
 
-/* ************************************************************************** */
-/**
+/* ****************************************************************************
+ *
+ *                                Constants
+ *
+ * ************************************************************************** */
+
+// UI Constants
+#define VERSION "3.0a"
+#define MAX_ROWS_SUB_WIN LINES - 4
+#define MAX_COLS_SUB_WIN COLS - 2
+#define MENU_QUIT -1
+
+// Various other constants
+#define const_C_SI 299792458
+#define LINELEN 256
+
+/* ****************************************************************************
+ *
+ *                                  Types
  *
  * ************************************************************************** */
 
 typedef struct
 {
-  size_t len;
-  char *buffer;
+  int nlines;
+  char **lines;
 } ScreenBuffer_t;
 
-#define SB_INIT {0, NULL}
+#define SB_INIT {0, NULL};
 
-/* ************************************************************************** */
-/**
+typedef struct
+{
+  size_t len;
+  char *buffer;
+} Line_t;
+
+#define LINE_INIT {0, NULL}
+
+/* ****************************************************************************
+ *
+ *                                  Macros
  *
  * ************************************************************************** */
 
@@ -47,6 +69,5 @@ typedef struct
 
 #include "atomic.h"
 
-#include "log_functions.h"
-#include "atomic_functions.h"
+#include "log.h"
 #include "functions.h"

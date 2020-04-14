@@ -44,7 +44,7 @@ photoionization_home_menu (void)
  * ************************************************************************** */
 
 void
-query_photoionization_cross_sections (ScreenBuffer_t *sb, double wmin, double wmax)
+query_photoionization_cross_sections (Line_t *sb, double wmin, double wmax)
 {
   int i;
   int len;
@@ -57,11 +57,11 @@ query_photoionization_cross_sections (ScreenBuffer_t *sb, double wmin, double wm
   fmax = C / (wmin  * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
-  append_separator (sb);
+  append_separator (sb, 0);
   len = sprintf (buffer_line, "Photoionization Cross Sections\r\n");
-  append_to_buffer (sb, buffer_line, len);
+  add_to_buffer (sb, buffer_line, len);
   len = sprintf (buffer_line, " %-12s %-12s %-12s %-12s %-12s\r\n", "Wavelength", "element", "z", "istate",  "PhotInfo");
-  append_to_buffer (sb, buffer_line, len);
+  add_to_buffer (sb, buffer_line, len);
 
   for (i = 0; i < NLEVELS; ++i)
   {
@@ -74,7 +74,7 @@ query_photoionization_cross_sections (ScreenBuffer_t *sb, double wmin, double wm
       wavelength = const_C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
       get_element_name (z, element);
       len = sprintf (buffer_line, " %-12f %-12s %-12i %-12i %-12i\r\n", wavelength, element, z, istate, phot_info);
-      append_to_buffer (sb, buffer_line, len);
+      add_to_buffer (sb, buffer_line, len);
     }
   }
 }

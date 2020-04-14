@@ -1,10 +1,12 @@
 /** ************************************************************************* */
 /**
- * @file
+ * @file     bound_bound.c
  * @author   Edward Parkinson
- * @date
+ * @date     April 2020
  *
  * @brief
+ *
+ * Functions for querying the bound-bound transitions within the atomic data.
  *
  * ************************************************************************** */
 
@@ -14,28 +16,35 @@
 
 /* ************************************************************************** */
 /**
- * @brief
- *
- * @return
- *
- * @details
+ * @brief  The main menu for bound bound transition queries.
  *
  * TODO add more bound-bound features
+ * @details
+ *
+ * This function uses limit_lines() in read_atomic_data.c to update the values
+ * of nline_min and nline_max. It iterates over the lin_ptr array.
+ *
+ * limit_lines() is not perfect and usually causes the program to return lines
+ * which are just a little out of the provided wavelength range.
  *
  * ************************************************************************** */
 
 void
-bound_bound_home_menu (void)
+bound_bound_main_menu (void)
 {
+  double fmin, fmax;
   double wmin, wmax;
-  ScreenBuffer_t sb = SB_INIT;
+  Line_t sb = LINE_INIT;
 
   WINDOW *win;
 
   query_wavelength_range (&wmin, &wmax);
+  fmax = C / (wmin  * ANGSTROM);
+  fmin = C / (wmax * ANGSTROM);
+  limit_lines (fmin, fmax);
 
   create_sub_window (&win);
-  get_bound_bound_lines (&sb, wmin, wmax);
+  get_bound_bound_lines (&sb);
   display_text_buffer (&sb, win, 0, 0);
 
   wgetch (win);
@@ -45,11 +54,12 @@ bound_bound_home_menu (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief          Retrieve the bound bound transitions in a given wavelength
+ *                 range.
  *
- * @param[in, out] sb
- * @param[in]      wmin
- * @param[in]      wmax
+ * @param[in, out] sb     The screen buffer to write to.
+ * @param[in]      wmin   The smallest wavelength transition to find.
+ * @param[in]      wmax   The largest wavelength transition to find.
  *
  * @return void
  *
@@ -58,27 +68,24 @@ bound_bound_home_menu (void)
  * ************************************************************************** */
 
 void
-get_bound_bound_lines (ScreenBuffer_t *sb, double wmin, double wmax)
+get_bound_bound_lines (Line_t *sb)
 {
   int i;
   int len;
-  int z, istate, levu, levl, nion;
+  const int ndashes = 86;
+  int z, istate, nion;
+  int levu, levl;
   double wl;
-  double fmin, fmax;
   char element[LINELEN];
   char buffer_line[LINELEN];
 
-  fmax = C / (wmin  * ANGSTROM);
-  fmin = C / (wmax * ANGSTROM);
-  limit_lines (fmin, fmax);
-
   len = sprintf (buffer_line, "Bound-Bound Lines\n\n");
-  append_to_buffer (sb, buffer_line, len);
-  append_separator (sb);
+  add_to_buffer (sb, buffer_line, len);
+  append_separator (sb, ndashes);
   len = sprintf (buffer_line, " %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "element", "z",
                  "istate", "levu", "levl", "nion");
-  append_to_buffer (sb, buffer_line, len);
-  append_separator (sb);
+  add_to_buffer (sb, buffer_line, len);
+  append_separator (sb, ndashes);
 
   for (i = nline_min; i < nline_max; ++i)
   {
@@ -92,8 +99,8 @@ get_bound_bound_lines (ScreenBuffer_t *sb, double wmin, double wmax)
 
     len = sprintf (buffer_line, " %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu,
                    levl, nion);
-    append_to_buffer (sb, buffer_line, len);
+    add_to_buffer (sb, buffer_line, len);
   }
 
-  append_separator (sb);
+  append_separator (sb, ndashes);
 }

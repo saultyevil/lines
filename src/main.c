@@ -15,7 +15,16 @@
 
 /* ************************************************************************** */
 /**
- * TODO: this is not optimal
+ * @brief      Displays the home menu containing all of the main programs.
+ *
+ * @param[in]  int current_index   The index referring to the previously chosen
+ *                                  menu entry
+ * @return     int choice          An integer referring to the chosen menu item
+ *
+ * @details
+ *
+ * This function is the main menu in atomix. It essentially, as well as
+ * process_main_menu_choices(), controls where the user will go next.
  *
  * ************************************************************************** */
 
@@ -33,49 +42,28 @@ enum MAIN_MENU_CHOICES_ENUM
   PHOTOIONIZATION,
   SWITCH_ATOMIC_DATA,
   EXIT,
-  NCHOICES
+  MAIN_MENU_NCHOICES
 };
-
-const int MAIN_MENU_NCHOICES = ARRAY_SIZE (MAIN_MENU_CHOICES);
-
-
-/* ************************************************************************** */
-/**
- *  @brief      Displays the home menu containing all of the main programs.
- *
- *  @param[in]  int current_index   The index referring to the previously chosen
- *                                  menu entry
- *  @return     int choice          An integer referring to the chosen menu item
- *
- *  @details
- *
- *  This function initialises a window and menu to display the options which are
- *  available in Py Wind. The user can use arrow keys and page up and page down
- *  to navigate the list and enter to select a choice. An integer referring to
- *  the internal index of the choice is returned. If the user press the q key,
- *  then the program is exited.
- *
- * ************************************************************************** */
 
 int
 main_menu (int current_index)
 {
   int choice;
 
-  choice = create_menu ("What do you want to inspect?:", MAIN_MENU_CHOICES, MAIN_MENU_NCHOICES,
-                        current_index);
+  choice = create_menu ("Main Menu", MAIN_MENU_CHOICES, MAIN_MENU_NCHOICES, current_index);
 
   return choice;
 }
 
 /* ************************************************************************** */
 /**
- *  @brief      Process the menu input choices.
+ * @brief      Process the menu input choices.
  *
- *  @param[in]  choice  The index for the menu choice
+ * @param[in]  choice  The index for the menu choice
  *
- *  @details
+ * @details
  *
+ * This function is used to take the user to other sections of atomix.
  *
  * ************************************************************************** */
 
@@ -85,7 +73,7 @@ process_main_menu_choices (int choice)
   switch (choice)
   {
     case BOUND_BOUND:
-      bound_bound_home_menu ();
+      bound_bound_main_menu ();
       break;
     case PHOTOIONIZATION:
       photoionization_home_menu ();
@@ -142,13 +130,13 @@ main (int argc, char *argv[])
   query_atomic_data ();
 
   /*
-   * Loops over the main menu until it's time to quit
+   * Loops over the main menu until it's time to quit :^)
    */
 
   main_menu_choice = 0;
   while (TRUE)
   {
-    if ((main_menu_choice = main_menu (main_menu_choice)) == QUIT)
+    if ((main_menu_choice = main_menu (main_menu_choice)) == MENU_QUIT)
       break;
     process_main_menu_choices (main_menu_choice);
   }

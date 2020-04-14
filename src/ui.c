@@ -1,10 +1,12 @@
 /** ************************************************************************* */
 /**
- * @file
+ * @file     ui.c
  * @author   Edward Parkinson
- * @date
+ * @date     April 2020
  *
  * @brief
+ *
+ * Functions for creating the ncurses ui.
  *
  * ************************************************************************** */
 
@@ -101,11 +103,19 @@ write_banner_stdscr (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief      Write a bold message in the current window.
  *
- * @return
+ * @param[in]  win    The window to write the bold message in.
+ * @param[in]  y      The y location of the message.
+ * @param[in]  x      The x location of the message.
+ * @param[in]  msg    The message to be display.
+ * @param[in]  ...    The variable arguments for the message.
  *
  * @details
+ *
+ * Simply acts as a wrapper function to write a bold message. Should usually
+ * only be used for a single message which is being made bold, otherwise you
+ * may encounter performance issues.
  *
  * TODO add variable argument code
  *
@@ -122,12 +132,14 @@ bold_message (WINDOW *win, int y, int x, char *msg, ...)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief         Create a sub-window placed ontop of the main stdscr.
  *
- * @return
+ * @param[in,out] win   A pointer to the new window.
  *
  * @details
  *
+ * Generic functions which creates a sub-window of a generic size. This is a
+ * window which has a surrounding border.
  *
  * ************************************************************************** */
 
@@ -137,7 +149,7 @@ create_sub_window (WINDOW **win)
   const int winrowstart = 2;
   const int wincolstart = 2;
 
-  if ((*win = newwin (MAX_ROWS, MAX_COLS, winrowstart, wincolstart)) == NULL)
+  if ((*win = newwin (MAX_ROWS_SUB_WIN, MAX_COLS_SUB_WIN, winrowstart, wincolstart)) == NULL)
   {
     clean_ncurses_screen ();
     printf ("BIG ERROR: Unable to allocate memory for menu screen\n");
@@ -149,19 +161,21 @@ create_sub_window (WINDOW **win)
 
 /* ************************************************************************** */
 /**
- * @brief
- *
- * @return
+ * @brief     Query the user for the atomic data name.
  *
  * @details
  *
+ * Will keep asking the user for an atomic data name until the data can be read
+ * in without error, or until the user quits the program.
+ *
+ * TODO graceful exit for this function - q key?
  *
  * ************************************************************************** */
 
 void
 query_atomic_data (void)
 {
-  int err;
+  int atomic_data_error;
   int valid = FALSE;
   char atomic_data_name[LINELEN];
 
@@ -180,11 +194,13 @@ query_atomic_data (void)
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
       strcat (atomic_data_name, ".dat");
 
-    if ((err = get_atomic_data (atomic_data_name)))
+    atomic_data_error = get_atomic_data (atomic_data_name);
+
+    if (atomic_data_error)
     {
       // TODO increase verbosity of error messages, i.e. write out actual error
       mvwprintw (win, 4, 0, "!! Invalid atomic data provided, try again.");
-      mvwprintw (win, 5, 0, "!! Atomic data error %i\n", err);
+      mvwprintw (win, 5, 0, "!! Atomic data error %i\n", atomic_data_error);
       sleep (2);
     }
     else
@@ -202,12 +218,19 @@ query_atomic_data (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief      Query a wavelength value from the user.
  *
- * @return
+ * @param[in]  win  The window to place the query in.
+ * @param[in]  msg  A message to prompt the user what to input.
+ * @param[in]  y    The y location of the prompt message.
+ * @param[in]  x    The x location of the prompt message.
+ *
+ * @return     The wavelength input by the user.
  *
  * @details
  *
+ * Originally a function to avoid code duplication. The input value should be
+ * echo'd back to the user, but once the value will be updated on the screen.
  *
  * ************************************************************************** */
 
@@ -227,12 +250,17 @@ get_wavelength (WINDOW *win, char *msg, int y, int x, int len)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief       Get the wavelength range to consider.
  *
- * @return
+ * @param[out]  wmin   The smallest wavelength transition to find.
+ * @param[out]  wmax   The largest wavelength transition to find.
  *
  * @details
  *
+ * This function will keep looping until either the user quits, or until the
+ * input is correct; i.e., wmin < wmax.
+ *
+ * TODO graceful exit of this function
  *
  * ************************************************************************** */
 
@@ -286,7 +314,7 @@ query_wavelength_range (double *wmin, double *wmax)
  * ************************************************************************** */
 
 void
-display_text_buffer (ScreenBuffer_t *sb, WINDOW *win, int y, int x)
+display_text_buffer (Line_t *sb, WINDOW *win, int y, int x)
 {
   // TODO: Probably not the best thing to do - print error message in future
   if (!sb->buffer)
@@ -314,7 +342,7 @@ display_text_buffer (ScreenBuffer_t *sb, WINDOW *win, int y, int x)
  * ************************************************************************** */
 
 void
-append_to_buffer (ScreenBuffer_t *sb, char *s, size_t len)
+add_to_buffer (Line_t *sb, char *s, size_t len)
 {
   char *new;
   new = realloc (sb->buffer, sb->len + len);
@@ -333,40 +361,22 @@ append_to_buffer (ScreenBuffer_t *sb, char *s, size_t len)
 
 /* ************************************************************************* */
 /**
- * @brief   Print a line of dashes to the screen.
+ * @brief          Add a line of dashes to the screen buffer.
  *
  * @param[in,out]  sb   The screen buffer to append to, can be NULL
- *
- * @details
- *
- * The number of dashes is controlled by the constant ndash.
+ * @param[in]      len  The number of dashes to draw.
  *
  * ************************************************************************** */
 
 void
-append_separator (ScreenBuffer_t *sb)
+append_separator (Line_t *sb, const int len)
 {
   int i;
-  const int ndash = 84;
+  char tmp[len + 1];
 
-  for (i = 0; i < ndash; ++i)
-  {
-    if (sb)
-    {
-      append_to_buffer (sb, "-", 1);
-    }
-    else
-    {
-      Log ("-");
-    }
-  }
+  for (i = 0; i < len; ++i)
+    strcpy (&tmp[i], "-");
+  strcpy (&tmp[len], "\n");
 
-  if (sb)
-  {
-    append_to_buffer (sb, "\n", 1);
-  }
-  else
-  {
-    Log ("\n");
-  }
+  add_to_buffer (sb, tmp, len + 1);
 }

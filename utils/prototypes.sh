@@ -1,4 +1,3 @@
 #!/bin/bash
-cproto ../src/lines.c ../src/main.c ../src/menu.c ../src/tools.c ../src/ui.c ../src/xsections.c > ../src/functions.h
-cproto ../src/read_atomic_data.c > ../src/atomic_functions.h
-cproto ../src/log.c > ../src/log_functions.h
+cproto lines.c main.c menu.c tools.c ui.c xsections.c read_atomic_data.c > functions.h
+cproto log.c > log.h

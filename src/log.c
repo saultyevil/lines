@@ -81,7 +81,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "log_functions.h"
+#include "log.h"
 
 #define LINELENGTH 256
 #define NERROR_MAX 500          // Number of different errors that are recorded

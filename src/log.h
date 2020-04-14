@@ -1,4 +1,4 @@
-/* ../src/log.c */
+/* log.c */
 int Log_init(char *filename);
 int Log_close(void);
 int Log(char *format, ...);

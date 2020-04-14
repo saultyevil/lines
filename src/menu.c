@@ -1,10 +1,13 @@
 /** ************************************************************************* */
 /**
- * @file
+ * @file     menu.c
  * @author   Edward Parkinson
- * @date
+ * @date     April 2020
  *
  * @brief
+ *
+ * Functions for creating and navigating menus. Requires the menu library which
+ * is typically part of a standard ncurses install.
  *
  * ************************************************************************** */
 
@@ -16,16 +19,16 @@
 
 /* ************************************************************************** */
 /**
- *  @brief      Clean up the memory for the menu.
+ * @brief      Clean up the memory for the menu.
  *
- *  @param[in]  menu      The menu to be cleaned up
- *  @param[in]  items     The items to be cleaned up
- *  @param[in]  nitems    The number of items to clean up
- *  @param[in]  win_menu  The window for the menu to be cleaned up
+ * @param[in]  menu      The menu to be cleaned up
+ * @param[in]  items     The items to be cleaned up
+ * @param[in]  nitems    The number of items to clean up
+ * @param[in]  win_menu  The window for the menu to be cleaned up
  *
- *  @details
+ * @details
  *
- *  Simply a wrapper function to clean up the menu elements.
+ * Simply a wrapper function to clean up the menu elements.
  *
  * ************************************************************************** */
 
@@ -46,14 +49,14 @@ clean_up_menu (MENU *menu, ITEM **items, int nitems, WINDOW *win_menu)
 
 /* ************************************************************************** */
 /**
- *  @brief      Control the cursor for the provided menu.
+ * @brief      Control the cursor for the provided menu.
  *
- *  @param[in]  menu  The menu to control
- *  @param[in]  c     An integer which represents the keypress
+ * @param[in]  menu  The menu to control
+ * @param[in]  c     An integer which represents the keypress
  *
- *  @return     The index for the item menu
+ * @return     The index for the item menu if one is selected.
  *
- *  @details
+ * @details
  *
  * ************************************************************************** */
 
@@ -62,7 +65,7 @@ control_menu (MENU *menu, int c)
 {
   int the_choice;
 
-  the_choice = QUIT;
+  the_choice = MENU_QUIT;
 
   switch (c)
   {
@@ -96,19 +99,24 @@ control_menu (MENU *menu, int c)
 
 /* ************************************************************************** */
 /**
- *  @brief      Displays a menu given the current items.
+ * @brief      Displays a menu given the current items.
  *
- *  @param[in]  int current_index   The index referring to the previously chosen
- *                                  menu entry
- *  @return     int choice          An integer referring to the chosen menu item
+ * @param[in]  menu_message    A message to display for the menu
+ * @param[in]  menu_items      The name of the menu items
+ * @param[in]  nitems          The number of items in the menu
+ * @param[in]  current_index   The index referring to the previously chosen
+ *                             menu entry
+ * @return     choice          An integer referring to the chosen menu item
  *
- *  @details
+ * @details
  *
- *  This function initialises a window and menu to display the options which are
- *  available in Py Wind. The user can use arrow keys and page up and page down
- *  to navigate the list and enter to select a choice. An integer referring to
- *  the internal index of the choice is returned. If the user press the q key,
- *  then the program is exited.
+ * This function initialises a window and menu to display the options which are
+ * available given in the array menu_items. The user can use arrow keys and page
+ * up and page down to navigate the list and enter to select a choice. An
+ * integer referring to the internal index of the choice is returned. If the
+ * user presses the q key, then the program exits.
+ *
+ * TODO only allow q to exit in the main menu
  *
  * ************************************************************************** */
 
@@ -131,6 +139,8 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
     exit (EXIT_FAILURE);
   }
 
+  // TODO variable messages in bold_message
+
   wattron (win_menu, A_BOLD);
   mvwprintw (win_menu, 0, 0, "%s", menu_message);
   wattroff (win_menu, A_BOLD);
@@ -151,8 +161,8 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
    */
 
   set_menu_win (menu, win_menu);
-  set_menu_sub (menu, derwin (win_menu, MAX_ROWS - 2, MAX_COLS - 2, 2, 0));
-  set_menu_format (menu, MAX_ROWS - 2, 2);
+  set_menu_sub (menu, derwin (win_menu, MAX_ROWS_SUB_WIN - 2, MAX_COLS_SUB_WIN - 2, 2, 0));
+  set_menu_format (menu, MAX_ROWS_SUB_WIN - 2, 2);
   set_menu_mark (menu, "* ");
 
   if (current_index < 0)
@@ -165,12 +175,12 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
   post_menu (menu);
   wrefresh (win_menu);
 
-  the_choice = QUIT;
+  the_choice = MENU_QUIT;
   while ((c = wgetch (win_menu)) != 'q')
   {
     the_choice = control_menu (menu, c);
     wrefresh (win_menu);
-    if (the_choice != QUIT)
+    if (the_choice != MENU_QUIT)
       break;
   }
 
