@@ -34,18 +34,15 @@ bound_bound_main_menu (void)
 {
   double fmin, fmax;
   double wmin, wmax;
-  Line_t sb = LINE_INIT;
-
-  WINDOW *win;
-  win = CONTENT_WINDOW.win;
+  WINDOW *win = CONTENT_WINDOW.win;
 
   query_wavelength_range (&wmin, &wmax);
   fmax = C / (wmin  * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
   limit_lines (fmin, fmax);
 
-  get_bound_bound_lines (&sb);
-  display_text_buffer (&sb, win, 1, 0);
+  get_bound_bound_lines ();
+  display_text_buffer (win, 1, 1);
 
   wgetch (win);
 }
@@ -66,7 +63,7 @@ bound_bound_main_menu (void)
  * ************************************************************************** */
 
 void
-get_bound_bound_lines (Line_t *sb)
+get_bound_bound_lines ()
 {
   int i;
   const int ndashes = 86;
@@ -75,11 +72,11 @@ get_bound_bound_lines (Line_t *sb)
   double wl;
   char element[LINELEN];
 
-  append_to_buffer (sb, "Bound-Bound Lines\n");
-  append_separator_to_buffer (sb, ndashes);
-  append_to_buffer (sb, " %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "levu",
-                    "levl", "nion");
-  append_separator_to_buffer (sb, ndashes);
+  add_to_display_buffer ("Bound-Bound Lines\n");
+  append_separator_to_buffer (ndashes);
+  add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "levu",
+                         "levl", "nion");
+  append_separator_to_buffer (ndashes);
 
   for (i = nline_min; i < nline_max; ++i)
   {
@@ -90,8 +87,8 @@ get_bound_bound_lines (Line_t *sb)
     nion = lin_ptr[i]->nion;
     wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
     get_element_name (z, element);
-    append_to_buffer (sb, " %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu, levl, nion);
+    add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu, levl, nion);
   }
 
-  append_separator_to_buffer (sb, ndashes);
+  append_separator_to_buffer (ndashes);
 }

@@ -105,7 +105,9 @@ main (int argc, char *argv[])
 {
   int main_menu_choice;
   int atomic_provided;
-  Line_t sb;
+
+  DISPLAY.nlines = 0;
+  DISPLAY.lines = NULL;
 
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
@@ -113,7 +115,7 @@ main (int argc, char *argv[])
    */
 
   Log_init ("atomix.out.txt");
-  atomic_provided = check_command_line (argc, argv, &sb);
+  atomic_provided = check_command_line (argc, argv);
 
   /*
    * Initialise ncurses, and draw the window border
@@ -137,7 +139,7 @@ main (int argc, char *argv[])
   }
   else
   {
-    display_text_buffer (&sb, CONTENT_WINDOW.win, 0, 0);
+    display_text_buffer (CONTENT_WINDOW.win, 1, 1);
   }
 
   /*

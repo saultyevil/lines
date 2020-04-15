@@ -197,6 +197,8 @@ query_atomic_data (void)
 
   WINDOW *win = CONTENT_WINDOW.win;
 
+  wclear (win);
+
   echo ();
 
   while (valid != TRUE)
@@ -229,7 +231,7 @@ query_atomic_data (void)
 
   noecho ();
 
-  display_text_buffer (&sb, win, 0, 0);
+  display_text_buffer (win, 1, 1);
 
   return valid;
 }
@@ -290,6 +292,8 @@ query_wavelength_range (double *wmin, double *wmax)
 {
   int valid = FALSE;
   WINDOW *win = CONTENT_WINDOW.win;
+
+  wclear (win);
 
   echo ();
 

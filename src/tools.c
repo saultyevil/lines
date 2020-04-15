@@ -61,7 +61,7 @@ get_element_name (int z, char *element)
  * ************************************************************************** */
 
 int
-check_command_line (int argc, char **argv, Line_t *sb_out)
+check_command_line (int argc, char **argv)
 {
   int atomic_data_error;
   int provided = FALSE;
@@ -108,8 +108,6 @@ check_command_line (int argc, char **argv, Line_t *sb_out)
     printf ("\n%s", help);
     exit (1);
   }
-
-  *sb_out = sb;
 
   return provided;
 }

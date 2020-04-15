@@ -42,19 +42,19 @@
 
 typedef struct
 {
-  int nlines;
-  char **lines;
-} ScreenBuffer_t;
-
-#define SB_INIT {0, NULL};
-
-typedef struct
-{
   size_t len;
-  char *buffer;
+  char *chars;
 } Line_t;
 
 #define LINE_INIT {0, NULL}
+
+struct Display_t
+{
+  int nlines;
+  Line_t *lines;
+};
+
+struct Display_t DISPLAY;
 
 /* ****************************************************************************
  *
