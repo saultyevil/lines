@@ -37,9 +37,9 @@ initialise_ncurses_stdscr (void)
 {
   initscr ();
   clear ();
-  noecho ();
-  cbreak ();
-  keypad (stdscr, TRUE);
+  noecho ();      // Most screens don't want echo
+  cbreak ();      // Disable line buffering or summat
+  keypad (stdscr, TRUE);  // Allow the screen to take input
 }
 
 /* ************************************************************************** */
@@ -115,6 +115,8 @@ void
 draw_window_boundaries (void)
 {
   int i, j;
+  int len;
+  char title[LINELEN];
 
   wattron (TITLE_WINDOW.win, A_REVERSE);
   wattron (STATUS_WINDOW.win, A_REVERSE);
@@ -124,6 +126,8 @@ draw_window_boundaries (void)
   for (j = 0; j < TITLE_WINDOW.rows; ++j)
     for (i = 0; i < TITLE_WINDOW.cols; ++i)
       mvwprintw (TITLE_WINDOW.win, j, i, " ");
+  len = sprintf (title, "atomix : version %s", VERSION);
+  mvwprintw (TITLE_WINDOW.win, 0, (TITLE_WINDOW.cols - len) / 2, title);
 
   // This is for the bottom, status bar
   for (j = 0; j < STATUS_WINDOW.rows; ++j)
@@ -172,8 +176,6 @@ bold_message (WINDOW *win, int y, int x, char *msg, ...)
   wattroff (win, A_BOLD);
 }
 
-
-
 /* ************************************************************************** */
 /**
  * @brief     Query the user for the atomic data name.
@@ -201,10 +203,12 @@ query_atomic_data (void)
 
   echo ();
 
+  bold_message (win, 1, 2, "Please input the atomic data master file name:");
+
   while (valid != TRUE)
   {
-    bold_message (win, 1, 2, "Please input the atomic data master file name:");
-    wmove (win, 3, 2);
+    mvwprintw (win, 3, 2, "> ");
+    wmove (win, 3, 4);
     wrefresh (win);
 
     wscanw (win, "%s", atomic_data_name);
@@ -216,9 +220,10 @@ query_atomic_data (void)
     if (atomic_data_error)
     {
       // TODO increase verbosity of error messages, i.e. write out actual error
-      mvwprintw (win, 4, 2, "!! Invalid atomic data provided, try again.");
-      mvwprintw (win, 5, 2, "!! Atomic data error %i\n", atomic_data_error);
-      sleep (2);
+      mvwprintw (win, 5, 2, "Invalid atomic data provided, try again.");
+      mvwprintw (win, 6, 2, "Error number: %i\n", atomic_data_error);
+      wmove (win, 3, 0);
+      wclrtoeol (win);
     }
     else
     {
@@ -301,8 +306,8 @@ query_wavelength_range (double *wmin, double *wmax)
   {
     bold_message (win, 1, 2, "Please input the wavelength range to query:");
 
-    *wmin = get_wavelength (win, "Minimum wavelength range: ", 3, 2, 26);
-    *wmax = get_wavelength (win, "Maximum wavelength range: ", 5, 2, 26);
+    *wmin = get_wavelength (win, "Minimum wavelength range: > ", 3, 2, 28);
+    *wmax = get_wavelength (win, "Maximum wavelength range: > ", 5, 2, 28);
 
     // TODO: some scheme for either waiting or pressing a key
 

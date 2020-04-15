@@ -27,16 +27,13 @@ void
 photoionization_home_menu (void)
 {
   double wmin, wmax;
-  WINDOW *win;
+  WINDOW *win = CONTENT_WINDOW.win;
 
   query_wavelength_range (&wmin, &wmax);
 
-  create_sub_window (&win);
   get_photoionization_cross_sections (wmin, wmax);
-  display_text_buffer (win, 1, 1);
 
-  wgetch (win);
-  delwin (win);
+  display_text_buffer (win, 1, 1);
 }
 
 

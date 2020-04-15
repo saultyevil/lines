@@ -26,9 +26,11 @@
 
 // UI Constants
 #define VERSION "3.0a"
-#define MAX_ROWS_SUB_WIN LINES - 4
-#define MAX_COLS_SUB_WIN COLS - 2
 #define MENU_QUIT -1
+
+#define MENU_WIDTH 24
+#define TITLE_HEIGHT 2
+#define STATUS_HEIGHT 1
 
 // Various other constants
 #define const_C_SI 299792458
@@ -42,7 +44,7 @@
 
 typedef struct
 {
-  size_t len;
+  int len;
   char *chars;
 } Line_t;
 
@@ -87,7 +89,3 @@ Window_t MENU_WINDOW;
 Window_t TITLE_WINDOW;
 Window_t STATUS_WINDOW;
 Window_t CONTENT_WINDOW;
-
-#define MENU_WIDTH 24
-#define TITLE_HEIGHT 2
-#define STATUS_HEIGHT 1

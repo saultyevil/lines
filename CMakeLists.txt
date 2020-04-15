@@ -1,6 +1,7 @@
 #
 # atomix
-# A tool to query and play around with the atomic data in Python.
+# A tool to query and play around with the atomic data in Python. The
+# description of this tool changes every time I write one :-).
 #
 
 project(atomix)
@@ -16,7 +17,8 @@ set(SOURCE_FILES
         src/xsections.c
         src/tools.c
         src/ui.c
-        src/menu.c src/misc.c src/buffer.c)
+        src/menu.c
+        src/buffer.c)
 
 # The curses library is stored in various places depending on system
 if(UNIX AND NOT APPLE)

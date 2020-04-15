@@ -1,13 +1,11 @@
 /* bound.c */
 void bound_bound_main_menu(void);
-void get_bound_bound_lines ();
+void get_bound_bound_lines(void);
 /* buffer.c */
 void clean_up_display_buffer(void);
 void display_text_buffer(WINDOW *win, int start_y, int start_x);
 void add_to_display_buffer(char *fmt, ...);
-void append_separator_to_buffer (const int len);
-/* misc.c */
-void create_sub_window(WINDOW **win);
+void append_separator_to_buffer(const int len);
 /* main.c */
 int main_menu(int current_index);
 void process_main_menu_choices(int choice);
@@ -30,7 +28,7 @@ double get_wavelength(WINDOW *win, char *msg, int y, int x, int len);
 void query_wavelength_range(double *wmin, double *wmax);
 /* xsections.c */
 void photoionization_home_menu(void);
-void get_photoionization_cross_sections (double wmin, double wmax);
+void get_photoionization_cross_sections(double wmin, double wmax);
 /* read_atomic_data.c */
 int fraction(double value, double array[], int npts, int *ival, double *f, int mode);
 int linterp(double x, double xarray[], double yarray[], int xdim, double *y, int mode);
