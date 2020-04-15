@@ -34,7 +34,7 @@
  * ************************************************************************** */
 
 void
-clean_up_menu (MENU *menu, ITEM **items, int nitems, WINDOW *win_menu)
+clean_up_menu (MENU *menu, ITEM **items, int nitems)
 {
   int i;
 
@@ -42,10 +42,6 @@ clean_up_menu (MENU *menu, ITEM **items, int nitems, WINDOW *win_menu)
   for (i = 0; i < nitems; ++i)
     free_item (items[i]);
   free_menu (menu);
-
-  wclear (win_menu);
-  delwin (win_menu);
-  wrefresh (win_menu);
 }
 
 /* ************************************************************************** */
@@ -102,41 +98,41 @@ control_menu (MENU *menu, int c)
 /**
  * @brief      Displays a menu given the current items.
  *
- * @param[in]  menu_message    A message to display for the menu
- * @param[in]  menu_items      The name of the menu items
- * @param[in]  nitems          The number of items in the menu
- * @param[in]  current_index   The index referring to the previously chosen
- *                             menu entry
- * @return     choice          An integer referring to the chosen menu item
+ * @param[in]  menu_message       A message to display for the menu
+ * @param[in]  menu_items         The name of the menu items
+ * @param[in]  nitems             The number of items in the menu
+ * @param[in]  current_index      The index referring to the previously chosen
+ *                                menu entry
+ * @param[in]  user_control_menu  If TRUE, allow the user to control the menu
+ *
+ * @return     choice             An integer referring to the chosen menu item
  *
  * @details
- *
- * This function initialises a window and menu to display the options which are
- * available given in the array menu_items. The user can use arrow keys and page
- * up and page down to navigate the list and enter to select a choice. An
- * integer referring to the internal index of the choice is returned. If the
- * user presses the q key, then the program exits.
- *
- * TODO only allow q to exit in the main menu
  *
  * ************************************************************************** */
 
 int
-create_menu (char *menu_message, char **menu_items, int nitems, int current_index)
+update_menu_window (char *menu_message, char **menu_items, int nitems, int current_index, int user_control_menu)
 {
-  int i, c;
+  int i, j, c;
   int len;
   int the_choice;
 
   MENU *menu = NULL;
   ITEM **items = NULL;
-  WINDOW *win = NULL;
+  WINDOW *win = MENU_WINDOW.win;
 
-  create_sub_window (&win);
+  wclear (win);
+
+  // This creates a 1 column boundary between the menu and content window
+  wattron (win, A_REVERSE);
+  for (j = 0; j < MENU_WINDOW.rows; ++j)
+    mvwprintw (win, j, MENU_WINDOW.cols - 1, " ");
+  wattroff (win, A_REVERSE);
 
   if (!(items = calloc (nitems, sizeof (ITEM *))))
   {
-    clean_ncurses_screen ();
+    cleanup_ncurses_stdscr();
     printf("BIG ERROR: Unable to allocate memory for menu\n");
     exit (EXIT_FAILURE);
   }
@@ -146,9 +142,7 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
    */
 
   len = (int) strlen (menu_message);
-  for (i = 0; i < COLS; i++)
-    mvprintw (0, i, " ");
-  bold_message (win, 0, COLS / 2 - len / 2 + 1, menu_message);
+  mvwprintw (win, 1, (MENU_WINDOW.cols - 2) / 2 - (len / 2), menu_message);
 
   /*
    * Populate the menu with items from MENU_CHOICES, set the description as the
@@ -163,12 +157,11 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
   /*
    * Set the menu formatting and place the cursor to the last chosen menu choice
    * using set_current_item
-   * TODO, figure out what this means again :-)
    */
 
   set_menu_win (menu, win);
-  set_menu_sub (menu, derwin (win, MAX_ROWS_SUB_WIN - 2, MAX_COLS_SUB_WIN - 2, 2, 0));
-  set_menu_format (menu, MAX_ROWS_SUB_WIN - 2, 2);
+  set_menu_sub (menu, derwin (win, MENU_WINDOW.rows - 3, MENU_WINDOW.cols, 3, 0));
+  set_menu_format (menu, MENU_WINDOW.rows - 2, 1);
   set_menu_mark (menu, "* ");
 
   if (current_index < 0)
@@ -181,22 +174,25 @@ create_menu (char *menu_message, char **menu_items, int nitems, int current_inde
   wrefresh (win);
 
   the_choice = MENU_QUIT;
-  while ((c = wgetch (win)) != 'q')
+  if (user_control_menu)
   {
-    the_choice = control_menu (menu, c);
-    wrefresh (win);
-    if (the_choice != MENU_QUIT)
-      break;
+    while ((c = wgetch (win)) != 'q')
+    {
+      the_choice = control_menu (menu, c);
+      wrefresh (win);
+      if (the_choice != MENU_QUIT)
+        break;
+    }
   }
 
   if (the_choice == nitems - 2)  // Quit is the 2nd last element
   {
-    clean_up_menu (menu, items, nitems, win);
-    clean_ncurses_screen ();
+    clean_up_menu (menu, items, nitems);
+    cleanup_ncurses_stdscr();
     exit (0);
   }
 
-  clean_up_menu (menu, items, nitems, win);
+  clean_up_menu (menu, items, nitems);
 
   return the_choice;
 }

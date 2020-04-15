@@ -58,16 +58,36 @@ typedef struct
 
 /* ****************************************************************************
  *
- *                                  Macros
+ *                                  Includes
  *
  * ************************************************************************** */
-
-// TODO clean up includes for final release
 
 #include <menu.h>
 #include <curses.h>
 
 #include "atomic.h"
-
 #include "log.h"
 #include "functions.h"
+
+
+/* ****************************************************************************
+ *
+ *                                Windows
+ *
+ * ************************************************************************** */
+
+typedef struct Window_t
+{
+  int y, x;
+  int rows, cols;
+  WINDOW *win;
+} Window_t;
+
+Window_t MENU_WINDOW;
+Window_t TITLE_WINDOW;
+Window_t STATUS_WINDOW;
+Window_t CONTENT_WINDOW;
+
+#define MENU_WIDTH 24
+#define TITLE_HEIGHT 2
+#define STATUS_HEIGHT 1

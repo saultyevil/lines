@@ -61,17 +61,21 @@ get_element_name (int z, char *element)
  * ************************************************************************** */
 
 int
-check_command_line (int argc, char **argv)
+check_command_line (int argc, char **argv, Line_t *sb_out)
 {
   int atomic_data_error;
   int provided = FALSE;
   char atomic_data_name[LINELEN];
+  Line_t sb = LINE_INIT;
+
   char help[] =
-    "atomix is a utility program used to inspect the atomic data used in Python.\n\n"
+    "atomix is a utility program used to inspect the atomic data used in Python.\n"
+    "Python is required to be installed correctly for atomix to work.\n\n"
     "Usage:\n"
     "   atomix [-h] [atomic_data]\n\n"
     "   atomic_data [optional]  the name of the atomic data to explore\n"
     "   h           [optional]  print this help message\n";
+
 
   if (argc == 2 && !strncmp (argv[1], "-h", 2))
   {
@@ -85,7 +89,7 @@ check_command_line (int argc, char **argv)
     {
       strcat (atomic_data_name, ".dat");
     }
-    atomic_data_error = get_atomic_data (atomic_data_name);
+    atomic_data_error = get_atomic_data (atomic_data_name, &sb);
     if (atomic_data_error)
     {
       // TODO more verbose error reporting - generic function required
@@ -104,6 +108,8 @@ check_command_line (int argc, char **argv)
     printf ("\n%s", help);
     exit (1);
   }
+
+  *sb_out = sb;
 
   return provided;
 }

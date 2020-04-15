@@ -16,8 +16,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "atomic.h"
-#include "log.h"
+#include "atomix.h"
 
 #define LINELENGTH 400
 
@@ -899,8 +898,7 @@ index_lines ()
  **********************************************************/
 
 int
-get_atomic_data (masterfile)
-  char masterfile[];
+get_atomic_data (char *masterfile, Line_t *sb)
 {
   int match;
   FILE *fptr, *mptr;
@@ -3451,7 +3449,6 @@ SCUPS    1.132e-01   2.708e-01   5.017e-01   8.519e-01   1.478e+00
 /* OK now summarize the data that has been read*/
 
   n_elec_yield_tot = 0;         //Reset this numnber, we are now going to use it to check we have yields for all inner shells
-//  n_fluor_yield_tot = 0;        //Reset this numnber, we are now going to use it to check we have yields for all inner shells
   inner_no_e_yield = 0;
 
   for (n = 0; n < n_inner_tot; n++)
@@ -3460,45 +3457,40 @@ SCUPS    1.132e-01   2.708e-01   5.017e-01   8.519e-01   1.478e+00
       n_elec_yield_tot++;
     else
       inner_no_e_yield++;
-//      Error_silent ("get_atomicdata: No inner electron yield data for inner cross section %i\n", n);
-//    if (inner_cross[n].n_fluor_yield != -1)
-//    n_fluor_yield_tot++;
-
   }
 
-  Log ("Data of %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n", nelements, nions, nlevels, nlines, ntop_phot);
-  Log
-    ("Macro   %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
-     nelements, nions_macro, nlevels_macro, nlines_macro, ntop_phot_macro);
-  Log
-    ("Simple  %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
-     nelements, nions_simple, nlevels_simple, nlines_simple, ntop_phot_simple);
-  Log ("We have read in %3d photoionization cross sections\n", nphot_total);
-  Log ("                %3d are topbase \n", ntop_phot);
-  Log ("                %3d are VFKY \n", nxphot);
-  Log ("We have read in %5d   Chiantic collision strengths\n", n_coll_stren);   //1701 nsh collision strengths
-  Log ("We have read in %3d Inner shell photoionization cross sections\n", n_inner_tot);        //110818 nsh added a reporting line about dielectronic recombination coefficients
-  Log ("                %3d have matching electron yield data\n", n_elec_yield_tot);
-//  Log ("                %3d have matching fluorescent yield data\n", n_fluor_yield_tot);
-
-  Log ("We have read in %3d Dielectronic recombination coefficients\n", ndrecomb);      //110818 nsh added a reporting line about dielectronic recombination coefficients
-  Log ("We have read in %3d Badnell totl Radiative rate coefficients\n", n_total_rr);
-  Log ("We have read in %3d Badnell GS   Radiative rate coefficients over the temp range %e to %e\n", n_bad_gs_rr, gstmin, gstmax);
-  Log ("We have read in %3d Scaled electron temperature frequency averaged gaunt factors\n", gaunt_n_gsqrd);
-  Log ("The minimum frequency for photoionization is %8.2e\n", phot_freq_min);
-  Log ("The minimum frequency for inner shell ionization is %8.2e\n", inner_freq_min);
+  append_to_buffer (sb, "Data of %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
+                    nelements, nions, nlevels, nlines, ntop_phot);
+  append_to_buffer (sb, "Macro   %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
+                    nelements, nions_macro, nlevels_macro, nlines_macro, ntop_phot_macro);
+  append_to_buffer (sb, "Simple  %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
+                    nelements, nions_simple, nlevels_simple, nlines_simple, ntop_phot_simple);
+  append_to_buffer (sb, "We have read in %3d photoionization cross sections\n", nphot_total);
+  append_to_buffer (sb, "                %3d are topbase \n", ntop_phot);
+  append_to_buffer (sb, "                %3d are VFKY \n", nxphot);
+  append_to_buffer (sb, "We have read in %5d   Chiantic collision strengths\n", n_coll_stren);
+  append_to_buffer (sb, "We have read in %3d Inner shell photoionization cross sections\n", n_inner_tot);
+  append_to_buffer (sb, "                %3d have matching electron yield data\n", n_elec_yield_tot);
+  append_to_buffer (sb, "We have read in %3d Dielectronic recombination coefficients\n", ndrecomb);
+  append_to_buffer (sb, "We have read in %3d Badnell totl Radiative rate coefficients\n", n_total_rr);
+  append_to_buffer (sb, "We have read in %3d Badnell GS   Radiative rate coefficients over the temp range %e to %e\n",
+                    n_bad_gs_rr, gstmin, gstmax);
+  append_to_buffer (sb, "We have read in %3d Scaled electron temperature frequency averaged gaunt factors\n",
+                    gaunt_n_gsqrd);
+  append_to_buffer (sb, "The minimum frequency for photoionization is %8.2e\n", phot_freq_min);
+  append_to_buffer (sb, "The minimum frequency for inner shell ionization is %8.2e\n", inner_freq_min);
 
   /* report ignored simple lines for macro-ions */
   for (n = 0; n < NIONS; n++)
   {
     if (simple_line_ignore[n] > 0)
-      Log ("Ignored %d simple lines for macro-ion %d\n", simple_line_ignore[n], n);
+      append_to_buffer (sb, "Ignored %d simple lines for macro-ion %d\n", simple_line_ignore[n], n);
   }
   /* report ignored collision strengths */
   if (cstren_no_line > 0)
-    Log ("Ignored %d collision strengths with no matching line transition\n", cstren_no_line);
+    append_to_buffer (sb, "Ignored %d collision strengths with no matching line transition\n", cstren_no_line);
   if (inner_no_e_yield > 0)
-    Log ("Ignoring %d inner shell cross sections because no matching yields\n", inner_no_e_yield);
+    append_to_buffer (sb, "Ignoring %d inner shell cross sections because no matching yields\n", inner_no_e_yield);
 
 
 
@@ -3632,11 +3624,11 @@ or zero so that simple checks of true and false can be used for them */
 
 /* Finally evaluate how close we are to limits set in the structures */
 
-  Log ("get_atomic_data: Evaluation:  There are %6d elements     while %6d are currently allowed\n", nelements, NELEMENTS);
-  Log ("get_atomic_data: Evaluation:  There are %6d ions         while %6d are currently allowed\n", nions, NIONS);
-  Log ("get_atomic_data: Evaluation:  There are %6d levels       while %6d are currently allowed\n", nlevels, NLEVELS);
-  Log ("get_atomic_data: Evaluation:  There are %6d lines        while %6d are currently allowed\n", nlines, NLINES);
-  Log ("get_atomic_data: Evaluation:  There are %6d macro levels while %6d are currently allowed\n", nlevels_macro, NLEVELS_MACRO);
+  append_to_buffer (sb, "get_atomic_data: Evaluation:  There are %6d elements     while %6d are currently allowed\n", nelements, NELEMENTS);
+  append_to_buffer (sb, "get_atomic_data: Evaluation:  There are %6d ions         while %6d are currently allowed\n", nions, NIONS);
+  append_to_buffer (sb, "get_atomic_data: Evaluation:  There are %6d levels       while %6d are currently allowed\n", nlevels, NLEVELS);
+  append_to_buffer (sb, "get_atomic_data: Evaluation:  There are %6d lines        while %6d are currently allowed\n", nlines, NLINES);
+  append_to_buffer (sb, "get_atomic_data: Evaluation:  There are %6d macro levels while %6d are currently allowed\n", nlevels_macro, NLEVELS_MACRO);
 
   bb_max = 0;
   bf_max = 0;
@@ -3653,9 +3645,8 @@ or zero so that simple checks of true and false can be used for them */
       bf_max = config[i].n_bfd_jump;
   }
 
-
-  Log ("get_atomic_data: Evaluation:  The maximum value bb jumps is %d while %d are currently allowed\n", bb_max, NBBJUMPS);
-  Log ("get_atomic_data: Evaluation:  The maximum value bf jumps is %d while %d are currently allowed\n", bb_max, NBBJUMPS);
+  append_to_buffer (sb, "get_atomic_data: Evaluation:  The maximum value bb jumps is %d while %d are currently allowed\n", bb_max, NBBJUMPS);
+  append_to_buffer (sb, "get_atomic_data: Evaluation:  The maximum value bf jumps is %d while %d are currently allowed\n", bb_max, NBBJUMPS);
 
 /* Now, write the data to a file so you can check it later if you wish */
 /* this is controlled by one of the -d flag modes, defined in atomic.h */

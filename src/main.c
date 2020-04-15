@@ -29,9 +29,9 @@
  * ************************************************************************** */
 
 char *MAIN_MENU_CHOICES[] = {
-  "Bound-Bound Lines",
-  "Photoionization Cross Sections",
-  "Switch Atomic Data",
+  "Bound Lines",
+  "Photoionization",
+  "Atomic Data",
   "Exit",
   NULL
 };
@@ -49,7 +49,7 @@ main_menu (int current_index)
 {
   int choice;
 
-  choice = create_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), current_index);
+  choice = update_menu_window ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), current_index, TRUE);
 
   return choice;
 }
@@ -80,8 +80,7 @@ process_main_menu_choices (int choice)
     case SWITCH_ATOMIC_DATA:
       query_atomic_data ();
       break;
-    case EXIT:
-      clean_ncurses_screen ();
+    case EXIT:cleanup_ncurses_stdscr ();
       exit (0);
     default:
       break;
@@ -106,6 +105,7 @@ main (int argc, char *argv[])
 {
   int main_menu_choice;
   int atomic_provided;
+  Line_t sb;
 
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
@@ -113,14 +113,15 @@ main (int argc, char *argv[])
    */
 
   Log_init ("atomix.out.txt");
-  atomic_provided = check_command_line (argc, argv);
+  atomic_provided = check_command_line (argc, argv, &sb);
 
   /*
    * Initialise ncurses, and draw the window border
    */
 
-  init_ncurses_screen ();
-  write_banner_stdscr ();
+  initialise_ncurses_stdscr ();
+  initialise_main_windows ();
+  draw_window_boundaries ();
 
   /*
    * Query the user for the atomic data file name, and read in that atomic
@@ -128,8 +129,16 @@ main (int argc, char *argv[])
    * is handle in this function
    */
 
+  update_menu_window ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), 0, FALSE);
+
   if (!atomic_provided)
+  {
     query_atomic_data ();
+  }
+  else
+  {
+    display_text_buffer (&sb, CONTENT_WINDOW.win, 0, 0);
+  }
 
   /*
    * Loops over the main menu until it's time to quit :^)
@@ -144,7 +153,7 @@ main (int argc, char *argv[])
     process_main_menu_choices (main_menu_choice);
   }
 
-  clean_ncurses_screen ();
+  cleanup_ncurses_stdscr ();
 
   return EXIT_SUCCESS;
 }

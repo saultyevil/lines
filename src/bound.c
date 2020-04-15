@@ -37,18 +37,17 @@ bound_bound_main_menu (void)
   Line_t sb = LINE_INIT;
 
   WINDOW *win;
+  win = CONTENT_WINDOW.win;
 
   query_wavelength_range (&wmin, &wmax);
   fmax = C / (wmin  * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
   limit_lines (fmin, fmax);
 
-  create_sub_window (&win);
   get_bound_bound_lines (&sb);
-  display_text_buffer (&sb, win, 0, 0);
+  display_text_buffer (&sb, win, 1, 0);
 
   wgetch (win);
-  delwin (win);
 }
 
 /* ************************************************************************** */

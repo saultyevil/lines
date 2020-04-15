@@ -16,7 +16,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <curses.h>
 
 #include "atomix.h"
 
@@ -34,7 +33,7 @@
  * ************************************************************************** */
 
 void
-init_ncurses_screen (void)
+initialise_ncurses_stdscr (void)
 {
   initscr ();
   clear ();
@@ -57,7 +56,7 @@ init_ncurses_screen (void)
  * ************************************************************************** */
 
 void
-clean_ncurses_screen (void)
+cleanup_ncurses_stdscr (void)
 {
   Log_close ();
   endwin ();
@@ -65,43 +64,83 @@ clean_ncurses_screen (void)
 
 /* ************************************************************************** */
 /**
- *  @brief     Write top and bottom banner to stdscr.
+ * @brief
  *
- *  @details
- *
- *  This write a top and bottom banner to stdscr which will act as the base
- *  canvas for the UI. In the top bar is the name of the program as well as the
- *  current version number.
+ * @details
  *
  * ************************************************************************** */
 
 void
-write_banner_stdscr (void)
+initialise_main_windows (void)
 {
-  int tlen, icol;
-  char top_msg[LINELEN];
+  // The window containing the main menu and sub menus
+  MENU_WINDOW.rows = LINES - TITLE_HEIGHT - STATUS_HEIGHT;
+  MENU_WINDOW.cols = MENU_WIDTH;
+  MENU_WINDOW.y = TITLE_HEIGHT;
+  MENU_WINDOW.x = 0;
+  MENU_WINDOW.win = newwin (MENU_WINDOW.rows, MENU_WINDOW.cols, MENU_WINDOW.y, MENU_WINDOW.x);
+  keypad (MENU_WINDOW.win, TRUE);
 
-  tlen = sprintf (top_msg, "atomix : version %s", VERSION);
+  // The window containing the main title and
+  TITLE_WINDOW.rows = TITLE_HEIGHT;
+  TITLE_WINDOW.cols = COLS;
+  TITLE_WINDOW.y = 0;
+  TITLE_WINDOW.x = 0;
+  TITLE_WINDOW.win = newwin (TITLE_WINDOW.rows, TITLE_WINDOW.cols, TITLE_WINDOW.y, TITLE_WINDOW.x);
 
-  attron (A_REVERSE);
+  // The window for the status bar at the bottom
+  STATUS_WINDOW.rows = STATUS_HEIGHT;
+  STATUS_WINDOW.cols = COLS;
+  STATUS_WINDOW.y = LINES - STATUS_HEIGHT;
+  STATUS_WINDOW.x = 0;
+  STATUS_WINDOW.win = newwin (STATUS_WINDOW.rows, STATUS_WINDOW.cols, STATUS_WINDOW.y, STATUS_WINDOW.x);
 
-  /*
-   * Write the top banner and its message
-   */
+  // The window for displaying content to the user
+  CONTENT_WINDOW.rows = LINES - TITLE_HEIGHT - STATUS_HEIGHT;
+  CONTENT_WINDOW.cols = COLS - MENU_WIDTH;
+  CONTENT_WINDOW.y = TITLE_HEIGHT;
+  CONTENT_WINDOW.x = MENU_WIDTH;
+  CONTENT_WINDOW.win = newwin (CONTENT_WINDOW.rows, CONTENT_WINDOW.cols, CONTENT_WINDOW.y, CONTENT_WINDOW.x);
+}
 
-  for (icol = 0; icol < COLS; icol++)
-    mvprintw (0, icol, " ");
-  mvprintw (0, COLS / 2 - tlen / 2 + 1, "%s", top_msg);
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
 
-  /*
-   * Write the bottom banner and its message
-   */
+void
+draw_window_boundaries (void)
+{
+  int i, j;
 
-  for (icol = 0; icol < COLS; icol++)
-    mvprintw (LINES - 1, icol, " ");
+  wattron (TITLE_WINDOW.win, A_REVERSE);
+  wattron (STATUS_WINDOW.win, A_REVERSE);
+  wattron (MENU_WINDOW.win, A_REVERSE);
 
-  attroff (A_REVERSE);
-  refresh ();
+  // This is for the top, title window
+  for (j = 0; j < TITLE_WINDOW.rows; ++j)
+    for (i = 0; i < TITLE_WINDOW.cols; ++i)
+      mvwprintw (TITLE_WINDOW.win, j, i, " ");
+
+  // This is for the bottom, status bar
+  for (j = 0; j < STATUS_WINDOW.rows; ++j)
+    for (i = 0; i < STATUS_WINDOW.cols; ++i)
+      mvwprintw (STATUS_WINDOW.win, j, i, " ");
+
+  // This creates a 1 column boundary between the menu and content window
+  for (j = 0; j < MENU_WINDOW.rows; ++j)
+    mvwprintw (MENU_WINDOW.win, j, MENU_WINDOW.cols - 1, " ");
+
+  wattroff (STATUS_WINDOW.win, A_REVERSE);
+  wattroff (TITLE_WINDOW.win, A_REVERSE);
+  wattroff (MENU_WINDOW.win, A_REVERSE);
+
+  wrefresh (TITLE_WINDOW.win);
+  wrefresh (STATUS_WINDOW.win);
+  wrefresh (MENU_WINDOW.win);
 }
 
 /* ************************************************************************** */
@@ -133,34 +172,7 @@ bold_message (WINDOW *win, int y, int x, char *msg, ...)
   wattroff (win, A_BOLD);
 }
 
-/* ************************************************************************** */
-/**
- * @brief         Create a sub-window placed ontop of the main stdscr.
- *
- * @param[in,out] win   A pointer to the new window.
- *
- * @details
- *
- * Generic functions which creates a sub-window of a generic size. This is a
- * window which has a surrounding border.
- *
- * ************************************************************************** */
 
-void
-create_sub_window (WINDOW **win)
-{
-  const int winrowstart = 2;
-  const int wincolstart = 2;
-
-  if ((*win = newwin (MAX_ROWS_SUB_WIN, MAX_COLS_SUB_WIN, winrowstart, wincolstart)) == NULL)
-  {
-    clean_ncurses_screen ();
-    printf ("BIG ERROR: Unable to allocate memory for menu screen\n");
-    exit (EXIT_FAILURE);
-  }
-
-  keypad (*win, TRUE);
-}
 
 /* ************************************************************************** */
 /**
@@ -175,35 +187,35 @@ create_sub_window (WINDOW **win)
  *
  * ************************************************************************** */
 
-void
+int
 query_atomic_data (void)
 {
   int atomic_data_error;
   int valid = FALSE;
   char atomic_data_name[LINELEN];
+  Line_t sb = LINE_INIT;
 
-  WINDOW *win;
+  WINDOW *win = CONTENT_WINDOW.win;
 
   echo ();
 
   while (valid != TRUE)
   {
-    create_sub_window (&win);
-    bold_message (win, 0, 0, "Please input the atomic data master file name:");
-    wmove (win, 2, 0);
+    bold_message (win, 1, 2, "Please input the atomic data master file name:");
+    wmove (win, 3, 2);
     wrefresh (win);
 
     wscanw (win, "%s", atomic_data_name);
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
       strcat (atomic_data_name, ".dat");
 
-    atomic_data_error = get_atomic_data (atomic_data_name);
+    atomic_data_error = get_atomic_data (atomic_data_name, &sb);
 
     if (atomic_data_error)
     {
       // TODO increase verbosity of error messages, i.e. write out actual error
-      mvwprintw (win, 4, 0, "!! Invalid atomic data provided, try again.");
-      mvwprintw (win, 5, 0, "!! Atomic data error %i\n", atomic_data_error);
+      mvwprintw (win, 4, 2, "!! Invalid atomic data provided, try again.");
+      mvwprintw (win, 5, 2, "!! Atomic data error %i\n", atomic_data_error);
       sleep (2);
     }
     else
@@ -213,10 +225,13 @@ query_atomic_data (void)
     }
 
     wrefresh (win);
-    delwin (win);
   }
 
   noecho ();
+
+  display_text_buffer (&sb, win, 0, 0);
+
+  return valid;
 }
 
 /* ************************************************************************** */
@@ -247,7 +262,7 @@ get_wavelength (WINDOW *win, char *msg, int y, int x, int len)
   mvwprintw (win, y, x, "%s", msg);
   wrefresh (win);
   wscanw (win, "%lf", &wl);
-  mvwprintw (win, y, len, "%5.1f Angstroms", wl);
+  mvwprintw (win, y, len + 2, "%5.1f Angstroms", wl);
   wrefresh (win);
 
   return wl;
@@ -274,123 +289,31 @@ void
 query_wavelength_range (double *wmin, double *wmax)
 {
   int valid = FALSE;
-  WINDOW *win;
+  WINDOW *win = CONTENT_WINDOW.win;
 
   echo ();
 
   while (valid != TRUE)
   {
-    create_sub_window (&win);
-    bold_message (win, 0, 0, "Please input the wavelength range to query:");
+    bold_message (win, 1, 2, "Please input the wavelength range to query:");
 
-    *wmin = get_wavelength (win, "Minimum wavelength range: ", 2, 0, 26);
-    *wmax = get_wavelength (win, "Maximum wavelength range: ", 3, 0, 26);
+    *wmin = get_wavelength (win, "Minimum wavelength range: ", 3, 2, 26);
+    *wmax = get_wavelength (win, "Maximum wavelength range: ", 5, 2, 26);
 
     // TODO: some scheme for either waiting or pressing a key
 
     if (*wmax > *wmin)
     {
       valid = TRUE;
-      mvwprintw (win, 5, 0, "Wavelength input accepted.");
-      wrefresh (win);
     }
     else
     {
-      mvwprintw (win, 5, 0, "Invalid input, the minimum wavelength should be smaller than the maximum. Try again!");
+      bold_message (win, 7, 2, "Invalid input!");
       wrefresh (win);
+      sleep (2);
     }
-
-    sleep (2);
-    delwin (win);
   }
 
   noecho ();
 }
 
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @param[in] sb
- *
- * @return void
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-display_text_buffer (Line_t *sb, WINDOW *win, int y, int x)
-{
-  // TODO: Probably not the best thing to do - print error message in future
-  if (!sb->buffer)
-    return;
-
-  // TODO center the message
-  mvwprintw (win, y, x, "%s", sb->buffer);
-  wrefresh (win);
-  free (sb->buffer);
-}
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @param[in,out] sb
- * @param[in]     s
- * @param[in]     ...
- *
- * @return void
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-append_to_buffer (Line_t *sb, char *s, ...)
-{
-  int len;
-  char *new;
-  char msg[LINELEN];
-  va_list args;
-
-  va_start (args, s);
-  len = vsprintf (msg, s, args);
-  new = realloc (sb->buffer, sb->len + len);
-  va_end (args);
-
-  if (!new)
-  {
-    clean_ncurses_screen ();
-    printf ("BIG ERROR: Unable to add additional text to the output buffer :-(\n");
-    exit (1);
-  }
-
-  memcpy (&new[sb->len], msg, len);
-  sb->buffer = new;
-  sb->len += len;
-}
-
-/* ************************************************************************* */
-/**
- * @brief          Add a line of dashes to the screen buffer.
- *
- * @param[in,out]  sb   The screen buffer to append to, can be NULL
- * @param[in]      len  The number of dashes to draw.
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-append_separator_to_buffer (Line_t *sb, const int len)
-{
-  int i;
-  char tmp[len + 1];
-
-  for (i = 0; i < len; ++i)
-    memcpy (&tmp[i], "-", 1);
-  memcpy (&tmp[len], "\n", 2);
-
-  append_to_buffer (sb, tmp, len + 1);
-}
