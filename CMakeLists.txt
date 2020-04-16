@@ -14,11 +14,11 @@ set(SOURCE_FILES
         src/main.c
         src/read_atomic_data.c
         src/bound.c
-        src/xsections.c
+        src/photoionization.c
         src/tools.c
         src/ui.c
         src/menu.c
-        src/buffer.c)
+        src/buffer.c src/query.c)
 
 # The curses library is stored in various places depending on system
 if(UNIX AND NOT APPLE)

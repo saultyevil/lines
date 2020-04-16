@@ -20,7 +20,7 @@
 
 /* ************************************************************************** */
 /**
- * @brief      Clean up the memory for the menu.
+ * @brief  Clean up the memory for the menu.
  *
  * @param[in]  menu      The menu to be cleaned up
  * @param[in]  items     The items to be cleaned up
@@ -46,7 +46,7 @@ clean_up_menu (MENU *menu, ITEM **items, int nitems)
 
 /* ************************************************************************** */
 /**
- * @brief      Control the cursor for the provided menu.
+ * @brief  Control the cursor for the provided menu.
  *
  * @param[in]  menu  The menu to control
  * @param[in]  c     An integer which represents the keypress
@@ -96,7 +96,7 @@ control_menu (MENU *menu, int c)
 
 /* ************************************************************************** */
 /**
- * @brief      Displays a menu given the current items.
+ * @brief  Displays a menu given the current items.
  *
  * @param[in]  menu_message       A message to display for the menu
  * @param[in]  menu_items         The name of the menu items
@@ -104,11 +104,15 @@ control_menu (MENU *menu, int c)
  * @param[in]  current_index      The index referring to the previously chosen
  *                                menu entry
  * @param[in]  user_control_menu  If TRUE, allow the user to control the menu
+ *                                otherwise just the menu is printed
  *
  * @return     choice             An integer referring to the chosen menu item
  *
  * @details
  *
+ * This function assumes that the last element of the menu is QUIT and that the
+ * last element in menu_items is NULL. Hence, the index for QUIT is nitems - 2.  
+ * 
  * ************************************************************************** */
 
 int
@@ -116,47 +120,47 @@ update_menu_window (char *menu_message, char **menu_items, int nitems, int curre
 {
   int i, j, c;
   int len;
-  int the_choice;
-
+  int the_choice = MENU_QUIT;
   MENU *menu = NULL;
   ITEM **items = NULL;
   WINDOW *win = MENU_WINDOW.win;
 
+  if (menu_items[nitems] != NULL)
+  {
+    cleanup_ncurses_stdscr ();
+    printf ("Error: programming error - final element of menu_items is not NULL.\n");
+    exit (EXIT_FAILURE);
+  }
+
   wclear (win);
 
-  // This creates a 1 column boundary between the menu and content window
+  /* 
+   * This creates a 1 column "boundary" between the menu and content window
+   */
+
   wattron (win, A_REVERSE);
   for (j = 0; j < MENU_WINDOW.rows; ++j)
     mvwprintw (win, j, MENU_WINDOW.cols - 1, " ");
   wattroff (win, A_REVERSE);
 
+  len = (int) strlen (menu_message);
+  mvwprintw (win, 1, (MENU_WINDOW.cols - len) / 2 - 1, menu_message);
+
   if (!(items = calloc (nitems, sizeof (ITEM *))))
   {
     cleanup_ncurses_stdscr();
-    printf("BIG ERROR: Unable to allocate memory for menu\n");
+    printf("Error: unable to allocate memory to construct a menu\n");
     exit (EXIT_FAILURE);
   }
-
-  /*
-   * Pad the menu message to the center of the window
-   */
-
-  len = (int) strlen (menu_message);
-  mvwprintw (win, 1, (MENU_WINDOW.cols - 2) / 2 - (len / 2), menu_message);
-
-  /*
-   * Populate the menu with items from MENU_CHOICES, set the description as the
-   * name of the label because we are going to hide descriptions anyway (for now)
-   */
 
   for (i = 0; i < nitems; i++)
     items[i] = new_item (menu_items[i], menu_items[i]);
   menu = new_menu (items);
-  menu_opts_off (menu, O_SHOWDESC);
+  menu_opts_off (menu, O_SHOWDESC);  // Don't want to show desc in small menu window
 
   /*
-   * Set the menu formatting and place the cursor to the last chosen menu choice
-   * using set_current_item
+   * Set the menu formatting. Note that this is hard coded at the moment, though
+   * I do not think it will ever need to be done more dynamically.
    */
 
   set_menu_win (menu, win);
@@ -167,13 +171,12 @@ update_menu_window (char *menu_message, char **menu_items, int nitems, int curre
   if (current_index < 0)
     current_index = 0;
   if (current_index > nitems - 1)
-    current_index = 0;
+    current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
   post_menu (menu);
   wrefresh (win);
 
-  the_choice = MENU_QUIT;
   if (user_control_menu)
   {
     while ((c = wgetch (win)) != 'q')
@@ -185,11 +188,11 @@ update_menu_window (char *menu_message, char **menu_items, int nitems, int curre
     }
   }
 
-  if (the_choice == nitems - 2)  // Quit is the 2nd last element
+  if (the_choice == nitems - 2)  // Quit SHOULD always be the 2nd last element
   {
     clean_up_menu (menu, items, nitems);
     cleanup_ncurses_stdscr();
-    exit (0);
+    exit (EXIT_SUCCESS);
   }
 
   clean_up_menu (menu, items, nitems);

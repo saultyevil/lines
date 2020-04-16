@@ -1,25 +1,26 @@
 /** ************************************************************************* */
 /**
- * @file
+ * @file     photoionization.c
  * @author   Edward Parkinson
- * @date
+ * @date     April 2020
  *
  * @brief
  *
+ * Functions for querying the photoionization data.
+ *
  * ************************************************************************** */
-
-#include <stdio.h>
 
 #include "atomix.h"
 
 /* ************************************************************************** */
 /**
- * @brief
- *
- * @return
+ * @brief  The main menu for photoionization queries.
  *
  * @details
  *
+ * The main menu for photoionization queries is controlled by this function.
+ *
+ * TODO: add additional options and a menu :^)
  *
  * ************************************************************************** */
 
@@ -39,14 +40,21 @@ photoionization_home_menu (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Retrieve all of the photoionization edges over a given wavelength
+ *         range.
  *
- * @param[in] wmin
- * @param[in] wmax
- *
- * @return void
+ * @param[in]  wmin  The smallest wavelength to consider
+ * @param[in]  wmax  The largest wavelength to consider
  *
  * @details
+ *
+ * This function simply loops over the phot_top pointer (Topbase) and writes
+ * to the DISPLAY buffer whenever a threshold frequency for an edge falls
+ * within the provided wavelength range.
+ *
+ * Added to the display buffer for each edge is,
+ *
+ *  Wavelength, Element, Z, istat and PhotInfo
  *
  * ************************************************************************** */
 

@@ -17,10 +17,10 @@
 
 /* ************************************************************************** */
 /**
- * @brief   Get the name of an element given the atomic number
+ * @brief  Get the name of an element given the atomic number
  *
- * @param[in]  z           The atomic number of the element
- * @param[out] element     The name of the element
+ * @param[in]   z        The atomic number of the element
+ * @param[out]  element  The name of the element
  *
  * @return  void
  *
@@ -52,12 +52,21 @@ get_element_name (int z, char *element)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Check the command line arguments to see if atomic data has been
+ *         provided.
  *
- * @return
+ * @return  provided  TRUE if atomic data is provided, otherwise FALSE
  *
  * @details
  *
+ * Quick and dirty method to parse the command line arguments. atomix either
+ * expects ONE or NO arguments. If one argument is provided, this is assumed
+ * to be the file name for the atomic data and it will subsequently be loaded
+ * in. If we cannot read the atomic data, then atomix will exit.
+ * 
+ * This function is called before ncurses is initialised, thus printf should be
+ * used instead when expanding it.
+ * 
  * ************************************************************************** */
 
 int
@@ -66,7 +75,6 @@ check_command_line (int argc, char **argv)
   int atomic_data_error;
   int provided = FALSE;
   char atomic_data_name[LINELEN];
-  Line_t sb = LINE_INIT;
 
   char help[] =
     "atomix is a utility program used to inspect the atomic data used in Python.\n"
@@ -77,24 +85,24 @@ check_command_line (int argc, char **argv)
     "   h           [optional]  print this help message\n";
 
 
-  if (argc == 2 && !strncmp (argv[1], "-h", 2))
+  if ((argc == 2 || argc == 3) && !strcmp (argv[1], "-h"))
   {
     printf ("%s", help);
-    exit (0);
+    exit (EXIT_SUCCESS);
   }
   else if (argc == 2)
   {
     strcpy (atomic_data_name, argv[1]);
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
-    {
       strcat (atomic_data_name, ".dat");
-    }
-    atomic_data_error = get_atomic_data (atomic_data_name, &sb);
+    
+    atomic_data_error = get_atomic_data (atomic_data_name);
+    
     if (atomic_data_error)
     {
       // TODO more verbose error reporting - generic function required
-      printf ("!! Invalid atomic data provided, try again.\n");
-      printf ( "!! Atomic data error %i\n", atomic_data_error);
+      printf ("Error: Invalid atomic data provided, try again.\n");
+      printf ("Error: Atomic data error %i\n", atomic_data_error);
       exit (1);
     }
     else
@@ -104,9 +112,9 @@ check_command_line (int argc, char **argv)
   }
   else if (argc > 2)
   {
-    printf ("Invalid number of arguments passed.\n");
+    printf ("Unknown arguments.\n");
     printf ("\n%s", help);
-    exit (1);
+    exit (EXIT_FAILURE);
   }
 
   return provided;

@@ -898,7 +898,7 @@ index_lines ()
  **********************************************************/
 
 int
-get_atomic_data (char *masterfile, Line_t *sb)
+get_atomic_data (char *masterfile)
 {
   int match;
   FILE *fptr, *mptr;

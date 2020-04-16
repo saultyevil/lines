@@ -23,9 +23,6 @@ void cleanup_ncurses_stdscr(void);
 void initialise_main_windows(void);
 void draw_window_boundaries(void);
 void bold_message(WINDOW *win, int y, int x, char *msg, ...);
-int query_atomic_data(void);
-double get_wavelength(WINDOW *win, char *msg, int y, int x, int len);
-void query_wavelength_range(double *wmin, double *wmax);
 /* xsections.c */
 void photoionization_home_menu(void);
 void get_photoionization_cross_sections(double wmin, double wmax);
@@ -40,4 +37,8 @@ int check_xsections(void);
 double a21(struct lines *line_ptr);
 double upsilon(int n_coll, double u0);
 int index_lines(void);
-int get_atomic_data(char *masterfile, Line_t *sb);
+int get_atomic_data(char *masterfile);
+/* query.c */
+int query_atomic_data(void);
+double get_wavelength(WINDOW *win, char *msg, int y, int x, int len);
+void query_wavelength_range(double *wmin, double *wmax);

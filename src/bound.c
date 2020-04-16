@@ -1,8 +1,8 @@
-/** ************************************************************************* */
+/* ************************************************************************** */
 /**
- * @file     bound_bound.c
+ * @file     bound.c
  * @author   Edward Parkinson
- * @date     April 2020
+ * @date     September 2019
  *
  * @brief
  *
@@ -15,8 +15,7 @@
 /* ************************************************************************** */
 /**
  * @brief  The main menu for bound bound transition queries.
- *
- * TODO add more bound-bound features
+ * 
  * @details
  *
  * This function uses limit_lines() in read_atomic_data.c to update the values
@@ -24,6 +23,9 @@
  *
  * limit_lines() is not perfect and usually causes the program to return lines
  * which are just a little out of the provided wavelength range.
+ *
+ * TODO: add additional options, i.e. lines for a given elements or istate
+ * TODO: add a mdenu :^)
  *
  * ************************************************************************** */
 
@@ -46,21 +48,22 @@ bound_bound_main_menu (void)
 
 /* ************************************************************************** */
 /**
- * @brief          Retrieve the bound bound transitions in a given wavelength
- *                 range.
- *
- * @param[in, out] sb     The screen buffer to write to.
- * @param[in]      wmin   The smallest wavelength transition to find.
- * @param[in]      wmax   The largest wavelength transition to find.
- *
- * @return void
+ * @brief Retrieve all the bound bound transitions over a given wavelength
+ *        range.
  *
  * @details
  *
+ * This function simply loops over the lin_ptr struct between the limits
+ * nline_min and nline_max set by the limit_lines() function.
+ * 
+ * Added to the display buffer for each transition is,
+ * 
+ *  Wavelength, Element, Z, istat, levu, levl and nion
+ * 
  * ************************************************************************** */
 
 void
-get_bound_bound_lines ()
+get_bound_bound_lines (void)
 {
   int i;
   const int ndashes = 86;
