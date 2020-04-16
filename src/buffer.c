@@ -70,7 +70,10 @@ display_text_buffer (WINDOW *win, int start_y, int start_x)
   }
 
   for (i = 0; i < DISPLAY.nlines && i + start_y < LINES - 2; ++i)
-    mvwprintw (win, i + start_y, start_x, "%s", DISPLAY.lines[i].chars);
+  {
+    wmove (win, i + start_y, start_x);
+    wprintw (win, "%s", DISPLAY.lines[i].chars);
+  }
 
   wrefresh (win);
   clean_up_display_buffer ();
@@ -99,22 +102,23 @@ display_text_buffer (WINDOW *win, int start_y, int start_x)
 void
 add_to_display_buffer (char *fmt, ...)
 {
-  int current_line;
+  int line_index;
   int len;
   va_list va, va_c;
 
-  current_line = DISPLAY.nlines++;
+  DISPLAY.nlines++;
   DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (Line_t));
+  line_index = DISPLAY.nlines - 1;
 
-  if (!DISPLAY.lines)
+  if (DISPLAY.lines == NULL)
   {
     cleanup_ncurses_stdscr ();
     printf ("BIG ERROR: Unable to add additional line to the display buffer :-(\n");
     exit (1);
   }
 
-  DISPLAY.lines[current_line].len = 0;
-  DISPLAY.lines[current_line].chars = NULL;
+  DISPLAY.lines[line_index].len = 0;
+  DISPLAY.lines[line_index].chars = NULL;
 
   /*
    * May be playing it extra safe here, but make a copy of va as va is not
@@ -125,9 +129,11 @@ add_to_display_buffer (char *fmt, ...)
   va_copy (va_c, va);
 
   len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
-  DISPLAY.lines[current_line].chars = malloc (len * sizeof (char));
-  len = vsprintf (DISPLAY.lines[current_line].chars, fmt, va_c);  // vsprintf NULL terminates the string
-  DISPLAY.lines[current_line].len = len;
+  DISPLAY.lines[line_index].chars = malloc (len * sizeof (char));
+  len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
+  DISPLAY.lines[line_index].len = len;
+
+  Log ("%s", DISPLAY.lines[line_index].chars);
   
   va_end (va);
   va_end (va_c);
@@ -147,7 +153,7 @@ add_to_display_buffer (char *fmt, ...)
  * ************************************************************************** */
 
 void
-append_separator_to_buffer (const int len)
+add_separator_to_buffer (const int len)
 {
   int i;
   char tmp[len + 2];

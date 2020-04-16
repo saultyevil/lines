@@ -1281,7 +1281,7 @@ structure does not have this property! */
   char data[LINELENGTH];
   char *atomic_data_file_path = calloc (LINELENGTH, sizeof (char));
   char *sub_atomic_data_file_path = calloc (LINELENGTH, sizeof (char));
-  char *python_file_path;
+  char *python_file_path; // = calloc (LINELENGTH, sizeof (char));
 
   if ((python_file_path = getenv ("PYTHON")) == NULL)
   {
@@ -1302,7 +1302,7 @@ structure does not have this property! */
     return ATOMIC_FILE_IO_ERROR;
   }
 
-  Log ("Get_atomic_data: Reading from %s\n", atomic_data_file_path);
+  add_to_display_buffer ("Reading atomic data from %s\n", atomic_data_file_path);
 
 /* Open and read each line in the masterfile in turn */
 
@@ -3473,24 +3473,24 @@ SCUPS    1.132e-01   2.708e-01   5.017e-01   8.519e-01   1.478e+00
   add_to_display_buffer ("                %3d have matching electron yield data\n", n_elec_yield_tot);
   add_to_display_buffer ("We have read in %3d Dielectronic recombination coefficients\n", ndrecomb);
   add_to_display_buffer ("We have read in %3d Badnell totl Radiative rate coefficients\n", n_total_rr);
-  add_to_display_buffer ("We have read in %3d Badnell GS   Radiative rate coefficients over the temp range %e to %e\n",
-                         n_bad_gs_rr, gstmin, gstmax);
-  add_to_display_buffer ("We have read in %3d Scaled electron temperature frequency averaged gaunt factors\n",
-                         gaunt_n_gsqrd);
+  add_to_display_buffer ("We have read in %3d Badnell GS   Radiative rate coefficients\n", n_bad_gs_rr);
+  add_to_display_buffer ("We have read in %3d Scaled electron temperature frequency averaged gaunt factors\n", gaunt_n_gsqrd);
   add_to_display_buffer ("The minimum frequency for photoionization is %8.2e\n", phot_freq_min);
   add_to_display_buffer ("The minimum frequency for inner shell ionization is %8.2e\n", inner_freq_min);
 
   /* report ignored simple lines for macro-ions */
   for (n = 0; n < NIONS; n++)
   {
-    if (simple_line_ignore[n] > 0)
-      add_to_display_buffer ("Ignored %d simple lines for macro-ion %d\n", simple_line_ignore[n], n);
+    // TODO: this causes a segmentation fault with realloc for some reason.. figure out why??
+    // if (simple_line_ignore[n] > 0)
+    //   add_to_display_buffer ("Ignored %d simple lines for macro-ion %d\n", simple_line_ignore[n], n);
   }
+
   /* report ignored collision strengths */
   if (cstren_no_line > 0)
     add_to_display_buffer ("Ignored %d collision strengths with no matching line transition\n", cstren_no_line);
   if (inner_no_e_yield > 0)
-    add_to_display_buffer ("Ignoring %d inner shell cross sections because no matching yields\n", inner_no_e_yield);
+    add_to_display_buffer ("Ignored %d inner shell cross sections because no matching yields\n", inner_no_e_yield);
 
 
 
