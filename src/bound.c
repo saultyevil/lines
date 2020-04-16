@@ -72,11 +72,11 @@ get_bound_bound_lines (void)
   double wl;
   char element[LINELEN];
 
-  add_to_display_buffer ("Bound-Bound Lines\n");
-  append_separator_to_buffer (ndashes);
+  add_to_display_buffer ("Bound-Bound Transitions\n");
+  add_separator_to_buffer (ndashes);
   add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "levu",
                          "levl", "nion");
-  append_separator_to_buffer (ndashes);
+  add_separator_to_buffer (ndashes);
 
   for (i = nline_min; i < nline_max; ++i)
   {
@@ -90,5 +90,5 @@ get_bound_bound_lines (void)
     add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu, levl, nion);
   }
 
-  append_separator_to_buffer (ndashes);
+  add_separator_to_buffer (ndashes);
 }

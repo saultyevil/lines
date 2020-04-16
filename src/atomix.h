@@ -25,7 +25,7 @@
  * ************************************************************************** */
 
 // UI Constants
-#define VERSION "3.0a"
+#define VERSION "3.1a"
 #define MENU_QUIT -1
 
 #define MENU_WIDTH 24

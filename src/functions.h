@@ -5,7 +5,7 @@ void get_bound_bound_lines(void);
 void clean_up_display_buffer(void);
 void display_text_buffer(WINDOW *win, int start_y, int start_x);
 void add_to_display_buffer(char *fmt, ...);
-void append_separator_to_buffer(const int len);
+void add_separator_to_buffer (const int len);
 /* main.c */
 int main_menu(int current_index);
 void process_main_menu_choices(int choice);

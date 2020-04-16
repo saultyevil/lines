@@ -112,6 +112,7 @@ initialise_main_windows (void)
   CONTENT_WINDOW.y = TITLE_HEIGHT;
   CONTENT_WINDOW.x = MENU_WIDTH;
   CONTENT_WINDOW.win = newwin (CONTENT_WINDOW.rows, CONTENT_WINDOW.cols, CONTENT_WINDOW.y, CONTENT_WINDOW.x);
+  scrollok (CONTENT_WINDOW.win, TRUE);
 }
 
 /* ************************************************************************** */

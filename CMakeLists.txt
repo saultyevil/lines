@@ -18,7 +18,8 @@ set(SOURCE_FILES
         src/tools.c
         src/ui.c
         src/menu.c
-        src/buffer.c src/query.c)
+        src/buffer.c
+        src/query.c)
 
 # The curses library is stored in various places depending on system
 if(UNIX AND NOT APPLE)

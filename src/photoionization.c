@@ -71,10 +71,10 @@ get_photoionization_cross_sections (double wmin, double wmax)
   fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
-  add_to_display_buffer ("Photoionization Cross Sections\n");
-  append_separator_to_buffer (ndashes);
+  add_to_display_buffer ("Photoionization Edges\n");
+  add_separator_to_buffer (ndashes);
   add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "PhotInfo");
-  append_separator_to_buffer (ndashes);
+  add_separator_to_buffer (ndashes);
 
   for (i = 0; i < NLEVELS; ++i)
   {
@@ -90,5 +90,5 @@ get_photoionization_cross_sections (double wmin, double wmax)
     }
   }
 
-  append_separator_to_buffer (ndashes);
+  add_separator_to_buffer (ndashes);
 }

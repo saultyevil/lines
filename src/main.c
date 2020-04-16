@@ -123,7 +123,7 @@ main (int argc, char *argv[])
   int main_menu_choice = MENU_QUIT;
 
   /*
-   * Initalise DISPLAY to zero lines and NULL otherwise realloc will crash
+   * Initialise DISPLAY to zero lines and NULL otherwise realloc will crash
    */
 
   DISPLAY.nlines = 0;
