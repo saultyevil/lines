@@ -59,8 +59,31 @@ initialise_ncurses_stdscr (void)
 void
 cleanup_ncurses_stdscr (void)
 {
-  Log_close ();
+  log_close ();
   endwin ();
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+error_exit_atomix (int errno, char *fmt, ...)
+{
+  va_list va;
+
+  cleanup_ncurses_stdscr ();
+
+  va_start (va, fmt);
+  vprintf ("Fatal Error: %s\n", va);
+  printf ("errno = %i\n", errno);
+  va_end (va);
+
+  exit (errno);
 }
 
 /* ************************************************************************** */

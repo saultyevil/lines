@@ -49,10 +49,9 @@ main (int argc, char *argv[])
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
    * diagnostics into the logfile
-   * TODO: add more to the log file
    */
 
-  Log_init ("atomix.out.txt");
+  log_init ("atomix.log.txt");
   print_atomic = check_command_line (argc, argv);
 
   /*

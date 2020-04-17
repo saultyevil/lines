@@ -19,6 +19,7 @@ int check_command_line(int argc, char **argv);
 /* ui.c */
 void initialise_ncurses_stdscr(void);
 void cleanup_ncurses_stdscr(void);
+void error_exit_atomix(int errno, char *fmt, ...);
 void menu_exit_atomix(void);
 void initialise_main_windows(void);
 void draw_window_boundaries(void);
