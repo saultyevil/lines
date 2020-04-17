@@ -14,7 +14,7 @@
 
 #include <form.h>
 #include <string.h>
-#include <stdlib.h>
+#include <ctype.h>
 
 #include "atomix.h"
 
@@ -32,11 +32,39 @@ MenuItem_t ATOMIC_DATA_CHOICES[] ={
   {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
   {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
   {NULL, 0        , "standard80_test"           , ": Standard TEst Simple-atom"},
-  {NULL, 0        , "Other"                     , ": Custom data"},
+  {NULL, MENU_OTHR, "Other"                     , ": Custom data"},
   {NULL, MENU_NULL, NULL                        , NULL}
 };
 
-#define ATOMIC_DATA_WIDTH 26
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+char *
+trim_whitespaces(char *str)
+{
+  char *end;
+
+  while (isspace (*str))
+    str++;
+
+  if (*str == 0)
+    return str;
+
+  end = str + strnlen(str, 128) - 1;
+
+  while (end > str && isspace (*end))
+    end--;
+
+  *(end + 1) = '\0';
+
+  return str;
+}
 
 /* ************************************************************************** */
 /**
@@ -47,67 +75,44 @@ MenuItem_t ATOMIC_DATA_CHOICES[] ={
  *
  * ************************************************************************** */
 
-//static char *
-//trim_whitespaces(char *str)
-//{
-//  char *end;
-//
-//  while (isspace (*str))
-//    str++;
-//
-//  if (*str == 0)
-//    return str;
-//
-//  end = str + strnlen(str, 128) - 1;
-//
-//  while (end > str && isspace (*end))
-//    end--;
-//
-//  *(end + 1) = '\0';
-//
-//  return str;
-//}
+int
+control_form (FORM *form, int ch)
+{
+  int input = MENU_NULL;
 
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- *
- * ************************************************************************** */
+  switch (ch)
+  {
+    case KEY_DOWN:
+      form_driver (form, REQ_NEXT_FIELD);
+      form_driver (form, REQ_END_LINE);
+      break;
+    case KEY_UP:
+      form_driver (form, REQ_PREV_FIELD);
+      form_driver (form, REQ_END_LINE);
+      break;
+    case KEY_LEFT:
+      form_driver (form, REQ_PREV_CHAR);
+      break;
+    case KEY_RIGHT:
+      form_driver (form, REQ_NEXT_CHAR);
+      break;
+    case KEY_BACKSPACE:
+    case 127:
+      form_driver (form, REQ_DEL_PREV);
+      break;
+    case KEY_DC:
+      form_driver (form, REQ_DEL_CHAR);
+      break;
+    case 10:
+      input = MENU_QUIT;
+      break;
+    default:
+      form_driver (form, ch);
+      break;
+  }
 
-//void
-//control_form (WINDOW *win, FORM *form)
-//{
-//  int ch;
-//
-//  while ((ch = wgetch (win)) != 'q' || ch == KEY_ENTER)
-//  {
-//    switch (ch)
-//    {
-//      case KEY_DOWN:form_driver (form, REQ_NEXT_FIELD);
-//        form_driver (form, REQ_END_LINE);
-//        break;
-//      case KEY_UP:form_driver (form, REQ_PREV_FIELD);
-//        form_driver (form, REQ_END_LINE);
-//        break;
-//      case KEY_LEFT:form_driver (form, REQ_PREV_CHAR);
-//        break;
-//      case KEY_RIGHT:form_driver (form, REQ_NEXT_CHAR);
-//        break;
-//      case KEY_BACKSPACE:
-//      case 127:form_driver (form, REQ_DEL_PREV);
-//        break;
-//      case KEY_DC:form_driver (form, REQ_DEL_CHAR);
-//        break;
-//      default:form_driver (form, ch);
-//        break;
-//    }
-//
-//    wrefresh (win);
-//  }
-//}
+  return input;
+}
 
 /* ************************************************************************** */
 /**
@@ -117,30 +122,62 @@ MenuItem_t ATOMIC_DATA_CHOICES[] ={
  *
  * ************************************************************************** */
 
-//void
-//query_custom_atomic_data (void)
-//{
-//  FORM *form;
-//  FIELD *fields[2];
-//  WINDOW *win = CONTENT_WINDOW.win;
-//  char *atomic_data_name;
-//
-//  fields[1] = NULL;
-//  fields[0] = new_field (1, ATOMIC_DATA_WIDTH, 0, 0, 0, 0);
-//
-//  set_field_back (fields[0], A_UNDERLINE);
-//  field_opts_off (fields[0], O_AUTOSKIP);
-//
-//  form = new_form (fields);
-//  set_form_win (form, win);
-//  set_form_sub (form, derwin (win, 1, ATOMIC_DATA_WIDTH, 3, 4));
-//  post_form (form);
-//  set_current_field (form, fields[0]);
-//
-//  wrefresh (win);
-//  control_form (win, form);
-//  atomic_data_name = trim_whitespaces (field_buffer (fields[0], 0));
-//}
+void
+query_user_for_input (Window_t win, char *title_message, char *question, char *answer)
+{
+  int ch, control = MENU_NULL;
+  static FORM *form;
+  static FIELD *fields[3];
+  WINDOW *the_win = win.win;
+
+  wclear (the_win);
+  keypad (the_win, TRUE);
+
+  bold_message (the_win, 1, 1, title_message);
+
+  fields[0] = new_field (1, strlen (question), 0, 0, 0, 0);
+  fields[1] = new_field (1, MAX_FIELD_INPUT, 0, strlen (question) + 2, 0, 0);
+  fields[2] = NULL;
+
+  set_field_buffer (fields[0], 0, question);
+  set_field_opts(fields[0], O_VISIBLE | O_PUBLIC | O_AUTOSKIP);
+
+  set_field_buffer (fields[1], 0, answer);
+  set_field_back (fields[1], A_REVERSE);
+  field_opts_off (fields[1], O_AUTOSKIP);
+  set_field_opts(fields[1], O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE);
+
+  form = new_form (fields);
+  set_form_win (form, the_win);
+  set_form_sub (form, derwin (the_win, 10, win.cols - 2, 3, 1));
+  set_current_field (form, fields[1]);
+  post_form (form);
+  wrefresh (the_win);
+
+  /*
+   * Control the menu, exits when the enter key has been pressed
+   * or when ch is (somehow) NULL
+   */
+
+  while ((ch = wgetch (the_win)) && control == MENU_NULL)
+  {
+    control = control_form (form, ch);
+    form_driver (form, REQ_VALIDATION);
+    wrefresh (the_win);
+    if (control == MENU_QUIT)
+      break;
+  }
+
+  strcpy (answer, trim_whitespaces (field_buffer (fields[1], 0)));
+
+  unpost_form (form);
+  free_form (form);
+  free_field (fields[0]);
+  free_field (fields[1]);
+  free_field (fields[2]);
+
+  keypad (the_win, FALSE);
+}
 
 /* ************************************************************************** */
 /**
@@ -159,28 +196,40 @@ query_atomic_data (void)
   int valid = FALSE;
   int atomic_data_error;
   static int index = 8;
-  char atomic_data_name[LINELEN];
+  static int init_name = FALSE;
+  char atomic_data_name[MAX_FIELD_INPUT];
   WINDOW *win = CONTENT_WINDOW.win;
+
+  if (init_name == FALSE)
+  {
+    strcpy (atomic_data_name, "");
+    init_name = TRUE;
+  }
 
   while (valid != TRUE)
   {
-
     index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
                          ARRAY_SIZE (ATOMIC_DATA_CHOICES), index, CONTROL_MENU);
 
     if (index > MENU_QUIT)
-      strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[index].name);
-
-    if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
-      strcat (atomic_data_name, ".dat");
+    {
+      if (ATOMIC_DATA_CHOICES[index].index != MENU_OTHR)
+      {
+        strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[index].name);
+        strcat (atomic_data_name, ".dat");
+      }
+      else
+      {
+        query_user_for_input (CONTENT_WINDOW, "Please input the path to the atomic data masterfile",
+                              "File path: ", atomic_data_name);
+      }
+    }
 
     atomic_data_error = get_atomic_data (atomic_data_name);
 
     if (atomic_data_error)
     {
-      // TODO: increase verbosity of error messages, i.e. write out actual error
-      mvwprintw (win, ARRAY_SIZE (ATOMIC_DATA_CHOICES), 2, "Invalid atomic data provided, try again.");
-      mvwprintw (win, ARRAY_SIZE (ATOMIC_DATA_CHOICES) + 1, 2, "Error number: %i\n", atomic_data_error);
+      update_status_bar ("Error: error when reading atomic data : errno = %i", atomic_data_error);
     }
     else
     {
@@ -191,6 +240,7 @@ query_atomic_data (void)
   }
 
   display_text_buffer (win, 1, 1);
+  log_flush ();
 }
 
 /* ************************************************************************** */

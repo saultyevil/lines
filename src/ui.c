@@ -31,16 +31,22 @@
  * This function is a wrapper to initialise ncurses. Currently, this
  * initialises the stdscr screen.
  *
+ * There is a minimum terminal size of 130x35 enforced until scrolling works.
+ *
  * ************************************************************************** */
 
 void
 initialise_ncurses_stdscr (void)
 {
   initscr ();
-  clear ();
-  noecho ();      // Most screens don't want echo
-  cbreak ();      // Disable line buffering or summat
-  keypad (stdscr, FALSE);  // Allow the screen to take input
+  noecho ();               // Most screens don't want echo
+  cbreak ();               // Disable line buffering or summat
+  keypad (stdscr, TRUE);   // Allow the screen to take input
+
+  if (LINES < 35)
+    error_exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35");
+  if (COLS < 120)
+    error_exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35");
 }
 
 /* ************************************************************************** */
@@ -61,43 +67,6 @@ cleanup_ncurses_stdscr (void)
 {
   log_close ();
   endwin ();
-}
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-error_exit_atomix (int errno, char *fmt, ...)
-{
-  va_list va;
-
-  cleanup_ncurses_stdscr ();
-
-  va_start (va, fmt);
-  vprintf ("Fatal Error: %s\n", va);
-  printf ("errno = %i\n", errno);
-  va_end (va);
-
-  exit (errno);
-}
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-menu_exit_atomix (void)
-{
-  exit (EXIT_SUCCESS);
 }
 
 /* ************************************************************************** */
@@ -251,4 +220,40 @@ bold_message (WINDOW *win, int y, int x, char *fmt, ...)
   free (msg);
 }
 
+/* ************************************************************************** */
+/**
+ * @brief  Update the status bar
+ *
+ * @param[in]  fmt
+ * @param[in]  ...
+ *
+ * @details
+ *
+ * ************************************************************************** */
 
+void
+update_status_bar (char *fmt, ...)
+{
+  int len;
+  char *msg;
+  va_list va, va_c;
+
+  wattron (STATUS_WINDOW.win, A_REVERSE);
+  for (int i = 0; i < STATUS_WINDOW.cols; ++i)
+    mvwprintw (STATUS_WINDOW.win, 0, i, " ");
+
+  va_start (va, fmt);
+  va_copy (va_c, va);
+
+  len = vsnprintf (NULL, 0, fmt, va);
+  msg = malloc (len * sizeof (char));
+  len = vsprintf (msg, fmt, va_c);
+
+  va_end (va);
+  va_end (va_c);
+
+  mvwprintw (STATUS_WINDOW.win, 0, 1, msg);
+  wattroff (STATUS_WINDOW.win, A_REVERSE);
+
+  wrefresh (STATUS_WINDOW.win);
+}

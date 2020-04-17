@@ -16,14 +16,15 @@ int create_menu(Window_t win, char *menu_message, const MenuItem_t *menu_items, 
 /* tools.c */
 void get_element_name(int z, char *element);
 int check_command_line(int argc, char **argv);
+void error_exit_atomix(int errno, char *fmt, ...);
+void menu_exit_atomix(void);
 /* ui.c */
 void initialise_ncurses_stdscr(void);
 void cleanup_ncurses_stdscr(void);
-void error_exit_atomix(int errno, char *fmt, ...);
-void menu_exit_atomix(void);
 void initialise_main_windows(void);
 void draw_window_boundaries(void);
 void bold_message(WINDOW *win, int y, int x, char *fmt, ...);
+void update_status_bar(char *fmt, ...);
 /* photoionization.c */
 void photoionization_main_menu(void);
 void get_photoionization_cross_sections(double wmin, double wmax);
@@ -40,6 +41,9 @@ double upsilon(int n_coll, double u0);
 int index_lines(void);
 int get_atomic_data(char *masterfile);
 /* query.c */
+char *trim_whitespaces(char *str);
+int control_form(FORM *form, int ch);
+void query_user_for_input (Window_t win, char *title_message, char *question, char *answer);
 void query_atomic_data(void);
 double get_wavelength(WINDOW *win, char *msg, int y, int x, int len);
 void query_wavelength_range(double *wmin, double *wmax);

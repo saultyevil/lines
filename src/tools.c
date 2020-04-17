@@ -119,3 +119,42 @@ check_command_line (int argc, char **argv)
 
   return provided;
 }
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+error_exit_atomix (int errno, char *fmt, ...)
+{
+  va_list va;
+
+  cleanup_ncurses_stdscr ();
+
+  printf ("Fatal Error: ");
+  va_start (va, fmt);
+  vprintf (fmt, va);
+  va_end (va);
+  printf ("\nerrno = %i\n", errno);
+
+  exit (errno);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+menu_exit_atomix (void)
+{
+  log_flush ();
+  exit (EXIT_SUCCESS);
+}

@@ -35,8 +35,11 @@
 
 #define MENU_QUIT -1
 #define MENU_NULL -2
+#define MENU_OTHR -3
 #define CONTROL_MENU TRUE
 #define REDRAW_MENU FALSE
+
+#define MAX_FIELD_INPUT 50
 
 #define MENU_WIDTH 24
 #define TITLE_HEIGHT 2

@@ -130,8 +130,9 @@ add_to_display_buffer (char *fmt, ...)
   va_copy (va_c, va);
 
   len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
-  DISPLAY.lines[line_index].chars = malloc (len * sizeof (char));
+  DISPLAY.lines[line_index].chars = malloc (len * sizeof (char) + 1);
   len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
+  DISPLAY.lines[line_index].chars[len] = '\0';
   DISPLAY.lines[line_index].len = len;
 
   add_to_log ("%s\n", DISPLAY.lines[line_index].chars);

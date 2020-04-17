@@ -108,16 +108,13 @@ control_menu (MENU *menu, int c)
  * @param[in]  nitems             The number of items in the menu
  * @param[in]  current_index      The index referring to the previously chosen
  *                                menu entry
- * @param[in]  control_menu  If TRUE, allow the user to control the menu
+ * @param[in]  control_this_menu  If TRUE, allow the user to control the menu
  *                                otherwise just the menu is printed
  *
- * @return     choice             An integer referring to the chosen menu item
+ * @return     index             An integer referring to the chosen menu item
  *
  * @details
  *
- * This function assumes that the last element of the menu is QUIT and that the
- * last element in menu_items is NULL. Hence, the index for QUIT is nitems - 2.  
- * 
  * ************************************************************************** */
 
 int
@@ -211,22 +208,21 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
 
 /* ************************************************************************** */
 /**
- * @brief  Displays a menu given the current items.
+ * @brief  Displays an control a genric menu for the given Window_t window.
  *
+ * @param[in]  win
  * @param[in]  menu_message       A message to display for the menu
  * @param[in]  menu_items         The name of the menu items
  * @param[in]  nitems             The number of items in the menu
  * @param[in]  current_index      The index referring to the previously chosen
  *                                menu entry
- * @param[in]  control_menu  If TRUE, allow the user to control the menu
+ * @param[in]  control_this_menu  If TRUE, allow the user to control the menu
  *                                otherwise just the menu is printed
  *
- * @return     choice             An integer referring to the chosen menu item
+ * @return     index             An integer referring to the chosen menu item
  *
  * @details
  *
- * This function assumes that the last element of the menu is QUIT and that the
- * last element in menu_items is NULL. Hence, the index for QUIT is nitems - 2.
  *
  * ************************************************************************** */
 

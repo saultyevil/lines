@@ -3429,7 +3429,8 @@ SCUPS    1.132e-01   2.708e-01   5.017e-01   8.519e-01   1.478e+00
           case 'c':              /* It was a comment line so do nothing */
             break;
           case 'z':
-          default:add_to_log ("get_atomicdata: Could not interpret line %d in file %s: %s\n", lineno, file, aline);
+          default:
+            add_to_log ("get_atomicdata: Could not interpret line %d in file %s: %s\n", lineno, file, aline);
             break;
         }
 
@@ -3481,7 +3482,6 @@ SCUPS    1.132e-01   2.708e-01   5.017e-01   8.519e-01   1.478e+00
   /* report ignored simple lines for macro-ions */
   for (n = 0; n < NIONS; n++)
   {
-    // TODO: this causes a segmentation fault with realloc for some reason.. figure out why??
     if (simple_line_ignore[n] > 0)
       add_to_display_buffer ("Ignored %d simple lines for macro-ion %d", simple_line_ignore[n], n);
   }
