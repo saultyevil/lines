@@ -8,63 +8,12 @@
  *
  * Functions for querying information from the user.
  *
- * TODO switch to using the forms library
- *
  * ************************************************************************** */
 
 #include <form.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "atomix.h"
-
-const
-MenuItem_t ATOMIC_DATA_CHOICES[] ={
-  {NULL, 0        , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 0        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 0        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
-  {NULL, 0        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
-  {NULL, 0        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
-  {NULL, 0        , "h10_standard80"            , ": 10 Level H Macro-atom"},
-  {NULL, 0        , "h20"                       , ": 20 Level H Macro-atom"},
-  {NULL, 0        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
-  {NULL, 0        , "standard80"                , ": Standard Simple-atom"},
-  {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
-  {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
-  {NULL, 0        , "standard80_test"           , ": Standard TEst Simple-atom"},
-  {NULL, MENU_OTHR, "Other"                     , ": Custom data"},
-  {NULL, MENU_NULL, NULL                        , NULL}
-};
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- *
- * ************************************************************************** */
-
-char *
-trim_whitespaces(char *str)
-{
-  char *end;
-
-  while (isspace (*str))
-    str++;
-
-  if (*str == 0)
-    return str;
-
-  end = str + strnlen(str, 128) - 1;
-
-  while (end > str && isspace (*end))
-    end--;
-
-  *(end + 1) = '\0';
-
-  return str;
-}
 
 /* ************************************************************************** */
 /**
@@ -162,12 +111,12 @@ query_user_for_input (Window_t win, char *title_message, char *question, char *a
   while ((ch = wgetch (the_win)) && control == MENU_NULL)
   {
     control = control_form (form, ch);
-    form_driver (form, REQ_VALIDATION);
     wrefresh (the_win);
     if (control == MENU_QUIT)
       break;
   }
 
+  form_driver (form, REQ_VALIDATION);
   strcpy (answer, trim_whitespaces (field_buffer (fields[1], 0)));
 
   unpost_form (form);
@@ -177,70 +126,6 @@ query_user_for_input (Window_t win, char *title_message, char *question, char *a
   free_field (fields[2]);
 
   keypad (the_win, FALSE);
-}
-
-/* ************************************************************************** */
-/**
- * @brief     Query the user for the atomic data name.
- *
- * @details
- *
- * Will keep asking the user for an atomic data name until the data can be read
- * in without error, or until the user quits the program.
- *
- * ************************************************************************** */
-
-void
-query_atomic_data (void)
-{
-  int valid = FALSE;
-  int atomic_data_error;
-  static int index = 8;
-  static int init_name = FALSE;
-  char atomic_data_name[MAX_FIELD_INPUT];
-  WINDOW *win = CONTENT_WINDOW.win;
-
-  if (init_name == FALSE)
-  {
-    strcpy (atomic_data_name, "");
-    init_name = TRUE;
-  }
-
-  while (valid != TRUE)
-  {
-    index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
-                         ARRAY_SIZE (ATOMIC_DATA_CHOICES), index, CONTROL_MENU);
-
-    if (index > MENU_QUIT)
-    {
-      if (ATOMIC_DATA_CHOICES[index].index != MENU_OTHR)
-      {
-        strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[index].name);
-        strcat (atomic_data_name, ".dat");
-      }
-      else
-      {
-        query_user_for_input (CONTENT_WINDOW, "Please input the path to the atomic data masterfile",
-                              "File path: ", atomic_data_name);
-      }
-    }
-
-    atomic_data_error = get_atomic_data (atomic_data_name);
-
-    if (atomic_data_error)
-    {
-      update_status_bar ("Error: error when reading atomic data : errno = %i", atomic_data_error);
-    }
-    else
-    {
-      valid = TRUE;
-    }
-
-    wrefresh (win);
-  }
-
-  display_text_buffer (win, 1, 1);
-  log_flush ();
 }
 
 /* ************************************************************************** */
@@ -322,4 +207,86 @@ query_wavelength_range (double *wmin, double *wmax)
   }
 
   noecho ();
+}
+
+/* ************************************************************************** */
+/**
+ * @brief     Query the user for the atomic data name.
+ *
+ * @details
+ *
+ * Will keep asking the user for an atomic data name until the data can be read
+ * in without error, or until the user quits the program.
+ *
+ * ************************************************************************** */
+
+const
+MenuItem_t ATOMIC_DATA_CHOICES[] ={
+  {NULL, 0        , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 0        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 0        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
+  {NULL, 0        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
+  {NULL, 0        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
+  {NULL, 0        , "h10_standard80"            , ": 10 Level H Macro-atom"},
+  {NULL, 0        , "h20"                       , ": 20 Level H Macro-atom"},
+  {NULL, 0        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
+  {NULL, 0        , "standard80"                , ": Standard Simple-atom"},
+  {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
+  {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
+  {NULL, 0        , "standard80_test"           , ": Standard TEst Simple-atom"},
+  {NULL, MENU_OTHR, "Other"                     , ": Custom data"},
+  {NULL, MENU_NULL, NULL                        , NULL}
+};
+
+void
+query_atomic_data (void)
+{
+  int valid = FALSE;
+  int atomic_data_error;
+  static int index = 8;
+  static int init_name = FALSE;
+  char atomic_data_name[MAX_FIELD_INPUT];
+  WINDOW *win = CONTENT_WINDOW.win;
+
+  if (init_name == FALSE)
+  {
+    strcpy (atomic_data_name, "");
+    init_name = TRUE;
+  }
+
+  while (valid != TRUE)
+  {
+    index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
+                         ARRAY_SIZE (ATOMIC_DATA_CHOICES), index, CONTROL_MENU);
+
+    if (index > MENU_QUIT)
+    {
+      if (ATOMIC_DATA_CHOICES[index].index != MENU_OTHR)
+      {
+        strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[index].name);
+        strcat (atomic_data_name, ".dat");
+      }
+      else
+      {
+        query_user_for_input (CONTENT_WINDOW, "Please input the path to the atomic data masterfile",
+                              "File path: ", atomic_data_name);
+      }
+    }
+
+    atomic_data_error = get_atomic_data (atomic_data_name);
+
+    if (atomic_data_error)
+    {
+      update_status_bar ("Error: error when reading atomic data : errno = %i", atomic_data_error);
+    }
+    else
+    {
+      valid = TRUE;
+    }
+
+    wrefresh (win);
+  }
+
+  display_text_buffer (win, 1, 1);
+  log_flush ();
 }

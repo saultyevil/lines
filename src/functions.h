@@ -18,6 +18,7 @@ void get_element_name(int z, char *element);
 int check_command_line(int argc, char **argv);
 void error_exit_atomix(int errno, char *fmt, ...);
 void menu_exit_atomix(void);
+char *trim_whitespaces(char *str);
 /* ui.c */
 void initialise_ncurses_stdscr(void);
 void cleanup_ncurses_stdscr(void);
@@ -41,9 +42,8 @@ double upsilon(int n_coll, double u0);
 int index_lines(void);
 int get_atomic_data(char *masterfile);
 /* query.c */
-char *trim_whitespaces(char *str);
 int control_form(FORM *form, int ch);
-void query_user_for_input (Window_t win, char *title_message, char *question, char *answer);
-void query_atomic_data(void);
+void query_user_for_input(Window_t win, char *title_message, char *question, char *answer);
 double get_wavelength(WINDOW *win, char *msg, int y, int x, int len);
 void query_wavelength_range(double *wmin, double *wmax);
+void query_atomic_data(void);
