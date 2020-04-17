@@ -27,6 +27,7 @@
 // UI Constants
 #define VERSION "3.1a"
 #define MENU_QUIT -1
+#define MENU_NULL -2
 
 #define MENU_WIDTH 24
 #define TITLE_HEIGHT 2
@@ -42,21 +43,25 @@
  *
  * ************************************************************************** */
 
-typedef struct
+struct Line_t
 {
   int len;
   char *chars;
-} Line_t;
-
-#define LINE_INIT {0, NULL}
+};
 
 struct Display_t
 {
   int nlines;
-  Line_t *lines;
+  struct Line_t *lines;
 };
 
-struct Display_t DISPLAY;
+struct MenuItem_t
+{
+  void *usrptr;
+  int index;
+  char *name;
+  char *desc;
+};
 
 /* ****************************************************************************
  *
@@ -64,6 +69,7 @@ struct Display_t DISPLAY;
  *
  * ************************************************************************** */
 
+#include <form.h>
 #include <menu.h>
 #include <curses.h>
 
@@ -78,14 +84,21 @@ struct Display_t DISPLAY;
  *
  * ************************************************************************** */
 
-typedef struct Window_t
+struct Window_t
 {
   int y, x;
   int rows, cols;
   WINDOW *win;
 } Window_t;
 
-Window_t MENU_WINDOW;
-Window_t TITLE_WINDOW;
-Window_t STATUS_WINDOW;
-Window_t CONTENT_WINDOW;
+/* ****************************************************************************
+ *
+ *                                Globals
+ *
+ * ************************************************************************** */
+
+struct Display_t DISPLAY;
+struct Window_t MENU_WINDOW;
+struct Window_t TITLE_WINDOW;
+struct Window_t STATUS_WINDOW;
+struct Window_t CONTENT_WINDOW;

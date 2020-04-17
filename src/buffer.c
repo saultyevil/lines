@@ -107,7 +107,7 @@ add_to_display_buffer (char *fmt, ...)
   va_list va, va_c;
 
   DISPLAY.nlines++;
-  DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (Line_t));
+  DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (struct Line_t));
   line_index = DISPLAY.nlines - 1;
 
   if (DISPLAY.lines == NULL)

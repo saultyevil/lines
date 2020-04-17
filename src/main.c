@@ -26,79 +26,13 @@
  * 
  */
 
-char *MAIN_MENU_CHOICES[] = {
-  "Bound Lines",
-  "Photoionization",
-  "Atomic Data",
-  "Exit",
-  NULL
+struct MenuItem_t MAIN_MENU_CHOICES[] = {
+  {&bound_bound_main_menu    , 0        , "Bound Lines"    , "Query bound-bound transitions"},
+  {&photoionization_main_menu, 1        , "Photoionization", "Query photionization edges"},
+  {&query_atomic_data        , 2        , "Atomic Data"    , "Switch the atomic data"},
+  {&menu_exit_atomix   ,       MENU_QUIT, "Exit"           , "Exit atomix"},
+  {NULL                      , MENU_NULL, NULL             , NULL}
 };
-
-enum MAIN_MENU_CHOICES_ENUM
-{
-  BOUND_BOUND,
-  PHOTOIONIZATION,
-  SWITCH_ATOMIC_DATA,
-  EXIT
-};
-
-/* ************************************************************************** */
-/**
- * @brief  Displays the home menu and navigates.
- *
- * @param[in]  current_index  The index referring to the previously chosen
- *                            menu entry
- * @return     choice         An integer referring to the chosen menu item
- *
- * @details
- *
- * This function is the main menu in atomix. It essentially, as well as
- * process_main_menu_choices(), controls where the user will go next.
- *
- * ************************************************************************** */
-
-int
-main_menu (int current_index)
-{
-  int choice;
-
-  choice = update_menu_window ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), current_index, TRUE);
-
-  return choice;
-}
-
-/* ************************************************************************** */
-/**
- * @brief  Process the menu input choices.
- *
- * @param[in]  choice  The index for the menu choice
- *
- * @details
- *
- * This function is used to take the user to other sections of atomix.
- *
- * ************************************************************************** */
-
-void
-process_main_menu_choices (int choice)
-{
-  switch (choice)
-  {
-    case BOUND_BOUND:
-      bound_bound_main_menu ();
-      break;
-    case PHOTOIONIZATION:
-      photoionization_home_menu ();
-      break;
-    case SWITCH_ATOMIC_DATA:
-      query_atomic_data ();
-      break;
-    case EXIT:cleanup_ncurses_stdscr ();
-      exit (0);
-    default:
-      break;
-  }
-}
 
 /* ************************************************************************* */
 /**
@@ -119,8 +53,10 @@ process_main_menu_choices (int choice)
 int
 main (int argc, char *argv[])
 {
+  int starting_index = 0;
   int atomic_provided;
-  int main_menu_choice = MENU_QUIT;
+
+  atexit (cleanup_ncurses_stdscr);
 
   /*
    * Initialise DISPLAY to zero lines and NULL otherwise realloc will crash
@@ -170,13 +106,9 @@ main (int argc, char *argv[])
 
   while (TRUE)
   {
-    main_menu_choice = main_menu (main_menu_choice);
-    if (main_menu_choice == MENU_QUIT)
-      break;
-    process_main_menu_choices (main_menu_choice);
+    update_menu_window ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES),
+                        starting_index, TRUE);
   }
-
-  cleanup_ncurses_stdscr ();
 
   return EXIT_SUCCESS;
 }

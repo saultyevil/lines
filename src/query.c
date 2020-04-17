@@ -17,6 +17,132 @@
 
 #include "atomix.h"
 
+
+
+
+//char *atomic_data_choices[] = {
+//  "CIIICIVCV_c10",
+//  "CIIICIVCV_c10_CV1LVL",
+//  "CIIICIV_c10",
+//  "h10_hetop_lohe1_standard80",
+//  "h10_hetop_standard80",
+//  "h10_standard80",
+//  "h20",
+//  "h20_hetop_standard80",
+//  "standard80",
+//  "standard80_reduced",
+//  "standard80_sn_kurucz",
+//  "standard80_test",
+//  "other",
+//  NULL
+//};
+
+#define ATOMIC_DATA_WIDTH 26
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+//static char *
+//trim_whitespaces(char *str)
+//{
+//  char *end;
+//
+//  while (isspace (*str))
+//    str++;
+//
+//  if (*str == 0)
+//    return str;
+//
+//  end = str + strnlen(str, 128) - 1;
+//
+//  while (end > str && isspace (*end))
+//    end--;
+//
+//  *(end + 1) = '\0';
+//
+//  return str;
+//}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+//void
+//control_form (WINDOW *win, FORM *form)
+//{
+//  int ch;
+//
+//  while ((ch = wgetch (win)) != 'q' || ch == KEY_ENTER)
+//  {
+//    switch (ch)
+//    {
+//      case KEY_DOWN:form_driver (form, REQ_NEXT_FIELD);
+//        form_driver (form, REQ_END_LINE);
+//        break;
+//      case KEY_UP:form_driver (form, REQ_PREV_FIELD);
+//        form_driver (form, REQ_END_LINE);
+//        break;
+//      case KEY_LEFT:form_driver (form, REQ_PREV_CHAR);
+//        break;
+//      case KEY_RIGHT:form_driver (form, REQ_NEXT_CHAR);
+//        break;
+//      case KEY_BACKSPACE:
+//      case 127:form_driver (form, REQ_DEL_PREV);
+//        break;
+//      case KEY_DC:form_driver (form, REQ_DEL_CHAR);
+//        break;
+//      default:form_driver (form, ch);
+//        break;
+//    }
+//
+//    wrefresh (win);
+//  }
+//}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+//void
+//query_custom_atomic_data (void)
+//{
+//  FORM *form;
+//  FIELD *fields[2];
+//  WINDOW *win = CONTENT_WINDOW.win;
+//  char *atomic_data_name;
+//
+//  fields[1] = NULL;
+//  fields[0] = new_field (1, ATOMIC_DATA_WIDTH, 0, 0, 0, 0);
+//
+//  set_field_back (fields[0], A_UNDERLINE);
+//  field_opts_off (fields[0], O_AUTOSKIP);
+//
+//  form = new_form (fields);
+//  set_form_win (form, win);
+//  set_form_sub (form, derwin (win, 1, ATOMIC_DATA_WIDTH, 3, 4));
+//  post_form (form);
+//  set_current_field (form, fields[0]);
+//
+//  wrefresh (win);
+//  control_form (win, form);
+//  atomic_data_name = trim_whitespaces (field_buffer (fields[0], 0));
+//}
+
 /* ************************************************************************** */
 /**
  * @brief     Query the user for the atomic data name.
@@ -135,7 +261,6 @@ query_wavelength_range (double *wmin, double *wmax)
 
   while (valid != TRUE)
   {
-
     *wmin = get_wavelength (win, "Minimum wavelength range: > ", 3, 2, 28);
     *wmax = get_wavelength (win, "Maximum wavelength range: > ", 5, 2, 28);
 

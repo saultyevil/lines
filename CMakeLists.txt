@@ -8,6 +8,8 @@ project(atomix)
 cmake_minimum_required(VERSION 3.0)
 set(CMAKE_C_STANDARD 99)
 
+add_compile_options(-Wall -Wextra)
+
 # Add main.cpp file of project root directory as source file
 set(SOURCE_FILES
         src/log.c
@@ -25,6 +27,7 @@ set(SOURCE_FILES
 if(UNIX AND NOT APPLE)
         find_package(Curses REQUIRED)
         find_library(menu REQUIRED)
+        find_library(form REQUIRED)
 elseif(APPLE)
         include_directories(/usr/local/opt/ncurses/include)
         link_directories(/usr/local/opt/ncurses/lib)
@@ -32,4 +35,4 @@ endif()
 
 # Create the atomix executable and link the libraries
 add_executable(atomix ${SOURCE_FILES})
-target_link_libraries(atomix m curses menu)
+target_link_libraries(atomix m curses menu form)

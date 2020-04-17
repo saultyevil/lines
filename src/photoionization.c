@@ -25,7 +25,7 @@
  * ************************************************************************** */
 
 void
-photoionization_home_menu (void)
+photoionization_main_menu (void)
 {
   double wmin, wmax;
   WINDOW *win = CONTENT_WINDOW.win;

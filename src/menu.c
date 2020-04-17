@@ -60,9 +60,9 @@ clean_up_menu (MENU *menu, ITEM **items, int nitems)
 int
 control_menu (MENU *menu, int c)
 {
-  int the_choice;
-
-  the_choice = MENU_QUIT;
+  int current_item_index = MENU_NULL;
+  void (*item_usrptr) (void);
+  ITEM *item;
 
   switch (c)
   {
@@ -85,13 +85,17 @@ control_menu (MENU *menu, int c)
       menu_driver (menu, REQ_SCR_UPAGE);
       break;
     case 10:  // Enter has been pressed - not sure what the constant for this is
-      the_choice =  item_index (current_item (menu));
+      item = current_item (menu);
+      current_item_index = item_index (item);
+      item_usrptr = item_userptr (item);
+      item_usrptr ();
+      pos_menu_cursor (menu);
       break;
     default:
       break;
   }
 
-  return the_choice;
+  return current_item_index;
 }
 
 /* ************************************************************************** */
@@ -115,20 +119,21 @@ control_menu (MENU *menu, int c)
  * 
  * ************************************************************************** */
 
-int
-update_menu_window (char *menu_message, char **menu_items, int nitems, int current_index, int user_control_menu)
+void
+update_menu_window (char *menu_message, struct MenuItem_t *menu_items, int nitems, int current_index,
+                    int user_control_menu)
 {
   int i, j, c;
   int len;
-  int the_choice = MENU_QUIT;
   MENU *menu = NULL;
   ITEM **items = NULL;
   WINDOW *win = MENU_WINDOW.win;
 
-  if (menu_items[nitems] != NULL)
+  if (menu_items[nitems].name != NULL)
   {
     cleanup_ncurses_stdscr ();
     printf ("Error: programming error - final element of menu_items is not NULL.\n");
+    printf ("%s\n", menu_items[nitems].name);
     exit (EXIT_FAILURE);
   }
 
@@ -154,7 +159,11 @@ update_menu_window (char *menu_message, char **menu_items, int nitems, int curre
   }
 
   for (i = 0; i < nitems; i++)
-    items[i] = new_item (menu_items[i], menu_items[i]);
+  {
+    items[i] = new_item (menu_items[i].name, menu_items[i].desc);
+    set_item_userptr (items[i], menu_items[i].usrptr);
+  }
+
   menu = new_menu (items);
   menu_opts_off (menu, O_SHOWDESC);  // Don't want to show desc in small menu window
 
@@ -179,23 +188,12 @@ update_menu_window (char *menu_message, char **menu_items, int nitems, int curre
 
   if (user_control_menu)
   {
-    while ((c = wgetch (win)) != 'q')
+    while ((c = wgetch (win)))
     {
-      the_choice = control_menu (menu, c);
+      control_menu (menu, c);
       wrefresh (win);
-      if (the_choice != MENU_QUIT)
-        break;
     }
   }
 
-  if (the_choice == nitems - 2)  // Quit SHOULD always be the 2nd last element
-  {
-    clean_up_menu (menu, items, nitems);
-    cleanup_ncurses_stdscr();
-    exit (EXIT_SUCCESS);
-  }
-
   clean_up_menu (menu, items, nitems);
-
-  return the_choice;
 }
