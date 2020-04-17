@@ -72,9 +72,9 @@ get_bound_bound_lines (void)
   double wl;
   char element[LINELEN];
 
-  add_to_display_buffer ("Bound-Bound Transitions\n");
+  add_to_display_buffer ("Bound-Bound Transitions");
   add_separator_to_buffer (ndashes);
-  add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "levu",
+  add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "levu",
                          "levl", "nion");
   add_separator_to_buffer (ndashes);
 
@@ -87,7 +87,7 @@ get_bound_bound_lines (void)
     nion = lin_ptr[i]->nion;
     wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
     get_element_name (z, element);
-    add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i\n", wl, element, z, istate, levu, levl, nion);
+    add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i", wl, element, z, istate, levu, levl, nion);
   }
 
   add_separator_to_buffer (ndashes);

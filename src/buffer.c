@@ -99,7 +99,9 @@ display_text_buffer (WINDOW *win, int start_y, int start_x)
  * 
  * Uses a bit of a hack, vsnprintf, to figure out the storage requirement for
  * the string. The pointer for the new string is added to the DISPLAY buffer.
- * 
+ *
+ * PLS PLS PLS DO NOT HAVE A \n NEWLINE CHARACTER IN *fmt
+ *
  * ************************************************************************** */
 
 void
@@ -110,7 +112,7 @@ add_to_display_buffer (char *fmt, ...)
   va_list va, va_c;
 
   DISPLAY.nlines++;
-  DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (struct Line_t));
+  DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (Line_t));
   line_index = DISPLAY.nlines - 1;
 
   if (DISPLAY.lines == NULL)
@@ -136,7 +138,7 @@ add_to_display_buffer (char *fmt, ...)
   len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
   DISPLAY.lines[line_index].len = len;
 
-  Log ("%s", DISPLAY.lines[line_index].chars);
+  Log ("%s\n", DISPLAY.lines[line_index].chars);
   
   va_end (va);
   va_end (va_c);
@@ -159,11 +161,11 @@ void
 add_separator_to_buffer (const int len)
 {
   int i;
-  char tmp[len + 2];
+  char tmp[len + 1];
 
   for (i = 0; i < len; ++i)
     memcpy (&tmp[i], "-", 1);
-  memcpy (&tmp[len], "\n\0", 2);
+  memcpy (&tmp[len], "\0", 1);
 
   add_to_display_buffer (tmp);
 }

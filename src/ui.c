@@ -187,13 +187,13 @@ draw_window_boundaries (void)
 
 /* ************************************************************************** */
 /**
- * @brief      Write a bold message in the current window.
+ * @brief  Write a bold message in the current window.
  *
- * @param[in]  win    The window to write the bold message in.
- * @param[in]  y      The y location of the message.
- * @param[in]  x      The x location of the message.
- * @param[in]  msg    The message to be display.
- * @param[in]  ...    The variable arguments for the message.
+ * @param[in]  win  The window to write the bold message in.
+ * @param[in]  y    The y location of the message.
+ * @param[in]  x    The x location of the message.
+ * @param[in]  msg  The message to be display.
+ * @param[in]  ...  The variable arguments for the message.
  *
  * @details
  *

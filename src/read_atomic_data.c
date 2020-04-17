@@ -1302,7 +1302,7 @@ structure does not have this property! */
     return ATOMIC_FILE_IO_ERROR;
   }
 
-  add_to_display_buffer ("Reading atomic data from %s\n", atomic_data_file_path);
+  add_to_display_buffer ("Reading atomic data from %s", atomic_data_file_path);
 
 /* Open and read each line in the masterfile in turn */
 
@@ -3459,38 +3459,38 @@ SCUPS    1.132e-01   2.708e-01   5.017e-01   8.519e-01   1.478e+00
       inner_no_e_yield++;
   }
 
-  add_to_display_buffer ("Data of %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
+  add_to_display_buffer ("Data of %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
                          nelements, nions, nlevels, nlines, ntop_phot);
-  add_to_display_buffer ("Macro   %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
+  add_to_display_buffer ("Macro   %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
                          nelements, nions_macro, nlevels_macro, nlines_macro, ntop_phot_macro);
-  add_to_display_buffer ("Simple  %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records\n",
+  add_to_display_buffer ("Simple  %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
                          nelements, nions_simple, nlevels_simple, nlines_simple, ntop_phot_simple);
-  add_to_display_buffer ("We have read in %3d photoionization cross sections\n", nphot_total);
-  add_to_display_buffer ("                %3d are topbase \n", ntop_phot);
-  add_to_display_buffer ("                %3d are VFKY \n", nxphot);
-  add_to_display_buffer ("We have read in %5d   Chiantic collision strengths\n", n_coll_stren);
-  add_to_display_buffer ("We have read in %3d Inner shell photoionization cross sections\n", n_inner_tot);
-  add_to_display_buffer ("                %3d have matching electron yield data\n", n_elec_yield_tot);
-  add_to_display_buffer ("We have read in %3d Dielectronic recombination coefficients\n", ndrecomb);
-  add_to_display_buffer ("We have read in %3d Badnell totl Radiative rate coefficients\n", n_total_rr);
-  add_to_display_buffer ("We have read in %3d Badnell GS   Radiative rate coefficients\n", n_bad_gs_rr);
-  add_to_display_buffer ("We have read in %3d Scaled electron temperature frequency averaged gaunt factors\n", gaunt_n_gsqrd);
-  add_to_display_buffer ("The minimum frequency for photoionization is %8.2e\n", phot_freq_min);
-  add_to_display_buffer ("The minimum frequency for inner shell ionization is %8.2e\n", inner_freq_min);
+  add_to_display_buffer ("We have read in %3d photoionization cross sections", nphot_total);
+  add_to_display_buffer ("                %3d are topbase ", ntop_phot);
+  add_to_display_buffer ("                %3d are VFKY ", nxphot);
+  add_to_display_buffer ("We have read in %5d   Chiantic collision strengths", n_coll_stren);
+  add_to_display_buffer ("We have read in %3d Inner shell photoionization cross sections", n_inner_tot);
+  add_to_display_buffer ("                %3d have matching electron yield data", n_elec_yield_tot);
+  add_to_display_buffer ("We have read in %3d Dielectronic recombination coefficients", ndrecomb);
+  add_to_display_buffer ("We have read in %3d Badnell totl Radiative rate coefficients", n_total_rr);
+  add_to_display_buffer ("We have read in %3d Badnell GS   Radiative rate coefficients", n_bad_gs_rr);
+  add_to_display_buffer ("We have read in %3d Scaled electron temperature frequency averaged gaunt factors", gaunt_n_gsqrd);
+  add_to_display_buffer ("The minimum frequency for photoionization is %8.2e", phot_freq_min);
+  add_to_display_buffer ("The minimum frequency for inner shell ionization is %8.2e", inner_freq_min);
 
   /* report ignored simple lines for macro-ions */
   for (n = 0; n < NIONS; n++)
   {
     // TODO: this causes a segmentation fault with realloc for some reason.. figure out why??
-    // if (simple_line_ignore[n] > 0)
-    //   add_to_display_buffer ("Ignored %d simple lines for macro-ion %d\n", simple_line_ignore[n], n);
+    if (simple_line_ignore[n] > 0)
+      add_to_display_buffer ("Ignored %d simple lines for macro-ion %d", simple_line_ignore[n], n);
   }
 
   /* report ignored collision strengths */
   if (cstren_no_line > 0)
-    add_to_display_buffer ("Ignored %d collision strengths with no matching line transition\n", cstren_no_line);
+    add_to_display_buffer ("Ignored %d collision strengths with no matching line transition", cstren_no_line);
   if (inner_no_e_yield > 0)
-    add_to_display_buffer ("Ignored %d inner shell cross sections because no matching yields\n", inner_no_e_yield);
+    add_to_display_buffer ("Ignored %d inner shell cross sections because no matching yields", inner_no_e_yield);
 
 
 
@@ -3624,11 +3624,11 @@ or zero so that simple checks of true and false can be used for them */
 
 /* Finally evaluate how close we are to limits set in the structures */
 
-  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d elements     while %6d are currently allowed\n", nelements, NELEMENTS);
-  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d ions         while %6d are currently allowed\n", nions, NIONS);
-  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d levels       while %6d are currently allowed\n", nlevels, NLEVELS);
-  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d lines        while %6d are currently allowed\n", nlines, NLINES);
-  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d macro levels while %6d are currently allowed\n", nlevels_macro,
+  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d elements     while %6d are currently allowed", nelements, NELEMENTS);
+  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d ions         while %6d are currently allowed", nions, NIONS);
+  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d levels       while %6d are currently allowed", nlevels, NLEVELS);
+  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d lines        while %6d are currently allowed", nlines, NLINES);
+  add_to_display_buffer ("get_atomic_data: Evaluation:  There are %6d macro levels while %6d are currently allowed", nlevels_macro,
                          NLEVELS_MACRO);
 
   bb_max = 0;
@@ -3646,9 +3646,9 @@ or zero so that simple checks of true and false can be used for them */
       bf_max = config[i].n_bfd_jump;
   }
 
-  add_to_display_buffer ("get_atomic_data: Evaluation:  The maximum value bb jumps is %d while %d are currently allowed\n", bb_max,
+  add_to_display_buffer ("get_atomic_data: Evaluation:  The maximum value bb jumps is %d while %d are currently allowed", bb_max,
                          NBBJUMPS);
-  add_to_display_buffer ("get_atomic_data: Evaluation:  The maximum value bf jumps is %d while %d are currently allowed\n", bb_max,
+  add_to_display_buffer ("get_atomic_data: Evaluation:  The maximum value bf jumps is %d while %d are currently allowed", bb_max,
                          NBBJUMPS);
 
 /* Now, write the data to a file so you can check it later if you wish */
