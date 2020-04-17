@@ -13,24 +13,12 @@
 
 #include "atomix.h"
 
-/*
- * struct MenuItems_t
- * {
- *    char name[LINELEN];   // Name of menu item
- *    char desc[LINELEN];   // Description of menu item
- *    int menu_code;        // Internal menu code for this item, i.e. index
- *    void (*func) (void);  // ??? function pointer to menu item
- * }
- * 
- * Maybe a struct like this would work better? It would be neater..
- * 
- */
-
-struct MenuItem_t MAIN_MENU_CHOICES[] = {
+const
+MenuItem_t MAIN_MENU_CHOICES[] = {
   {&bound_bound_main_menu    , 0        , "Bound Lines"    , "Query bound-bound transitions"},
   {&photoionization_main_menu, 1        , "Photoionization", "Query photionization edges"},
   {&query_atomic_data        , 2        , "Atomic Data"    , "Switch the atomic data"},
-  {&menu_exit_atomix   ,       MENU_QUIT, "Exit"           , "Exit atomix"},
+  {&menu_exit_atomix         , MENU_QUIT, "Exit"           , "Exit atomix"},
   {NULL                      , MENU_NULL, NULL             , NULL}
 };
 
@@ -53,17 +41,10 @@ struct MenuItem_t MAIN_MENU_CHOICES[] = {
 int
 main (int argc, char *argv[])
 {
-  int starting_index = 0;
-  int atomic_provided;
+  int menu_index = 0;
+  int print_atomic;
 
   atexit (cleanup_ncurses_stdscr);
-
-  /*
-   * Initialise DISPLAY to zero lines and NULL otherwise realloc will crash
-   */
-
-  DISPLAY.nlines = 0;
-  DISPLAY.lines = NULL;
 
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
@@ -72,7 +53,7 @@ main (int argc, char *argv[])
    */
 
   Log_init ("atomix.out.txt");
-  atomic_provided = check_command_line (argc, argv);
+  print_atomic = check_command_line (argc, argv);
 
   /*
    * Initialise ncurses, the window panels and draw the window borders
@@ -89,9 +70,9 @@ main (int argc, char *argv[])
    * to just display the menu.
    */
 
-  update_menu_window ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), 0, FALSE);
+  main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, REDRAW_MENU);
 
-  if (atomic_provided)
+  if (print_atomic)
   {
     display_text_buffer (CONTENT_WINDOW.win, 1, 1);
   }
@@ -106,9 +87,10 @@ main (int argc, char *argv[])
 
   while (TRUE)
   {
-    update_menu_window ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES),
-                        starting_index, TRUE);
+    menu_index = main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, CONTROL_MENU);
+    if (menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT)  // Safety really
+      break;
   }
 
-  return EXIT_SUCCESS;
+  return EXIT_SUCCESS;  // Don't need to clean up at exit due to atexit()
 }

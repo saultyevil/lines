@@ -10,6 +10,12 @@
  *
  * ************************************************************************** */
 
+// TODO: sort out includes
+
+#include <form.h>
+#include <menu.h>
+#include <curses.h>
+
 /* ****************************************************************************
  *
  *                                  Macros
@@ -26,8 +32,11 @@
 
 // UI Constants
 #define VERSION "3.1a"
+
 #define MENU_QUIT -1
 #define MENU_NULL -2
+#define CONTROL_MENU TRUE
+#define REDRAW_MENU FALSE
 
 #define MENU_WIDTH 24
 #define TITLE_HEIGHT 2
@@ -43,48 +52,27 @@
  *
  * ************************************************************************** */
 
-struct Line_t
+typedef struct Line_t
 {
   int len;
   char *chars;
-};
+} Line_t;
 
-struct Display_t
+typedef struct Display_t
 {
   int nlines;
-  struct Line_t *lines;
-};
+  Line_t *lines;
+} Display_t;
 
-struct MenuItem_t
+typedef struct MenuItem_t
 {
   void *usrptr;
   int index;
   char *name;
   char *desc;
-};
+} MenuItem_t;
 
-/* ****************************************************************************
- *
- *                                  Includes
- *
- * ************************************************************************** */
-
-#include <form.h>
-#include <menu.h>
-#include <curses.h>
-
-#include "atomic.h"
-#include "log.h"
-#include "functions.h"
-
-
-/* ****************************************************************************
- *
- *                                Windows
- *
- * ************************************************************************** */
-
-struct Window_t
+typedef struct Window_t
 {
   int y, x;
   int rows, cols;
@@ -93,12 +81,34 @@ struct Window_t
 
 /* ****************************************************************************
  *
+ *                                  Includes
+ *
+ * ************************************************************************** */
+
+// TODO: sort out includes
+
+#include "atomic.h"
+#include "log.h"
+#include "functions.h"
+
+/* ****************************************************************************
+ *
  *                                Globals
  *
  * ************************************************************************** */
 
-struct Display_t DISPLAY;
-struct Window_t MENU_WINDOW;
-struct Window_t TITLE_WINDOW;
-struct Window_t STATUS_WINDOW;
-struct Window_t CONTENT_WINDOW;
+Window_t MENU_WINDOW;
+Window_t TITLE_WINDOW;
+Window_t STATUS_WINDOW;
+Window_t CONTENT_WINDOW;
+
+/* ****************************************************************************
+ *
+ *                                Configuration
+ *
+ * ************************************************************************** */
+
+struct
+{
+  char *atomic_data;
+} AtomixConfiguration;

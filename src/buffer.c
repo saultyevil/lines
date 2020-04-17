@@ -15,6 +15,8 @@
 
 #include "atomix.h"
 
+Display_t DISPLAY = {0, NULL};
+
 /* ************************************************************************** */
 /**
  * @brief  Clean up a text buffer, generally once it has been printed.
@@ -30,6 +32,7 @@ void
 clean_up_display_buffer (void)
 {
   int i;
+
   for (i = 0; i < DISPLAY.nlines; ++i)
     free (DISPLAY.lines[i].chars);
   free (DISPLAY.lines);

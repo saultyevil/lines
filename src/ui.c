@@ -164,6 +164,7 @@ draw_window_boundaries (void)
   for (j = 0; j < STATUS_WINDOW.rows; ++j)
     for (i = 0; i < STATUS_WINDOW.cols; ++i)
       mvwprintw (STATUS_WINDOW.win, j, i, " ");
+  mvwprintw (STATUS_WINDOW.win, 0, 1, "Press q to quit when in the main menu");
 
   // This creates a 1 column boundary between the menu and content window
   for (j = 0; j < MENU_WINDOW.rows; ++j)
@@ -217,9 +218,9 @@ bold_message (WINDOW *win, int y, int x, char *fmt, ...)
   msg = malloc (len * sizeof (char));
   len = vsprintf (msg, fmt, va_c);
 
-  wattron (win, A_BOLD);
+  wattron (win, A_BOLD | A_UNDERLINE);
   mvwprintw (win, y, x, "%s", msg);
-  wattroff (win, A_BOLD);
+  wattroff (win, A_BOLD | A_UNDERLINE);
 
   va_end (va);
   va_end (va_c);

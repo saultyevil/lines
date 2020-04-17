@@ -88,8 +88,9 @@ control_menu (MENU *menu, int c)
       item = current_item (menu);
       current_item_index = item_index (item);
       item_usrptr = item_userptr (item);
-      item_usrptr ();
-      pos_menu_cursor (menu);
+      if (item_usrptr)
+        item_usrptr ();
+      pos_menu_cursor (menu);  // TODO: not sure if required
       break;
     default:
       break;
@@ -100,14 +101,14 @@ control_menu (MENU *menu, int c)
 
 /* ************************************************************************** */
 /**
- * @brief  Displays a menu given the current items.
+ * @brief  Displays and controls the main menu.
  *
  * @param[in]  menu_message       A message to display for the menu
  * @param[in]  menu_items         The name of the menu items
  * @param[in]  nitems             The number of items in the menu
  * @param[in]  current_index      The index referring to the previously chosen
  *                                menu entry
- * @param[in]  user_control_menu  If TRUE, allow the user to control the menu
+ * @param[in]  control_menu  If TRUE, allow the user to control the menu
  *                                otherwise just the menu is printed
  *
  * @return     choice             An integer referring to the chosen menu item
@@ -119,37 +120,36 @@ control_menu (MENU *menu, int c)
  * 
  * ************************************************************************** */
 
-void
-update_menu_window (char *menu_message, struct MenuItem_t *menu_items, int nitems, int current_index,
-                    int user_control_menu)
+int
+main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu)
 {
   int i, j, c;
   int len;
-  MENU *menu = NULL;
-  ITEM **items = NULL;
-  WINDOW *win = MENU_WINDOW.win;
+  int index = MENU_NULL;
+  MENU *menu;
+  ITEM **items;
 
-  if (menu_items[nitems].name != NULL)
+  wclear (MENU_WINDOW.win);
+
+  if (menu_items[nitems - 1].name != NULL)
   {
     cleanup_ncurses_stdscr ();
-    printf ("Error: programming error - final element of menu_items is not NULL.\n");
+    printf ("Error : main_menu : programming error - final element of menu_items is not NULL.\n");
     printf ("%s\n", menu_items[nitems].name);
     exit (EXIT_FAILURE);
   }
 
-  wclear (win);
-
-  /* 
+  /*
    * This creates a 1 column "boundary" between the menu and content window
    */
 
-  wattron (win, A_REVERSE);
+  wattron (MENU_WINDOW.win, A_REVERSE);
   for (j = 0; j < MENU_WINDOW.rows; ++j)
-    mvwprintw (win, j, MENU_WINDOW.cols - 1, " ");
-  wattroff (win, A_REVERSE);
+    mvwprintw (MENU_WINDOW.win, j, MENU_WINDOW.cols - 1, " ");
+  wattroff (MENU_WINDOW.win, A_REVERSE);
 
   len = (int) strlen (menu_message);
-  mvwprintw (win, 1, (MENU_WINDOW.cols - len) / 2 - 1, menu_message);
+  mvwprintw (MENU_WINDOW.win, 1, (MENU_WINDOW.cols - len) / 2 - 1, menu_message);
 
   if (!(items = calloc (nitems, sizeof (ITEM *))))
   {
@@ -172,8 +172,8 @@ update_menu_window (char *menu_message, struct MenuItem_t *menu_items, int nitem
    * I do not think it will ever need to be done more dynamically.
    */
 
-  set_menu_win (menu, win);
-  set_menu_sub (menu, derwin (win, MENU_WINDOW.rows - 3, MENU_WINDOW.cols, 3, 0));
+  set_menu_win (menu, MENU_WINDOW.win);
+  set_menu_sub (menu, derwin (MENU_WINDOW.win, MENU_WINDOW.rows - 3, MENU_WINDOW.cols, 3, 0));
   set_menu_format (menu, MENU_WINDOW.rows - 2, 1);
   set_menu_mark (menu, "* ");
 
@@ -184,16 +184,124 @@ update_menu_window (char *menu_message, struct MenuItem_t *menu_items, int nitem
 
   set_current_item (menu, items[current_index]);
   post_menu (menu);
-  wrefresh (win);
+  wrefresh (MENU_WINDOW.win);
 
-  if (user_control_menu)
+  if (control_this_menu)
   {
-    while ((c = wgetch (win)))
+    while ((c = wgetch (MENU_WINDOW.win)))
     {
-      control_menu (menu, c);
-      wrefresh (win);
+      if (c == 'q')
+      {
+        index = MENU_QUIT;
+        break;
+      }
+
+      index = control_menu (menu, c);
+      if (index != MENU_NULL)
+        break;
+
+      wrefresh (MENU_WINDOW.win);
     }
   }
 
   clean_up_menu (menu, items, nitems);
+
+  return index;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  Displays a menu given the current items.
+ *
+ * @param[in]  menu_message       A message to display for the menu
+ * @param[in]  menu_items         The name of the menu items
+ * @param[in]  nitems             The number of items in the menu
+ * @param[in]  current_index      The index referring to the previously chosen
+ *                                menu entry
+ * @param[in]  control_menu  If TRUE, allow the user to control the menu
+ *                                otherwise just the menu is printed
+ *
+ * @return     choice             An integer referring to the chosen menu item
+ *
+ * @details
+ *
+ * This function assumes that the last element of the menu is QUIT and that the
+ * last element in menu_items is NULL. Hence, the index for QUIT is nitems - 2.
+ *
+ * ************************************************************************** */
+
+int
+create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index,
+             int control_this_menu)
+{
+  int i, c;
+  int index = MENU_NULL;
+  MENU *menu;
+  ITEM **items;
+  WINDOW *the_win = win.win;
+
+  wclear (the_win);
+  keypad (the_win, TRUE);
+
+  if (menu_items[nitems - 1].name != NULL)
+  {
+    cleanup_ncurses_stdscr ();
+    printf ("Error: create_menu : programming error - final element of menu_items is not NULL.\n");
+    printf ("%s\n", menu_items[nitems].name);
+    exit (EXIT_FAILURE);
+  }
+
+  if (!(items = calloc (nitems, sizeof (ITEM *))))
+  {
+    cleanup_ncurses_stdscr();
+    printf("Error: unable to allocate memory to construct a menu\n");
+    exit (EXIT_FAILURE);
+  }
+
+  for (i = 0; i < nitems; i++)
+  {
+    items[i] = new_item (menu_items[i].name, menu_items[i].desc);
+    set_item_userptr (items[i], menu_items[i].usrptr);
+  }
+
+  menu = new_menu (items);
+  menu_opts_on (menu, O_SHOWDESC);
+  set_menu_spacing (menu, 3, 0, 0);
+
+  /*
+   * Set the menu formatting. Note that this is hard coded at the moment, though
+   * I do not think it will ever need to be done more dynamically.
+   */
+
+  set_menu_win (menu, the_win);
+  set_menu_sub (menu, derwin (the_win, win.rows - 4, win.cols - 2, 3, 1));
+  set_menu_format (menu, win.rows - 2, 1);
+  set_menu_mark (menu, "* ");
+
+  if (current_index < 0)
+    current_index = 0;
+  if (current_index > nitems - 1)
+    current_index = nitems - 1;
+
+  set_current_item (menu, items[current_index]);
+  post_menu (menu);
+  bold_message (the_win, 1, 1, menu_message);
+
+  wrefresh (the_win);
+
+  if (control_this_menu)
+  {
+    while ((c = wgetch (the_win)))
+    {
+      index = control_menu (menu, c);
+      if (index != MENU_NULL)
+        break;
+      wrefresh (the_win);
+    }
+  }
+
+  clean_up_menu (menu, items, nitems);
+  keypad (the_win, FALSE);
+
+  return index;
 }

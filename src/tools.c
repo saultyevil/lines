@@ -72,8 +72,8 @@ get_element_name (int z, char *element)
 int
 check_command_line (int argc, char **argv)
 {
-  int atomic_data_error;
   int provided = FALSE;
+  int atomic_data_error;
   char atomic_data_name[LINELEN];
 
   char help[] =
@@ -95,15 +95,15 @@ check_command_line (int argc, char **argv)
     strcpy (atomic_data_name, argv[1]);
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
       strcat (atomic_data_name, ".dat");
-    
+
     atomic_data_error = get_atomic_data (atomic_data_name);
-    
+
     if (atomic_data_error)
     {
       // TODO more verbose error reporting - generic function required
       printf ("Error: Invalid atomic data provided, try again.\n");
       printf ("Error: Atomic data error %i\n", atomic_data_error);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
     else
     {

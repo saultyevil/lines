@@ -11,7 +11,8 @@ int main(int argc, char *argv[]);
 /* menu.c */
 void clean_up_menu(MENU *menu, ITEM **items, int nitems);
 int control_menu(MENU *menu, int c);
-void update_menu_window(char *menu_message, struct MenuItem_t *menu_items, int nitems, int current_index, int user_control_menu);
+int main_menu(char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
+int create_menu(Window_t win, char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
 /* tools.c */
 void get_element_name(int z, char *element);
 int check_command_line(int argc, char **argv);
@@ -38,6 +39,6 @@ double upsilon(int n_coll, double u0);
 int index_lines(void);
 int get_atomic_data(char *masterfile);
 /* query.c */
-int query_atomic_data(void);
+void query_atomic_data(void);
 double get_wavelength(WINDOW *win, char *msg, int y, int x, int len);
 void query_wavelength_range(double *wmin, double *wmax);

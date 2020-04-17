@@ -14,28 +14,27 @@
 
 #include <form.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "atomix.h"
 
-
-
-
-//char *atomic_data_choices[] = {
-//  "CIIICIVCV_c10",
-//  "CIIICIVCV_c10_CV1LVL",
-//  "CIIICIV_c10",
-//  "h10_hetop_lohe1_standard80",
-//  "h10_hetop_standard80",
-//  "h10_standard80",
-//  "h20",
-//  "h20_hetop_standard80",
-//  "standard80",
-//  "standard80_reduced",
-//  "standard80_sn_kurucz",
-//  "standard80_test",
-//  "other",
-//  NULL
-//};
+const
+MenuItem_t ATOMIC_DATA_CHOICES[] ={
+  {NULL, 0        , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 0        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 0        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
+  {NULL, 0        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
+  {NULL, 0        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
+  {NULL, 0        , "h10_standard80"            , ": 10 Level H Macro-atom"},
+  {NULL, 0        , "h20"                       , ": 20 Level H Macro-atom"},
+  {NULL, 0        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
+  {NULL, 0        , "standard80"                , ": Standard Simple-atom"},
+  {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
+  {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
+  {NULL, 0        , "standard80_test"           , ": Standard TEst Simple-atom"},
+  {NULL, 0        , "Other"                     , ": Custom data"},
+  {NULL, MENU_NULL, NULL                        , NULL}
+};
 
 #define ATOMIC_DATA_WIDTH 26
 
@@ -154,26 +153,24 @@
  *
  * ************************************************************************** */
 
-int
+void
 query_atomic_data (void)
 {
-  int atomic_data_error;
   int valid = FALSE;
+  int atomic_data_error;
+  static int index = 8;
   char atomic_data_name[LINELEN];
   WINDOW *win = CONTENT_WINDOW.win;
 
-  wclear (win);
-  echo ();
-
-  bold_message (win, 1, 2, "Please input the atomic data master file name:");
-
   while (valid != TRUE)
   {
-    mvwprintw (win, 3, 2, "> ");
-    wmove (win, 3, 4);
-    wrefresh (win);
 
-    wscanw (win, "%s", atomic_data_name);
+    index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
+                         ARRAY_SIZE (ATOMIC_DATA_CHOICES), index, CONTROL_MENU);
+
+    if (index > MENU_QUIT)
+      strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[index].name);
+
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
       strcat (atomic_data_name, ".dat");
 
@@ -181,11 +178,9 @@ query_atomic_data (void)
 
     if (atomic_data_error)
     {
-      // TODO increase verbosity of error messages, i.e. write out actual error
-      mvwprintw (win, 5, 2, "Invalid atomic data provided, try again.");
-      mvwprintw (win, 6, 2, "Error number: %i\n", atomic_data_error);
-      wmove (win, 3, 0);
-      wclrtoeol (win);
+      // TODO: increase verbosity of error messages, i.e. write out actual error
+      mvwprintw (win, ARRAY_SIZE (ATOMIC_DATA_CHOICES), 2, "Invalid atomic data provided, try again.");
+      mvwprintw (win, ARRAY_SIZE (ATOMIC_DATA_CHOICES) + 1, 2, "Error number: %i\n", atomic_data_error);
     }
     else
     {
@@ -195,10 +190,7 @@ query_atomic_data (void)
     wrefresh (win);
   }
 
-  noecho ();
   display_text_buffer (win, 1, 1);
-
-  return valid;
 }
 
 /* ************************************************************************** */
