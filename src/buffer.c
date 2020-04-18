@@ -44,7 +44,7 @@ clean_up_display_buffer (void)
 /**
  * @brief  Print the DISPLAY buffer in the provided window.
  *
- * @param[in]  win      The window to print the buffer in
+ * @param[in]  the_win      The window to print the buffer in
  * @param[in]  start_y  The starting row to print from
  * @param[in]  start_x  The column to print from
  *
@@ -60,25 +60,30 @@ clean_up_display_buffer (void)
  * ************************************************************************** */
 
 void
-display_text_buffer (WINDOW *win, int start_y, int start_x)
+display_text_buffer (Window_t win, int start_y, int start_x)
 {
   int i;
+  int max_rows;
+  WINDOW *the_win = win.win;
 
-  wclear (win);
+  wclear (the_win);
 
   if (DISPLAY.nlines == 0 || DISPLAY.lines == NULL)
   {
-    bold_message (win, 1, 1, "No text buffer to display!");
-    return;
+    bold_message (the_win, 1, 1,
+                  "No text buffer to display! Did someone forget to load atomic data, or program something?");
   }
-
-  for (i = 0; i < DISPLAY.nlines && i + start_y < LINES - 2; ++i)
+  else
   {
-    wmove (win, i + start_y, start_x);
-    wprintw (win, "%s", DISPLAY.lines[i].chars);
+    max_rows = win.rows - start_y - 1;
+    for (i = 0; i < DISPLAY.nlines && i < max_rows; ++i)
+    {
+      wmove (the_win, i + start_y, start_x);
+      wprintw (the_win, "%s", DISPLAY.lines[i].chars);
+    }
   }
 
-  wrefresh (win);
+  wrefresh (the_win);
   clean_up_display_buffer ();
 }
 
@@ -123,7 +128,7 @@ add_to_display_buffer (char *fmt, ...)
 
   /*
    * May be playing it extra safe here, but make a copy of va as va is not
-   * necessarily preserved after vsnprintf.
+   * necessarily preserved after vsnprintf...
    */
 
   va_start (va, fmt);
@@ -132,7 +137,7 @@ add_to_display_buffer (char *fmt, ...)
   len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
   DISPLAY.lines[line_index].chars = malloc (len * sizeof (char) + 1);
   len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
-  DISPLAY.lines[line_index].chars[len] = '\0';
+  DISPLAY.lines[line_index].chars[len] = '\0';  // okay, so I don't trust vsprintf...
   DISPLAY.lines[line_index].len = len;
 
   add_to_log ("%s\n", DISPLAY.lines[line_index].chars);
@@ -149,9 +154,6 @@ add_to_display_buffer (char *fmt, ...)
  *
  * @details
  *
- * memcpy is used instead of strcpy. There is no real reason for this, as strcpy
- * SHOULD copy the NULL terminator as well... but it felt safer to use memcpy.
- * 
  * ************************************************************************** */
 
 void
@@ -161,8 +163,8 @@ add_separator_to_buffer (const int len)
   char tmp[len + 1];
 
   for (i = 0; i < len; ++i)
-    memcpy (&tmp[i], "-", 1);
-  memcpy (&tmp[len], "\0", 1);
+    tmp[i] = '-';
+  tmp[len] = '\0';
 
   add_to_display_buffer (tmp);
 }

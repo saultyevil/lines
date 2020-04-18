@@ -46,6 +46,9 @@ main (int argc, char *argv[])
 
   atexit (cleanup_ncurses_stdscr);
 
+  if (getenv ("PYTHON") == NULL)
+    error_exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
+
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
    * diagnostics into the logfile
@@ -73,7 +76,7 @@ main (int argc, char *argv[])
 
   if (print_atomic)
   {
-    display_text_buffer (CONTENT_WINDOW.win, 1, 1);
+    display_text_buffer (CONTENT_WINDOW, 1, 1);
   }
   else
   {

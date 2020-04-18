@@ -182,13 +182,12 @@ query_wavelength_range (double *wmin, double *wmax)
   WINDOW *win = CONTENT_WINDOW.win;
 
   wclear (win);
-  echo ();
-
-  bold_message (win, 1, 2, "Please input the wavelength range to query:");
 
   while (valid != TRUE)
   {
     *wmin = get_wavelength (win, "Minimum wavelength range: > ", 3, 2, 28);
+
+
     *wmax = get_wavelength (win, "Maximum wavelength range: > ", 5, 2, 28);
 
     if (*wmax > *wmin)
@@ -206,7 +205,6 @@ query_wavelength_range (double *wmin, double *wmax)
     }
   }
 
-  noecho ();
 }
 
 /* ************************************************************************** */
@@ -233,8 +231,8 @@ MenuItem_t ATOMIC_DATA_CHOICES[] ={
   {NULL, 0        , "standard80"                , ": Standard Simple-atom"},
   {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
   {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
-  {NULL, 0        , "standard80_test"           , ": Standard TEst Simple-atom"},
-  {NULL, MENU_OTHR, "Other"                     , ": Custom data"},
+  {NULL, 0        , "standard80_test"           , ": Standard Test Simple-atom"},
+  {NULL, INDX_OTHR, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
   {NULL, MENU_NULL, NULL                        , NULL}
 };
 
@@ -243,10 +241,11 @@ query_atomic_data (void)
 {
   int valid = FALSE;
   int atomic_data_error;
-  static int index = 8;
+  static int menu_index = 8;
   static int init_name = FALSE;
   char atomic_data_name[MAX_FIELD_INPUT];
   WINDOW *win = CONTENT_WINDOW.win;
+  static WINDOW *error_win = NULL;
 
   if (init_name == FALSE)
   {
@@ -254,16 +253,26 @@ query_atomic_data (void)
     init_name = TRUE;
   }
 
+  /*
+   * Continue to loop until valid atomic data has been loaded
+   */
+
   while (valid != TRUE)
   {
-    index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
-                         ARRAY_SIZE (ATOMIC_DATA_CHOICES), index, CONTROL_MENU);
+    menu_index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
+                              ARRAY_SIZE (ATOMIC_DATA_CHOICES), menu_index, CONTROL_MENU);
 
-    if (index > MENU_QUIT)
+    if (menu_index == MENU_QUIT)
     {
-      if (ATOMIC_DATA_CHOICES[index].index != MENU_OTHR)
+      update_status_bar ("Loading atomic data aborted... :-(");
+      display_text_buffer (CONTENT_WINDOW, 1, 1);
+      break;
+    }
+    else if (menu_index > MENU_QUIT)
+    {
+      if (ATOMIC_DATA_CHOICES[menu_index].index != INDX_OTHR)
       {
-        strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[index].name);
+        strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[menu_index].name);
         strcat (atomic_data_name, ".dat");
       }
       else
@@ -277,7 +286,7 @@ query_atomic_data (void)
 
     if (atomic_data_error)
     {
-      update_status_bar ("Error: error when reading atomic data : errno = %i", atomic_data_error);
+      update_status_bar ("Problem reading atomic data %s : errno = %i", atomic_data_name, atomic_data_error);
     }
     else
     {
@@ -287,6 +296,8 @@ query_atomic_data (void)
     wrefresh (win);
   }
 
-  display_text_buffer (win, 1, 1);
+  delwin (error_win);
+
+  display_text_buffer (CONTENT_WINDOW, 1, 1);
   log_flush ();
 }

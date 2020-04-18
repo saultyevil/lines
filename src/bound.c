@@ -34,7 +34,14 @@ bound_bound_main_menu (void)
 {
   double fmin, fmax;
   double wmin, wmax;
-  WINDOW *win = CONTENT_WINDOW.win;
+
+  if (nlines == 0)
+  {
+    wclear (CONTENT_WINDOW.win);
+    bold_message (CONTENT_WINDOW.win, 1, 1, "No bound-bound transitions were read in. Unable to query!");
+    wrefresh (CONTENT_WINDOW.win);
+    return;
+  }
 
   query_wavelength_range (&wmin, &wmax);
   fmax = C / (wmin  * ANGSTROM);
@@ -43,7 +50,7 @@ bound_bound_main_menu (void)
 
   get_bound_bound_lines ();
 
-  display_text_buffer (win, 1, 1);
+  display_text_buffer (CONTENT_WINDOW, 1, 1);
 }
 
 /* ************************************************************************** */
@@ -71,6 +78,13 @@ get_bound_bound_lines (void)
   int levu, levl;
   double wl;
   char element[LINELEN];
+
+// TODO: figure out check to prevent segmentation faults when no atomic data is loaded
+//  if (lin_ptr == NULL)
+//  {
+//    add_to_display_buffer ("There is no memory allocated for lin_ptr");
+//    add_to_display_buffer ("Check that there is atomic data current loaded, or try to reload the atomic data.");
+//  }
 
   add_to_display_buffer ("Bound-Bound Transitions");
   add_separator_to_buffer (ndashes);

@@ -3,7 +3,7 @@ void bound_bound_main_menu(void);
 void get_bound_bound_lines(void);
 /* buffer.c */
 void clean_up_display_buffer(void);
-void display_text_buffer(WINDOW *win, int start_y, int start_x);
+void display_text_buffer(Window_t win, int start_y, int start_x);
 void add_to_display_buffer(char *fmt, ...);
 void add_separator_to_buffer(const int len);
 /* main.c */

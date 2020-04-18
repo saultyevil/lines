@@ -40,6 +40,8 @@ get_element_name (int z, char *element)
   // Probably not the best thing to do
   if (element == NULL)
     return;
+  if (ele == NULL)
+    return;
 
   for (i = 0; i < nelements; ++i)
   {
@@ -82,16 +84,10 @@ check_command_line (int argc, char **argv)
     "Python is required to be installed correctly for atomix to work.\n\n"
     "Usage:\n"
     "   atomix [-h] [atomic_data]\n\n"
-    "   atomic_data [optional]  the name of the atomic data to explore\n"
-    "   h           [optional]  print this help message\n";
+    "   atomic_data  [optional]  the name of the atomic data to explore\n"
+    "   h            [optional]  print this help message\n";
 
-
-  if ((argc == 2 || argc == 3) && !strcmp (argv[1], "-h"))
-  {
-    printf ("%s", help);
-    exit (EXIT_SUCCESS);
-  }
-  else if (argc == 2)
+  if (argc == 2)
   {
     strcpy (atomic_data_name, argv[1]);
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
@@ -101,19 +97,21 @@ check_command_line (int argc, char **argv)
 
     if (atomic_data_error)
     {
-      // TODO more verbose error reporting - generic function required
-      printf ("Error: Invalid atomic data provided, try again.\n");
-      printf ("Error: Atomic data error %i\n", atomic_data_error);
+      log_close ();
+      printf ("Fatal error: error when reading atomic data : errno = %i\n", atomic_data_error);
       exit (EXIT_FAILURE);
     }
-    else
-    {
-      provided = TRUE;
-    }
+
+    provided = TRUE;
+  }
+  else if (argc > 2 && strcmp (argv[1], "-h") == 0)
+  {
+      printf ("%s", help);
+      exit (EXIT_SUCCESS);
   }
   else if (argc > 2)
   {
-    printf ("Unknown arguments.\n");
+    printf ("Unknown arguments. Seek help!\n");
     printf ("\n%s", help);
     exit (EXIT_FAILURE);
   }
@@ -123,9 +121,17 @@ check_command_line (int argc, char **argv)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Exit atomix when something has gone wrong.
+ *
+ * @param[in]  errno  An error number
+ * @param[in]  fmt    A formatted string describing the error
+ * @param[in]  ...    The arguments for the formatted string
  *
  * @details
+ *
+ * Cleans up atomix by flushing the log and cleaning the ncurses screen. The
+ * error message is then printed to the screen before atomix exits fully. Note
+ * that ncurses is cleaned up first, as this function prints to stdout.
  *
  * ************************************************************************** */
 
@@ -134,8 +140,10 @@ error_exit_atomix (int errno, char *fmt, ...)
 {
   va_list va;
 
+  log_flush ();
   cleanup_ncurses_stdscr ();
 
+  printf (":-(\n");
   printf ("Fatal Error: ");
   va_start (va, fmt);
   vprintf (fmt, va);
@@ -147,9 +155,12 @@ error_exit_atomix (int errno, char *fmt, ...)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Used toe exit atomix from the main menu.
  *
  * @details
+ *
+ * Flushes the log and then exit's the program. The screen isn't cleaned up as
+ * we are not printing to stdout so atexit() will clean up the screen for us.
  *
  * ************************************************************************** */
 
@@ -162,10 +173,11 @@ menu_exit_atomix (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Trim the whitespace from the end of a string.
  *
- * @details
+ * @param[in]  str  The string to trim
  *
+ * @return     str  The trimmed string
  *
  * ************************************************************************** */
 
@@ -180,7 +192,7 @@ trim_whitespaces(char *str)
   if (*str == 0)
     return str;
 
-  end = str + strnlen(str, 128) - 1;
+  end = str + strlen(str) - 1;
 
   while (end > str && isspace (*end))
     end--;

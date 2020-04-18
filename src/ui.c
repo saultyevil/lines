@@ -8,9 +8,6 @@
  *
  * Functions for creating the ncurses ui.
  *
- * TODO: add something to the status bar
- * TODO: function for updating the status bar
- *
  * ************************************************************************** */
 
 #include <stdio.h>
@@ -96,6 +93,8 @@ initialise_main_windows (void)
   MENU_WINDOW.y = TITLE_HEIGHT;
   MENU_WINDOW.x = 0;
   MENU_WINDOW.win = newwin (MENU_WINDOW.rows, MENU_WINDOW.cols, MENU_WINDOW.y, MENU_WINDOW.x);
+  if (MENU_WINDOW.win == NULL)
+    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for MENU_WINDOW");
   keypad (MENU_WINDOW.win, TRUE);
 
   // The window containing the main title and
@@ -104,6 +103,8 @@ initialise_main_windows (void)
   TITLE_WINDOW.y = 0;
   TITLE_WINDOW.x = 0;
   TITLE_WINDOW.win = newwin (TITLE_WINDOW.rows, TITLE_WINDOW.cols, TITLE_WINDOW.y, TITLE_WINDOW.x);
+  if (TITLE_WINDOW.win == NULL)
+    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for TITLE_WINDOW");
 
   // The window for the status bar at the bottom
   STATUS_WINDOW.rows = STATUS_HEIGHT;
@@ -111,6 +112,8 @@ initialise_main_windows (void)
   STATUS_WINDOW.y = LINES - STATUS_HEIGHT;
   STATUS_WINDOW.x = 0;
   STATUS_WINDOW.win = newwin (STATUS_WINDOW.rows, STATUS_WINDOW.cols, STATUS_WINDOW.y, STATUS_WINDOW.x);
+  if (STATUS_WINDOW.win == NULL)
+    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for STATUS_WINDOW");
 
   // The window for displaying content to the user
   CONTENT_WINDOW.rows = LINES - TITLE_HEIGHT - STATUS_HEIGHT;
@@ -118,6 +121,8 @@ initialise_main_windows (void)
   CONTENT_WINDOW.y = TITLE_HEIGHT;
   CONTENT_WINDOW.x = MENU_WIDTH;
   CONTENT_WINDOW.win = newwin (CONTENT_WINDOW.rows, CONTENT_WINDOW.cols, CONTENT_WINDOW.y, CONTENT_WINDOW.x);
+  if (CONTENT_WINDOW.win == NULL)
+    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for CONTENT_WINDOW");
   scrollok (CONTENT_WINDOW.win, TRUE);
 }
 
@@ -156,7 +161,7 @@ draw_window_boundaries (void)
   for (j = 0; j < STATUS_WINDOW.rows; ++j)
     for (i = 0; i < STATUS_WINDOW.cols; ++i)
       mvwprintw (STATUS_WINDOW.win, j, i, " ");
-  mvwprintw (STATUS_WINDOW.win, 0, 1, "Press q to quit when in the main menu");
+  update_status_bar ("Press q to quit when in the main menu");
 
   // This creates a 1 column boundary between the menu and content window
   for (j = 0; j < MENU_WINDOW.rows; ++j)
@@ -246,8 +251,9 @@ update_status_bar (char *fmt, ...)
   va_copy (va_c, va);
 
   len = vsnprintf (NULL, 0, fmt, va);
-  msg = malloc (len * sizeof (char));
+  msg = malloc (len * sizeof (char) + 1);
   len = vsprintf (msg, fmt, va_c);
+  msg[len] = '\0';  // I don't trust vsprintf actually
 
   va_end (va);
   va_end (va_c);
