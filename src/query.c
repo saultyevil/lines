@@ -12,6 +12,7 @@
 
 #include <form.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "atomix.h"
 
@@ -180,15 +181,26 @@ query_wavelength_range (double *wmin, double *wmax)
 {
   int valid = FALSE;
   WINDOW *win = CONTENT_WINDOW.win;
+  static int init_values = FALSE;
+  static char s_wmin[MAX_FIELD_INPUT];
+  static char s_wmax[MAX_FIELD_INPUT];
+
+  if (init_values == FALSE)
+  {
+    strcpy (s_wmin, "");
+    strcpy (s_wmax, "");
+    init_values = TRUE;
+  }
 
   wclear (win);
 
   while (valid != TRUE)
   {
-    *wmin = get_wavelength (win, "Minimum wavelength range: > ", 3, 2, 28);
+    query_user_for_input (CONTENT_WINDOW, "Please input the wavelength ranges", "Minimum Wavelength Range", s_wmin);
+    query_user_for_input (CONTENT_WINDOW, "Please input the wavelength ranges", "Maximum Wavelength Range", s_wmax);
 
-
-    *wmax = get_wavelength (win, "Maximum wavelength range: > ", 5, 2, 28);
+    *wmin = strtof (s_wmin, NULL);
+    *wmax = strtof (s_wmax, NULL);
 
     if (*wmax > *wmin)
     {

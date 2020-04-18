@@ -71,7 +71,7 @@ display_text_buffer (Window_t win, int start_y, int start_x)
   if (DISPLAY.nlines == 0 || DISPLAY.lines == NULL)
   {
     bold_message (the_win, 1, 1,
-                  "No text buffer to display! Did someone forget to load atomic data, or program something?");
+                  "No text buffer to display! Did someone forget to load atomic data, or program something important?");
   }
   else
   {
