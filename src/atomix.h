@@ -41,6 +41,9 @@
 
 #define MAX_FIELD_INPUT 50
 #define FIELD_SKIP -1
+#define FORM_QUIT -1
+#define FORM_BREAK -2
+#define FORM_CONTINUE -3
 
 #define MENU_WIDTH 24
 #define TITLE_HEIGHT 2

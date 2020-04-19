@@ -61,13 +61,14 @@ clean_up_form (FORM *form, FIELD **fields, int nfields)
  *
  * @details
  *
+ * TODO: input validation, i.e. make sure both fields are filled in
  *
  * ************************************************************************** */
 
 int
 control_form (FORM *form, int ch)
 {
-  int input = MENU_NULL;
+  int input = FORM_CONTINUE;
 
   switch (ch)
   {
@@ -93,7 +94,7 @@ control_form (FORM *form, int ch)
       form_driver (form, REQ_DEL_CHAR);
       break;
     case 10:
-      input = MENU_QUIT;
+      input = FORM_BREAK;
       break;
     default:
       form_driver (form, ch);
@@ -111,12 +112,12 @@ control_form (FORM *form, int ch)
  *
  * ************************************************************************** */
 
-void
+int
 query_user (Window_t w, Query_t *q, int nfields, char *title_message, int default_field)
 {
   int i;
   int ch;
-  int form_return = MENU_NULL;
+  int form_return = FORM_CONTINUE;
   FORM *form;
   WINDOW *the_win = w.win;
   FIELD **fields;
@@ -172,11 +173,18 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
    * ch is (somehow) NULL.
    */
 
-  while ((ch = wgetch (the_win)) && form_return == MENU_NULL && ch != KEY_F(1))
+  while ((ch = wgetch (the_win)) && form_return == FORM_CONTINUE)
   {
+    if (ch == KEY_F(1))
+    {
+      form_return = FORM_QUIT;
+      break;
+    }
+
     form_return = control_form (form, ch);
     wrefresh (the_win);
-    if (form_return == MENU_QUIT)
+
+    if (form_return == FORM_BREAK)
       break;
   }
 
@@ -194,6 +202,8 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
     strcpy (q[i].buffer, trim_whitespaces (field_buffer (fields[i], q[i].buffer_number)));
 
   clean_up_form (form, fields, nfields);
+
+  return form_return;
 }
 
 /* ************************************************************************** */
@@ -253,10 +263,11 @@ init_wavelength_form (Query_t *q, char *default_wmin, char *default_wmax)
  *
  * ************************************************************************** */
 
-void
+int
 query_wavelength_range (double *wmin, double *wmax)
 {
   int valid = FALSE;
+  int form_return;
   static int init_values = FALSE;
   static char s_wmin[MAX_FIELD_INPUT];
   static char s_wmax[MAX_FIELD_INPUT];
@@ -275,7 +286,10 @@ query_wavelength_range (double *wmin, double *wmax)
   while (valid != TRUE)
   {
     init_wavelength_form (wavelength_query, s_wmin, s_wmax);
-    query_user (CONTENT_WINDOW, wavelength_query, 4, "Please input the wavelength ranges", 1);
+    form_return = query_user (CONTENT_WINDOW, wavelength_query, 4, "Please input the wavelength ranges", 1);
+
+    if (form_return == FORM_QUIT)
+      return form_return;
 
     *wmin = strtof (wavelength_query[1].buffer, NULL);
     *wmax = strtof (wavelength_query[3].buffer, NULL);
@@ -289,6 +303,8 @@ query_wavelength_range (double *wmin, double *wmax)
       update_status_bar ("Invalid input for wavelength range %f - %f (minimum - maximum)", *wmin, *wmax);
     }
   }
+
+  return EXIT_SUCCESS;
 }
 
 /* ************************************************************************** */

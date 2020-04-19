@@ -32,6 +32,7 @@
 void
 bound_bound_main_menu (void)
 {
+  int query_return;
   double fmin, fmax;
   double wmin, wmax;
 
@@ -43,7 +44,10 @@ bound_bound_main_menu (void)
     return;
   }
 
-  query_wavelength_range (&wmin, &wmax);
+  query_return = query_wavelength_range (&wmin, &wmax);
+  if (query_return == MENU_QUIT)
+    return;
+
   fmax = C / (wmin  * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
   limit_lines (fmin, fmax);

@@ -27,9 +27,14 @@
 void
 photoionization_main_menu (void)
 {
+  int query_return;
   double wmin, wmax;
 
   query_wavelength_range (&wmin, &wmax);
+
+  query_return = query_wavelength_range (&wmin, &wmax);
+  if (query_return == MENU_QUIT)
+    return;
 
   get_photoionization_cross_sections (wmin, wmax);
 
@@ -70,9 +75,9 @@ get_photoionization_cross_sections (double wmin, double wmax)
   fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
-  add_to_display_buffer ("Photoionization Edges\n");
+  add_to_display_buffer ("Photoionization Edges");
   add_separator_to_buffer (ndashes);
-  add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s\n", "Wavelength", "Element", "Z", "istate", "PhotInfo");
+  add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "PhotInfo");
   add_separator_to_buffer (ndashes);
 
   for (i = 0; i < NLEVELS; ++i)
@@ -85,7 +90,7 @@ get_photoionization_cross_sections (double wmin, double wmax)
       phot_info = ion[phot_top[i].nion].phot_info;
       wavelength = const_C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
       get_element_name (z, element);
-      add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i\n", wavelength, element, z, istate, phot_info);
+      add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i", wavelength, element, z, istate, phot_info);
     }
   }
 

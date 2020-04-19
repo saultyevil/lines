@@ -44,7 +44,8 @@ int get_atomic_data(char *masterfile);
 /* query.c */
 void clean_up_form(FORM *form, FIELD **fields, int nfields);
 int control_form(FORM *form, int ch);
-void query_user (Window_t w, Query_t *q, int nfields, char *title_message, int default_field);
-void query_wavelength_range(double *wmin, double *wmax);
+int query_user(Window_t w, Query_t *q, int nfields, char *title_message, int default_field);
+void init_wavelength_form(Query_t *q, char *default_wmin, char *default_wmax);
+int query_wavelength_range(double *wmin, double *wmax);
 void init_atomic_data_form(Query_t *q, char *default_data);
 void query_atomic_data(void);
