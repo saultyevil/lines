@@ -152,7 +152,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
   {
     fields[i] = q[i].field;
     set_field_buffer (q[i].field, q[i].buffer_number, q[i].buffer);
-    if (q[i].background != FIELD_SKIP)
+    if (q[i].background != FIELD_SKIP)  // TODO: find better SKIP constant to avoid warning
       set_field_back (q[i].field, q[i].background);
     if (q[i].opts_on != FIELD_SKIP)
       set_field_opts (q[i].field, q[i].opts_on);

@@ -184,6 +184,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
+  update_status_bar ("Press q to exit atomix");
   post_menu (menu);
 
   wrefresh (MENU_WINDOW.win);
