@@ -296,8 +296,8 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
-  post_menu (menu);
   bold_message (the_win, 1, 1, menu_message);
+  post_menu (menu);
 
   wrefresh (the_win);
 
