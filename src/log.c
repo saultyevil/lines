@@ -87,7 +87,7 @@ log_close ()
  **********************************************************/
 
 int
-add_to_log (char *format, ...)
+logfile (char *format, ...)
 {
   va_list ap, ap2;
   int result;

@@ -42,8 +42,9 @@ double upsilon(int n_coll, double u0);
 int index_lines(void);
 int get_atomic_data(char *masterfile);
 /* query.c */
+void clean_up_form(FORM *form, FIELD **fields, int nfields);
 int control_form(FORM *form, int ch);
-void query_user_for_input(Window_t win, char *title_message, char *question, char *answer);
-double get_wavelength(WINDOW *win, char *msg, int y, int x, int len);
+void query_user (Window_t w, Query_t *q, int nfields, char *title_message, int default_field);
 void query_wavelength_range(double *wmin, double *wmax);
+void init_atomic_data_form(Query_t *q, char *default_data);
 void query_atomic_data(void);

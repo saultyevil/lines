@@ -16,6 +16,45 @@
 
 #include "atomix.h"
 
+const
+MenuItem_t ATOMIC_DATA_CHOICES[] ={
+  {NULL, 0        , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 0        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 0        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
+  {NULL, 0        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
+  {NULL, 0        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
+  {NULL, 0        , "h10_standard80"            , ": 10 Level H Macro-atom"},
+  {NULL, 0        , "h20"                       , ": 20 Level H Macro-atom"},
+  {NULL, 0        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
+  {NULL, 0        , "standard80"                , ": Standard Simple-atom"},
+  {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
+  {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
+  {NULL, 0        , "standard80_test"           , ": Standard Test Simple-atom"},
+  {NULL, INDX_OTHR, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
+  {NULL, MENU_NULL, NULL                        , NULL}
+};
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+void
+clean_up_form (FORM *form, FIELD **fields, int nfields)
+{
+  int i;
+
+  unpost_form (form);
+  free_form (form);
+  for (i = 0; i < nfields; ++i)
+    free_field (fields[i]);
+  free (fields);
+}
+
 /* ************************************************************************** */
 /**
  * @brief
@@ -73,92 +112,130 @@ control_form (FORM *form, int ch)
  * ************************************************************************** */
 
 void
-query_user_for_input (Window_t win, char *title_message, char *question, char *answer)
+query_user (Window_t w, Query_t *q, int nfields, char *title_message, int default_field)
 {
-  int ch, control = MENU_NULL;
-  static FORM *form;
-  static FIELD *fields[3];
-  WINDOW *the_win = win.win;
+  int i;
+  int ch;
+  int form_return = MENU_NULL;
+  FORM *form;
+  WINDOW *the_win = w.win;
+  FIELD **fields;
 
   wclear (the_win);
-  keypad (the_win, TRUE);
+  keypad (the_win, TRUE); // TODO: check if I need this
 
   bold_message (the_win, 1, 1, title_message);
 
-  fields[0] = new_field (1, strlen (question), 0, 0, 0, 0);
-  fields[1] = new_field (1, MAX_FIELD_INPUT, 0, strlen (question) + 2, 0, 0);
-  fields[2] = NULL;
+  if (q[nfields].field != NULL)
+    error_exit_atomix (EXIT_FAILURE, "query_user_for_input : final query is not NULL. Programming error!");
+  if (default_field > nfields)
+    error_exit_atomix (EXIT_FAILURE,
+                       "query_user_for_input : the default field is larger than the number of fields. Programming error!");
 
-  set_field_buffer (fields[0], 0, question);
-  set_field_opts(fields[0], O_VISIBLE | O_PUBLIC | O_AUTOSKIP);
+  /*
+   * Allocate memory for the fields array, which will be  pointers to the fields
+   * in the Query_t structure
+   */
 
-  set_field_buffer (fields[1], 0, answer);
-  set_field_back (fields[1], A_REVERSE);
-  field_opts_off (fields[1], O_AUTOSKIP);
-  set_field_opts(fields[1], O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE);
+  fields = calloc (nfields + 1, sizeof (FIELD *));
+  if (fields == NULL)
+    error_exit_atomix (EXIT_FAILURE, "query_user_for_input : unable to allocate memory for fields");
+
+  /*
+   * Initialise the fields with their respective values
+   */
+
+  fields[nfields] = NULL;
+
+  for (i = 0; i < nfields; ++i)
+  {
+    fields[i] = q[i].field;
+    set_field_buffer (q[i].field, q[i].buffer_number, q[i].buffer);
+    if (q[i].background != FIELD_SKIP)
+      set_field_back (q[i].field, q[i].background);
+    if (q[i].opts_on != FIELD_SKIP)
+      set_field_opts (q[i].field, q[i].opts_on);
+    if (q[i].opts_off != FIELD_SKIP)
+      field_opts_off (q[i].field, q[i].opts_off);
+  }
 
   form = new_form (fields);
   set_form_win (form, the_win);
-  set_form_sub (form, derwin (the_win, 10, win.cols - 2, 3, 1));
-  set_current_field (form, fields[1]);
+  set_form_sub (form, derwin (the_win, w.rows - 4, w.cols - 2, 3, 1));
+  set_current_field (form, fields[default_field]);
+  update_status_bar ("Press F1 to cancel input");
   post_form (form);
   wrefresh (the_win);
 
   /*
-   * Control the menu, exits when the enter key has been pressed
-   * or when ch is (somehow) NULL
+   * Control the menu. Should exit when the enter key is pressed, or when
+   * ch is (somehow) NULL.
    */
 
-  while ((ch = wgetch (the_win)) && control == MENU_NULL)
+  while ((ch = wgetch (the_win)) && form_return == MENU_NULL && ch != KEY_F(1))
   {
-    control = control_form (form, ch);
+    form_return = control_form (form, ch);
     wrefresh (the_win);
-    if (control == MENU_QUIT)
+    if (form_return == MENU_QUIT)
       break;
   }
 
+  /*
+   * We have to validate the current field to "save" the buffer - or something
+   */
+
   form_driver (form, REQ_VALIDATION);
-  strcpy (answer, trim_whitespaces (field_buffer (fields[1], 0)));
 
-  unpost_form (form);
-  free_form (form);
-  free_field (fields[0]);
-  free_field (fields[1]);
-  free_field (fields[2]);
+  /*
+   * This copies the field buffer into the Query_t buffer
+   */
 
-  keypad (the_win, FALSE);
+  for (i = 0; i < nfields; ++i)
+    strcpy (q[i].buffer, trim_whitespaces (field_buffer (fields[i], q[i].buffer_number)));
+
+  clean_up_form (form, fields, nfields);
 }
 
 /* ************************************************************************** */
 /**
- * @brief      Query a wavelength value from the user.
- *
- * @param[in]  win  The window to place the query in.
- * @param[in]  msg  A message to prompt the user what to input.
- * @param[in]  y    The y location of the prompt message.
- * @param[in]  x    The x location of the prompt message.
- *
- * @return     The wavelength input by the user.
+ * @brief
  *
  * @details
  *
- * Originally a function to avoid code duplication. The input value should be
- * echo'd back to the user, but once the value will be updated on the screen.
- *
  * ************************************************************************** */
 
-double
-get_wavelength (WINDOW *win, char *msg, int y, int x, int len)
+void
+init_wavelength_form (Query_t *q, char *default_wmin, char *default_wmax)
 {
-  double wl;
+  q[0].buffer_number = 0;
+  strcpy (q[0].buffer, "Minimum Wavelength :");
+  q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
+  q[0].opts_off = FIELD_SKIP;
+  q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
+  q[0].background = FIELD_SKIP;
 
-  mvwprintw (win, y, x, "%s", msg);
-  wrefresh (win);
-  wscanw (win, "%lf", &wl);
-  mvwprintw (win, y, len + 2, "%5.1f Angstroms", wl);
-  wrefresh (win);
+  q[1].buffer_number = 0;
+  strcpy (q[1].buffer, default_wmin);
+  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
+  q[1].opts_off = O_AUTOSKIP;
+  q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
+  q[1].background = A_REVERSE;
 
-  return wl;
+  q[2].buffer_number = 0;
+  strcpy (q[2].buffer, "Maximum Wavelength :");
+  q[2].field = new_field (1, strlen (q[2].buffer), 2, 0, 0, 0);
+  q[2].opts_off = FIELD_SKIP;
+  q[2].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
+  q[2].background = FIELD_SKIP;
+
+  q[3].buffer_number = 0;
+  strcpy (q[3].buffer, default_wmax);
+  q[3].field = new_field (1, MAX_FIELD_INPUT, 2, strlen (q[2].buffer) + 2, 0, 0);
+  q[3].opts_off = O_AUTOSKIP;
+  q[3].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
+  q[3].background = A_REVERSE;
+
+  q[4].field = NULL;
 }
 
 /* ************************************************************************** */
@@ -180,10 +257,11 @@ void
 query_wavelength_range (double *wmin, double *wmax)
 {
   int valid = FALSE;
-  WINDOW *win = CONTENT_WINDOW.win;
   static int init_values = FALSE;
   static char s_wmin[MAX_FIELD_INPUT];
   static char s_wmax[MAX_FIELD_INPUT];
+  WINDOW *win = CONTENT_WINDOW.win;
+  static Query_t wavelength_query[5];
 
   if (init_values == FALSE)
   {
@@ -196,11 +274,11 @@ query_wavelength_range (double *wmin, double *wmax)
 
   while (valid != TRUE)
   {
-    query_user_for_input (CONTENT_WINDOW, "Please input the wavelength ranges", "Minimum Wavelength Range", s_wmin);
-    query_user_for_input (CONTENT_WINDOW, "Please input the wavelength ranges", "Maximum Wavelength Range", s_wmax);
+    init_wavelength_form (wavelength_query, s_wmin, s_wmax);
+    query_user (CONTENT_WINDOW, wavelength_query, 4, "Please input the wavelength ranges", 1);
 
-    *wmin = strtof (s_wmin, NULL);
-    *wmax = strtof (s_wmax, NULL);
+    *wmin = strtof (wavelength_query[1].buffer, NULL);
+    *wmax = strtof (wavelength_query[3].buffer, NULL);
 
     if (*wmax > *wmin)
     {
@@ -208,15 +286,37 @@ query_wavelength_range (double *wmin, double *wmax)
     }
     else
     {
-      bold_message (win, 7, 2, "Incorrect input. Try again...");
-      wrefresh (win);
-      wmove (win, 3, 0);
-      wclrtoeol (win);
-      wmove (win, 5, 0);
-      wclrtoeol (win);
+      update_status_bar ("Invalid input for wavelength range %f - %f (minimum - maximum)", *wmin, *wmax);
     }
   }
+}
 
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+init_atomic_data_form (Query_t *q, char *default_data)
+{
+  q[0].buffer_number = 0;
+  strcpy (q[0].buffer, "Master file :");
+  q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
+  q[0].opts_off = FIELD_SKIP;
+  q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
+  q[0].background = FIELD_SKIP;
+
+  q[1].buffer_number = 0;
+  strcpy (q[1].buffer, default_data);
+  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
+  q[1].opts_off = O_AUTOSKIP;
+  q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
+  q[1].background = A_REVERSE;
+
+  q[2].field = NULL;
 }
 
 /* ************************************************************************** */
@@ -230,24 +330,6 @@ query_wavelength_range (double *wmin, double *wmax)
  *
  * ************************************************************************** */
 
-const
-MenuItem_t ATOMIC_DATA_CHOICES[] ={
-  {NULL, 0        , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 0        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 0        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
-  {NULL, 0        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
-  {NULL, 0        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
-  {NULL, 0        , "h10_standard80"            , ": 10 Level H Macro-atom"},
-  {NULL, 0        , "h20"                       , ": 20 Level H Macro-atom"},
-  {NULL, 0        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
-  {NULL, 0        , "standard80"                , ": Standard Simple-atom"},
-  {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
-  {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
-  {NULL, 0        , "standard80_test"           , ": Standard Test Simple-atom"},
-  {NULL, INDX_OTHR, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
-  {NULL, MENU_NULL, NULL                        , NULL}
-};
-
 void
 query_atomic_data (void)
 {
@@ -256,8 +338,9 @@ query_atomic_data (void)
   static int menu_index = 8;
   static int init_name = FALSE;
   char atomic_data_name[MAX_FIELD_INPUT];
-  WINDOW *win = CONTENT_WINDOW.win;
   static WINDOW *error_win = NULL;
+  WINDOW *win = CONTENT_WINDOW.win;
+  static Query_t atomic_data_query[3];
 
   if (init_name == FALSE)
   {
@@ -289,8 +372,9 @@ query_atomic_data (void)
       }
       else
       {
-        query_user_for_input (CONTENT_WINDOW, "Please input the path to the atomic data masterfile",
-                              "File path: ", atomic_data_name);
+        init_atomic_data_form (atomic_data_query, atomic_data_name);
+        query_user (CONTENT_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file", 1);
+        strcpy (atomic_data_name, atomic_data_query[1].buffer);
       }
     }
 

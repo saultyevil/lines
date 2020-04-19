@@ -140,7 +140,7 @@ add_to_display_buffer (char *fmt, ...)
   DISPLAY.lines[line_index].chars[len] = '\0';  // okay, so I don't trust vsprintf...
   DISPLAY.lines[line_index].len = len;
 
-  add_to_log ("%s\n", DISPLAY.lines[line_index].chars);
+  logfile ("%s\n", DISPLAY.lines[line_index].chars);
   
   va_end (va);
   va_end (va_c);

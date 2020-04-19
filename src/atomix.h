@@ -40,6 +40,7 @@
 #define REDRAW_MENU FALSE
 
 #define MAX_FIELD_INPUT 50
+#define FIELD_SKIP -1
 
 #define MENU_WIDTH 24
 #define TITLE_HEIGHT 2
@@ -74,6 +75,16 @@ typedef struct MenuItem_t
   char *name;
   char *desc;
 } MenuItem_t;
+
+typedef struct
+{
+  FIELD *field;
+  Field_Options opts_on;
+  Field_Options opts_off;
+  chtype background;
+  char buffer[MAX_FIELD_INPUT];
+  int buffer_number;
+} Query_t;
 
 typedef struct Window_t
 {
