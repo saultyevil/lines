@@ -184,7 +184,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
-  update_status_bar ("Press q to exit atomix");
+  update_status_bar ("Press q or F1 to exit atomix");
   post_menu (menu);
 
   wrefresh (MENU_WINDOW.win);
@@ -193,17 +193,17 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
   {
     while ((c = wgetch (MENU_WINDOW.win)))
     {
-      if (c == 'q')
+      if (c == 'q' || c == KEY_F(1))
       {
         index = MENU_QUIT;
         break;
       }
 
       index = control_menu (menu, c);
+      wrefresh (MENU_WINDOW.win);
+
       if (index != MENU_NULL)
         break;
-
-      wrefresh (MENU_WINDOW.win);
     }
   }
 
@@ -235,19 +235,6 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
  * TODO: configuration struct in case finer control is required.
  *
  * ************************************************************************** */
-
-/*
-
-typedef struct MenuConfig
-{
-  int default_item;
-  int nrows, ncols;
-  int menu_rows, menu_cols;
-  Menu_Options options_on;
-  Menu_Options options_off;
-} MenuConfig;
-
-*/
 
 int
 create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index,
@@ -305,18 +292,17 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   {
     while ((c = wgetch (the_win)))
     {
-      index = control_menu (menu, c);
-      wrefresh (the_win);
-
-      if (index != MENU_NULL)
-      {
-        break;
-      }
-      else if (c == 'q')
+      if (c == 'q' || c == (KEY_F(1)))
       {
         index = MENU_QUIT;
         break;
       }
+
+      index = control_menu (menu, c);
+      wrefresh (the_win);
+
+      if (index != MENU_NULL)
+        break;
     }
   }
 

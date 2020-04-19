@@ -411,5 +411,6 @@ query_atomic_data (void)
   delwin (error_win);
 
   display_text_buffer (CONTENT_WINDOW, 1, 1);
+  logfile ("\n");
   log_flush ();
 }

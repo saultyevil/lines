@@ -30,8 +30,6 @@ photoionization_main_menu (void)
   int query_return;
   double wmin, wmax;
 
-  query_wavelength_range (&wmin, &wmax);
-
   query_return = query_wavelength_range (&wmin, &wmax);
   if (query_return == MENU_QUIT)
     return;
@@ -75,7 +73,7 @@ get_photoionization_cross_sections (double wmin, double wmax)
   fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
-  add_to_display_buffer ("Photoionization Edges");
+  add_to_display_buffer ("Photoionization Edges: Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
   add_separator_to_buffer (ndashes);
   add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "PhotInfo");
   add_separator_to_buffer (ndashes);

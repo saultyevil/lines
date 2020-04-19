@@ -52,7 +52,7 @@ bound_bound_main_menu (void)
   fmin = C / (wmax * ANGSTROM);
   limit_lines (fmin, fmax);
 
-  get_bound_bound_lines ();
+  get_bound_bound_lines (wmin, wmax);
 
   display_text_buffer (CONTENT_WINDOW, 1, 1);
 }
@@ -61,6 +61,9 @@ bound_bound_main_menu (void)
 /**
  * @brief Retrieve all the bound bound transitions over a given wavelength
  *        range.
+ *
+ * @param[in]  wmin  The smallest wavelength to consider
+ * @param[in]  wmax  The largest wavelength to consider
  *
  * @details
  *
@@ -74,7 +77,7 @@ bound_bound_main_menu (void)
  * ************************************************************************** */
 
 void
-get_bound_bound_lines (void)
+get_bound_bound_lines (double wmin, double wmax)
 {
   int i;
   const int ndashes = 86;
@@ -83,14 +86,7 @@ get_bound_bound_lines (void)
   double wl;
   char element[LINELEN];
 
-// TODO: figure out check to prevent segmentation faults when no atomic data is loaded
-//  if (lin_ptr == NULL)
-//  {
-//    add_to_display_buffer ("There is no memory allocated for lin_ptr");
-//    add_to_display_buffer ("Check that there is atomic data current loaded, or try to reload the atomic data.");
-//  }
-
-  add_to_display_buffer ("Bound-Bound Transitions");
+  add_to_display_buffer ("Bound-Bound Transitions: Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
   add_separator_to_buffer (ndashes);
   add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "levu",
                          "levl", "nion");

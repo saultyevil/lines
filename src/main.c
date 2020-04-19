@@ -57,6 +57,9 @@ main (int argc, char *argv[])
   log_init ("atomix.log.txt");
   print_atomic = check_command_line (argc, argv);
 
+  if (!print_atomic)
+    menu_index = 2;  // Set the menu index to atomic data
+
   /*
    * Initialise ncurses, the window panels and draw the window borders
    */

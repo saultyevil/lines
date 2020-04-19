@@ -1,6 +1,6 @@
 /* bound.c */
 void bound_bound_main_menu(void);
-void get_bound_bound_lines(void);
+void get_bound_bound_lines (double wmin, double wmax);
 /* buffer.c */
 void clean_up_display_buffer(void);
 void display_text_buffer(Window_t win, int start_y, int start_x);
