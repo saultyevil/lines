@@ -15,11 +15,11 @@
 
 const
 MenuItem_t MAIN_MENU_CHOICES[] = {
-  {&bound_bound_main_menu    , 0        , "Bound Lines"    , "Query bound-bound transitions"},
-  {&photoionization_main_menu, 1        , "Photoionization", "Query photionization edges"},
-  {&query_atomic_data        , 2        , "Atomic Data"    , "Switch the atomic data"},
-  {&menu_exit_atomix         , MENU_QUIT, "Exit"           , "Exit atomix"},
-  {NULL                      , MENU_NULL, NULL             , NULL}
+  {&bound_bound_main_menu, 0        , "Bound-Bound"       , "Query bound-bound transitions"},
+  {&bound_free_main_menu , 1        , "Bound-Free"        , "Query photionization edges"},
+  {&query_atomic_data    , 2        , "Switch Atomic Data", "Switch the atomic data"},
+  {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit atomix"},
+  {NULL                  , MENU_NULL, NULL                , NULL}
 };
 
 /* ************************************************************************* */

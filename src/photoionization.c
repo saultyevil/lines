@@ -25,7 +25,7 @@
  * ************************************************************************** */
 
 void
-photoionization_main_menu (void)
+bound_free_main_menu (void)
 {
   int query_return;
   double wmin, wmax;

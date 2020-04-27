@@ -27,7 +27,7 @@ void draw_window_boundaries(void);
 void bold_message(WINDOW *win, int y, int x, char *fmt, ...);
 void update_status_bar(char *fmt, ...);
 /* photoionization.c */
-void photoionization_main_menu(void);
+void bound_free_main_menu (void);
 void get_photoionization_cross_sections(double wmin, double wmax);
 /* read_atomic_data.c */
 int fraction(double value, double array[], int npts, int *ival, double *f, int mode);
