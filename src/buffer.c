@@ -55,7 +55,6 @@ clean_up_display_buffer (void)
  * DISPLAY is NULL, an error message is displayed instead.
  * 
  * TODO: center the output
- * TODO: loop condition should be more generic rather than LINES - 2
  *
  * ************************************************************************** */
 
@@ -63,7 +62,6 @@ void
 display_text_buffer (Window_t win, int start_y, int start_x)
 {
   int i;
-  int max_rows;
   WINDOW *the_win = win.win;
 
   wclear (the_win);
@@ -75,11 +73,53 @@ display_text_buffer (Window_t win, int start_y, int start_x)
   }
   else
   {
-    max_rows = win.rows - start_y - 1;
-    for (i = 0; i < DISPLAY.nlines && i < max_rows; ++i)
+    int ch;
+    int line_start = 0;
+
+    for (i = line_start; i < DISPLAY.nlines && i < win.rows - 2; ++i)
+      mvwprintw (the_win, i + 1, 1, "%s", DISPLAY.lines[i].chars);
+    update_status_bar("Press q to exit text scrolling or UP and DOWN to scroll the text");
+    wrefresh (the_win);
+
+    while ((ch = wgetch (the_win)) != 'q')
     {
-      wmove (the_win, i + start_y, start_x);
-      wprintw (the_win, "%s", DISPLAY.lines[i].chars);
+      if (DISPLAY.nlines > win.rows - 2)
+      {
+        switch (ch)
+        {
+          case KEY_UP:
+            line_start--;
+            break;
+          case KEY_DOWN:
+            line_start++;
+            break;
+          case KEY_NPAGE:
+            line_start += win.rows - 2;
+            break;
+          case KEY_PPAGE:
+            line_start -= win.rows - 2;
+            break;
+          default:
+            break;
+        }
+
+        if (line_start < 0)
+          line_start = 0;
+        if (line_start > DISPLAY.nlines - 1)
+          line_start = DISPLAY.nlines - 1;
+
+        wclear (the_win);
+        int the_row = 1;
+        for (i = line_start; i < DISPLAY.nlines; ++i)
+        {
+          if (the_row > win.rows - 2)
+            break;
+          mvwprintw (the_win, the_row, 1, "%s", DISPLAY.lines[i].chars);
+          the_row++;
+        }
+
+        wrefresh (the_win);
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 /* bound.c */
 void bound_bound_main_menu(void);
-void get_bound_bound_lines (double wmin, double wmax);
+void get_bound_bound_lines(double wmin, double wmax);
 /* buffer.c */
 void clean_up_display_buffer(void);
 void display_text_buffer(Window_t win, int start_y, int start_x);
@@ -27,7 +27,7 @@ void draw_window_boundaries(void);
 void bold_message(WINDOW *win, int y, int x, char *fmt, ...);
 void update_status_bar(char *fmt, ...);
 /* photoionization.c */
-void bound_free_main_menu (void);
+void bound_free_main_menu(void);
 void get_photoionization_cross_sections(double wmin, double wmax);
 /* read_atomic_data.c */
 int fraction(double value, double array[], int npts, int *ival, double *f, int mode);
