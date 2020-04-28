@@ -42,6 +42,76 @@ clean_up_display_buffer (void)
 
 /* ************************************************************************** */
 /**
+ * @brief  Scroll the text buffer up and down.
+ *
+ * @param[in]  win  The Window_t containing the buffer to be scrolled
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+void
+scroll_buffer (Window_t win)
+{
+  int i;
+  int ch;
+  int line_start;
+  int current_row;
+  WINDOW *the_win = win.win;
+
+  line_start = 0;
+
+  while ((ch = wgetch (the_win)) != 'q')
+  {
+    if (DISPLAY.nlines > win.rows - 2)
+    {
+      wclear (the_win);
+
+      /*
+       * Control which line is printed first in the buffer. One can use the
+       * UP or DOWN arrow keys as well as PAGE UP and PAGE DOWN
+       */
+
+      switch (ch)
+      {
+        case KEY_UP:
+            line_start--;
+          break;
+        case KEY_DOWN:
+            line_start++;
+          break;
+        case KEY_NPAGE:
+          line_start += win.rows - 2;
+          break;
+        case KEY_PPAGE:
+          line_start -= win.rows - 2;
+          break;
+        default:
+          break;
+      }
+
+      /*
+       * These are the boundaries for how big, or small, line_start can be. This
+       * should prevent being able to scroll off the buffer and always keeping
+       * the screen full.
+       */
+
+      if (line_start < 0)
+        line_start = 0;
+      if (line_start + win.rows - 2 > DISPLAY.nlines)
+        line_start = DISPLAY.nlines - win.rows + 2;
+
+      for (i = line_start, current_row = 1; i < DISPLAY.nlines && current_row < win.rows - 1; ++i, ++current_row)
+        mvwprintw (the_win, current_row, 1, "%s", DISPLAY.lines[i].chars);
+
+      wrefresh (the_win);
+    }
+  }
+}
+
+/* ************************************************************************** */
+/**
  * @brief  Print the DISPLAY buffer in the provided window.
  *
  * @param[in]  the_win      The window to print the buffer in
@@ -59,7 +129,7 @@ clean_up_display_buffer (void)
  * ************************************************************************** */
 
 void
-display_text_buffer (Window_t win, int start_y, int start_x)
+display_text_buffer (Window_t win, int scroll)
 {
   int i;
   WINDOW *the_win = win.win;
@@ -73,57 +143,16 @@ display_text_buffer (Window_t win, int start_y, int start_x)
   }
   else
   {
-    int ch;
-    int line_start = 0;
-
-    for (i = line_start; i < DISPLAY.nlines && i < win.rows - 2; ++i)
+    for (i = 0; i < DISPLAY.nlines && i < win.rows - 2; ++i)
       mvwprintw (the_win, i + 1, 1, "%s", DISPLAY.lines[i].chars);
+
     update_status_bar("Press q to exit text scrolling or UP and DOWN to scroll the text");
     wrefresh (the_win);
 
-    while ((ch = wgetch (the_win)) != 'q')
-    {
-      if (DISPLAY.nlines > win.rows - 2)
-      {
-        switch (ch)
-        {
-          case KEY_UP:
-            line_start--;
-            break;
-          case KEY_DOWN:
-            line_start++;
-            break;
-          case KEY_NPAGE:
-            line_start += win.rows - 2;
-            break;
-          case KEY_PPAGE:
-            line_start -= win.rows - 2;
-            break;
-          default:
-            break;
-        }
-
-        if (line_start < 0)
-          line_start = 0;
-        if (line_start > DISPLAY.nlines - 1)
-          line_start = DISPLAY.nlines - 1;
-
-        wclear (the_win);
-        int the_row = 1;
-        for (i = line_start; i < DISPLAY.nlines; ++i)
-        {
-          if (the_row > win.rows - 2)
-            break;
-          mvwprintw (the_win, the_row, 1, "%s", DISPLAY.lines[i].chars);
-          the_row++;
-        }
-
-        wrefresh (the_win);
-      }
-    }
+    if (scroll == SCROLL_OK)
+      scroll_buffer (win);
   }
 
-  wrefresh (the_win);
   clean_up_display_buffer ();
 }
 

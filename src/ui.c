@@ -44,7 +44,7 @@ initialise_ncurses_stdscr (void)
   cbreak ();               // Disable line buffering or summat
   keypad (stdscr, TRUE);   // Allow the screen to take input
 
-  if (lines < 35 || cols < 120)
+  if (lines < 35 || cols < 130)
     error_exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35. Current terminal size %ix%i", lines, cols);
 }
 
@@ -70,7 +70,7 @@ cleanup_ncurses_stdscr (void)
 
 /* ************************************************************************** */
 /**
- * @brief  Intialise the main panels for atomix.
+ * @brief  Initialise the main panels for atomix.
  *
  * @details
  *
@@ -233,10 +233,10 @@ bold_message (WINDOW *win, int y, int x, char *fmt, ...)
 
 /* ************************************************************************** */
 /**
- * @brief  Update the status bar
+ * @brief  Update the status bar with a message
  *
- * @param[in]  fmt
- * @param[in]  ...
+ * @param[in]  fmt  The formatted string
+ * @param[in]  ...  The string arguments
  *
  * @details
  *

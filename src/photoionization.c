@@ -36,7 +36,7 @@ bound_free_main_menu (void)
 
   get_photoionization_cross_sections (wmin, wmax);
 
-  display_text_buffer (CONTENT_WINDOW, 1, 1);
+  display_text_buffer (CONTENT_WINDOW, SCROLL_OK);
 }
 
 

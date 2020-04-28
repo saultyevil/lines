@@ -54,7 +54,7 @@ bound_bound_main_menu (void)
 
   get_bound_bound_lines (wmin, wmax);
 
-  display_text_buffer (CONTENT_WINDOW, 1, 1);
+  display_text_buffer (CONTENT_WINDOW, SCROLL_OK);
 }
 
 /* ************************************************************************** */

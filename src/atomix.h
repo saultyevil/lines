@@ -33,6 +33,9 @@
 // UI Constants
 #define VERSION "3.1a"
 
+#define NO_SCROLL 0
+#define SCROLL_OK 1
+
 #define MENU_QUIT -1
 #define MENU_NULL -2
 #define INDX_OTHR -3
@@ -44,6 +47,7 @@
 #define FORM_QUIT -1
 #define FORM_BREAK -2
 #define FORM_CONTINUE -3
+#define NO_BG 999
 
 #define MENU_WIDTH 24
 #define TITLE_HEIGHT 2

@@ -3,7 +3,8 @@ void bound_bound_main_menu(void);
 void get_bound_bound_lines(double wmin, double wmax);
 /* buffer.c */
 void clean_up_display_buffer(void);
-void display_text_buffer(Window_t win, int start_y, int start_x);
+void scroll_buffer(Window_t win);
+void display_text_buffer(Window_t win, int scroll);
 void add_to_display_buffer(char *fmt, ...);
 void add_separator_to_buffer(const int len);
 /* main.c */
@@ -19,6 +20,7 @@ int check_command_line(int argc, char **argv);
 void error_exit_atomix(int errno, char *fmt, ...);
 void menu_exit_atomix(void);
 char *trim_whitespaces(char *str);
+int create_string(char *str, char *fmt, ...);
 /* ui.c */
 void initialise_ncurses_stdscr(void);
 void cleanup_ncurses_stdscr(void);

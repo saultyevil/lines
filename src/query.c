@@ -36,10 +36,11 @@ MenuItem_t ATOMIC_DATA_CHOICES[] ={
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Clean up a form.
  *
  * @details
  *
+ * Unposts the form and clears all of the memory allocated for a form.
  *
  * ************************************************************************** */
 
@@ -57,9 +58,22 @@ clean_up_form (FORM *form, FIELD **fields, int nfields)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Control a form given a key input
+ *
+ * @param[in]  form        The form which is to be controlled
+ * @param[in]  ch          The key input to process
+ * @param[in]  exit_index  The index of the field to exit from when enter is
+ *                         pressed
+ *
+ * @return     input       An integer to say if form input should continue
+ *                           * FORM_CONTINUE continue getting input
+ *                           * FOR_EXIt      exit the form
  *
  * @details
+ *
+ * The purpose of this function is to control the form given a key input ch. If
+ * enter is pressed on a field, then it'll go to the next field. If enter is
+ * pressed on exit_input, then the form will exit.
  *
  * TODO: input validation, i.e. make sure both fields are filled in
  *
@@ -73,6 +87,7 @@ control_form (FORM *form, int ch, int exit_index)
 
   switch (ch)
   {
+    case '\t':
     case KEY_DOWN:
       form_driver (form, REQ_NEXT_FIELD);
       form_driver (form, REQ_END_LINE);
@@ -116,7 +131,13 @@ control_form (FORM *form, int ch, int exit_index)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Given a Query_t, create a form and get input from the user.
+ *
+ * @param[in]      w              The window to display the form in
+ * @param[in,out]  q              The Query_t containing the form
+ * @param[in]      nfields        The number of fields
+ * @param[in]      title_message  A title message to prompt the user
+ * @param[in]      default_field  The default field to place the cursor
  *
  * @details
  *
@@ -165,7 +186,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
   {
     fields[i] = q[i].field;
     set_field_buffer (q[i].field, q[i].buffer_number, q[i].buffer);
-    if (q[i].background != FIELD_SKIP)  // TODO: find better SKIP constant to avoid warning
+    if (q[i].background != NO_BG)
       set_field_back (q[i].field, q[i].background);
     if (q[i].opts_on != FIELD_SKIP)
       set_field_opts (q[i].field, q[i].opts_on);
@@ -221,22 +242,31 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Initialise a Query_t object for a form to query a wavelength range
+ *
+ * @param[in]  q             The Query_t object to initialise
+ * @param[in]  default_wmin  The default minimum wavelength to initialise with
+ * @param[in]  default_wmax  The default maximum wavelength to initialise with
  *
  * @details
+ *
+ * The "null field" is actually kinda redundant since a re-work of the query
+ * function.
  *
  * ************************************************************************** */
 
 void
 init_wavelength_form (Query_t *q, char *default_wmin, char *default_wmax)
 {
+  // Minimum wavelength label
   q[0].buffer_number = 0;
   strcpy (q[0].buffer, "Minimum Wavelength :");
   q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
   q[0].opts_off = FIELD_SKIP;
   q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
-  q[0].background = FIELD_SKIP;
+  q[0].background = NO_BG;
 
+  // Minimum wavelength input field
   q[1].buffer_number = 0;
   strcpy (q[1].buffer, default_wmin);
   q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
@@ -244,13 +274,15 @@ init_wavelength_form (Query_t *q, char *default_wmin, char *default_wmax)
   q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[1].background = A_REVERSE;
 
+  // Maximum wavelength label
   q[2].buffer_number = 0;
   strcpy (q[2].buffer, "Maximum Wavelength :");
   q[2].field = new_field (1, strlen (q[2].buffer), 2, 0, 0, 0);
   q[2].opts_off = FIELD_SKIP;
   q[2].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
-  q[2].background = FIELD_SKIP;
+  q[2].background = NO_BG;
 
+  // Maximum wavelength input field
   q[3].buffer_number = 0;
   strcpy (q[3].buffer, default_wmax);
   q[3].field = new_field (1, MAX_FIELD_INPUT, 2, strlen (q[2].buffer) + 2, 0, 0);
@@ -258,15 +290,16 @@ init_wavelength_form (Query_t *q, char *default_wmin, char *default_wmax)
   q[3].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[3].background = A_REVERSE;
 
+  // Null entry
   q[4].field = NULL;
 }
 
 /* ************************************************************************** */
 /**
- * @brief       Get the wavelength range to consider.
+ * @brief  Get the wavelength range to consider.
  *
- * @param[out]  wmin   The smallest wavelength transition to find.
- * @param[out]  wmax   The largest wavelength transition to find.
+ * @param[out]  wmin  The smallest wavelength transition to find.
+ * @param[out]  wmax  The largest wavelength transition to find.
  *
  * @details
  *
@@ -322,9 +355,16 @@ query_wavelength_range (double *wmin, double *wmax)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Initialise a Query_t object for a form to query the atomic data to
+ *         use.
+ *
+ * @param[in]  q             The Query_t object to initialise
+ * @param[in]  default_data  The default atomic data to initialise
  *
  * @details
+ *
+ * The "null field" is actually kinda redundant since a re-work of the query
+ * function.
  *
  * ************************************************************************** */
 
@@ -336,7 +376,7 @@ init_atomic_data_form (Query_t *q, char *default_data)
   q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
   q[0].opts_off = FIELD_SKIP;
   q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
-  q[0].background = FIELD_SKIP;
+  q[0].background = NO_BG;
 
   q[1].buffer_number = 0;
   strcpy (q[1].buffer, default_data);
@@ -389,7 +429,7 @@ query_atomic_data (void)
     if (menu_index == MENU_QUIT)
     {
       update_status_bar ("Loading atomic data aborted... :-(");
-      display_text_buffer (CONTENT_WINDOW, 1, 1);
+      display_text_buffer (CONTENT_WINDOW, NO_SCROLL);
       break;
     }
     else if (menu_index > MENU_QUIT)
@@ -423,7 +463,7 @@ query_atomic_data (void)
 
   delwin (error_win);
 
-  display_text_buffer (CONTENT_WINDOW, 1, 1);
+  display_text_buffer (CONTENT_WINDOW, NO_SCROLL);
   logfile ("\n");
   log_flush ();
 }

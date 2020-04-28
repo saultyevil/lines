@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 
 #include "atomix.h"
 
@@ -200,4 +201,47 @@ trim_whitespaces(char *str)
   *(end + 1) = '\0';
 
   return str;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  Create a formatted string.
+ *
+ * @param[out]  str  The created string
+ * @param[in]   fmt  The formatted messaged
+ * @param[in]   ...  The formatted message arguments
+ *
+ * @return    The length of the string written is returned
+ *
+ * @details
+ *
+ * Uses a clever "hack" to write 0 characters to a NULL pointer to determine
+ * the length of the formatted string so the correct number of bytes can be
+ * allocated for the string.
+ *
+ * The final char of the string is set to \0, because I'm not always sure/trust
+ * that vsprintf null terminates...
+ *
+ * TODO: check if I'm being over cautious with manually adding \0
+ *
+ * ************************************************************************** */
+
+int
+create_string (char *str, char *fmt, ...)
+{
+  int len;
+  va_list va, va_c;
+
+  va_start (va, fmt);
+  va_copy (va_c, va);
+
+  len = vsnprintf (NULL, 0, fmt, va);
+  str = malloc (len * sizeof (char) + 1);
+  len = vsprintf (str, fmt, va_c);
+  str[len] = '\0';
+
+  va_end (va);
+  va_end (va_c);
+
+  return len;
 }
