@@ -66,8 +66,9 @@ clean_up_form (FORM *form, FIELD **fields, int nfields)
  * ************************************************************************** */
 
 int
-control_form (FORM *form, int ch)
+control_form (FORM *form, int ch, int exit_index)
 {
+  int current_index;
   int input = FORM_CONTINUE;
 
   switch (ch)
@@ -94,7 +95,16 @@ control_form (FORM *form, int ch)
       form_driver (form, REQ_DEL_CHAR);
       break;
     case 10:
-      input = FORM_BREAK;
+      current_index = field_index (current_field (form));
+      if (current_index != exit_index)
+      {
+        form_driver (form, REQ_NEXT_FIELD);
+        form_driver (form, REQ_END_LINE);
+      }
+      else
+      {
+        input = FORM_BREAK;
+      }
       break;
     default:
       form_driver (form, ch);
@@ -109,6 +119,9 @@ control_form (FORM *form, int ch)
  * @brief
  *
  * @details
+ *
+ * NOTE: we always assume the last input field is the exit field for when
+ * enter is pressed.
  *
  * ************************************************************************** */
 
@@ -181,7 +194,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
       break;
     }
 
-    form_return = control_form (form, ch);
+    form_return = control_form (form, ch, nfields - 1);
     wrefresh (the_win);
 
     if (form_return == FORM_BREAK)
