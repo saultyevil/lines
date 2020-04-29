@@ -146,7 +146,7 @@ display_text_buffer (Window_t win, int scroll)
     for (i = 0; i < DISPLAY.nlines && i < win.rows - 2; ++i)
       mvwprintw (the_win, i + 1, 1, "%s", DISPLAY.lines[i].chars);
 
-    update_status_bar("Press q to exit text scrolling or UP and DOWN to scroll the text");
+    update_status_bar("Press q to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
     wrefresh (the_win);
 
     if (scroll == SCROLL_OK)

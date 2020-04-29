@@ -51,3 +51,8 @@ void init_wavelength_form(Query_t *q, char *default_wmin, char *default_wmax);
 int query_wavelength_range(double *wmin, double *wmax);
 void init_atomic_data_form(Query_t *q, char *default_data);
 void query_atomic_data(void);
+/* elements.c */
+void elements_main_menu(void);
+void get_single_element(int z);
+/* ions.c */
+void ions_main_menu(void);

@@ -17,7 +17,9 @@ const
 MenuItem_t MAIN_MENU_CHOICES[] = {
   {&bound_bound_main_menu, 0        , "Bound-Bound"       , "Query bound-bound transitions"},
   {&bound_free_main_menu , 1        , "Bound-Free"        , "Query photionization edges"},
-  {&query_atomic_data    , 2        , "Switch Atomic Data", "Switch the atomic data"},
+  {&elements_main_menu   , 2        , "Elements"          , "Query a specific element"},
+  {&ions_main_menu       , 3        , "Ions"              , "Query a specific ion"},
+  {&query_atomic_data    , 4        , "Switch Atomic Data", "Switch the atomic data"},
   {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit atomix"},
   {NULL                  , MENU_NULL, NULL                , NULL}
 };
@@ -58,7 +60,7 @@ main (int argc, char *argv[])
   print_atomic = check_command_line (argc, argv);
 
   if (!print_atomic)
-    menu_index = 2;  // Set the menu index to atomic data
+    menu_index = ARRAY_SIZE (MAIN_MENU_CHOICES) - 3;  // Set the menu index to atomic data
 
   /*
    * Initialise ncurses, the window panels and draw the window borders
