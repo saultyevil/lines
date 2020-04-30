@@ -50,7 +50,7 @@ main (int argc, char *argv[])
   atexit (cleanup_ncurses_stdscr);
 
   if (getenv ("PYTHON") == NULL)
-    error_exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
+    exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
 
   /*
    * Initialise the log file, this should put AT LEAST the atomic data

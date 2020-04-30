@@ -45,7 +45,7 @@ initialise_ncurses_stdscr (void)
   keypad (stdscr, TRUE);   // Allow the screen to take input
 
   if (lines < 35 || cols < 130)
-    error_exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35. Current terminal size %ix%i", lines, cols);
+    exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35. Current terminal size %ix%i", lines, cols);
 }
 
 /* ************************************************************************** */
@@ -100,7 +100,7 @@ initialise_main_windows (void)
   MENU_WINDOW.x = 0;
   MENU_WINDOW.win = newwin (MENU_WINDOW.rows, MENU_WINDOW.cols, MENU_WINDOW.y, MENU_WINDOW.x);
   if (MENU_WINDOW.win == NULL)
-    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for MENU_WINDOW");
+    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for MENU_WINDOW");
   keypad (MENU_WINDOW.win, TRUE);
 
   // The window containing the main title and
@@ -110,7 +110,7 @@ initialise_main_windows (void)
   TITLE_WINDOW.x = 0;
   TITLE_WINDOW.win = newwin (TITLE_WINDOW.rows, TITLE_WINDOW.cols, TITLE_WINDOW.y, TITLE_WINDOW.x);
   if (TITLE_WINDOW.win == NULL)
-    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for TITLE_WINDOW");
+    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for TITLE_WINDOW");
 
   // The window for the status bar at the bottom
   STATUS_WINDOW.rows = STATUS_HEIGHT;
@@ -119,7 +119,7 @@ initialise_main_windows (void)
   STATUS_WINDOW.x = 0;
   STATUS_WINDOW.win = newwin (STATUS_WINDOW.rows, STATUS_WINDOW.cols, STATUS_WINDOW.y, STATUS_WINDOW.x);
   if (STATUS_WINDOW.win == NULL)
-    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for STATUS_WINDOW");
+    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for STATUS_WINDOW");
 
   // The window for displaying content to the user
   CONTENT_WINDOW.rows = max_lines - TITLE_HEIGHT - STATUS_HEIGHT;
@@ -128,7 +128,7 @@ initialise_main_windows (void)
   CONTENT_WINDOW.x = MENU_WIDTH;
   CONTENT_WINDOW.win = newwin (CONTENT_WINDOW.rows, CONTENT_WINDOW.cols, CONTENT_WINDOW.y, CONTENT_WINDOW.x);
   if (CONTENT_WINDOW.win == NULL)
-    error_exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for CONTENT_WINDOW");
+    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for CONTENT_WINDOW");
   keypad (CONTENT_WINDOW.win, TRUE);
 }
 
@@ -149,8 +149,8 @@ draw_window_boundaries (void)
 {
   int i, j;
   int len;
+  char *subtitle;
   char title[LINELEN];
-	char subtitle[LINELEN];
 
   wattron (TITLE_WINDOW.win, A_REVERSE | A_BOLD);
   wattron (STATUS_WINDOW.win, A_REVERSE);
@@ -179,7 +179,8 @@ draw_window_boundaries (void)
 
 	// This is for the subtitle
 	wattron (TITLE_WINDOW.win, A_REVERSE | A_ITALIC);
-  len = sprintf (subtitle, "To boldly probe atomic data where others simply don't dare or want to...");
+	subtitle = get_random_subtitle();
+	len = strlen (subtitle);
 	mvwprintw (TITLE_WINDOW.win, 1, (TITLE_WINDOW.cols - len) / 2, subtitle);
 	wattroff (TITLE_WINDOW.win, A_REVERSE | A_ITALIC);
 

@@ -140,12 +140,12 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
   wclear (MENU_WINDOW.win);
 
   if (menu_items[nitems - 1].name != NULL)
-    error_exit_atomix (EXIT_FAILURE,
-                       "create_menu : programming error - final element of menu_items is not NULL.");
+    exit_atomix (EXIT_FAILURE,
+                 "create_menu : programming error - final element of menu_items is not NULL.");
 
   items = calloc (nitems, sizeof (ITEM *));
   if (items == NULL)
-    error_exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
+    exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
   /*
    * This creates a 1 column "boundary" between the menu and content window
@@ -250,12 +250,12 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   keypad (the_win, TRUE);
 
   if (menu_items[nitems - 1].name != NULL)
-    error_exit_atomix (EXIT_FAILURE,
-                       "create_menu : programming error - final element of menu_items is not NULL.");
+    exit_atomix (EXIT_FAILURE,
+                 "create_menu : programming error - final element of menu_items is not NULL.");
 
   items = calloc (nitems, sizeof (ITEM *));
   if (items == NULL)
-    error_exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
+    exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
   for (i = 0; i < nitems; i++)
   {

@@ -168,7 +168,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
 
   fields = calloc (nfields + 1, sizeof (FIELD *));
   if (fields == NULL)
-    error_exit_atomix (EXIT_FAILURE, "query_user_for_input : unable to allocate memory for fields");
+    exit_atomix (EXIT_FAILURE, "query_user_for_input : unable to allocate memory for fields");
 
   /*
    * Initialise the fields with their respective values

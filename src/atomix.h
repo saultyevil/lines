@@ -36,7 +36,7 @@
  * ************************************************************************** */
 
 // UI Constants
-#define VERSION "3.1a"
+#define VERSION "3.5"
 
 #define NO_SCROLL 0
 #define SCROLL_OK 1

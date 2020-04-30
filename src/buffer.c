@@ -74,7 +74,7 @@ add_to_display (char *fmt, ...)
   line_index = DISPLAY.nlines - 1;
 
   if (DISPLAY.lines == NULL)
-    error_exit_atomix (EXIT_FAILURE, "Unable to add additional line to the display buffer");
+    exit_atomix (EXIT_FAILURE, "Unable to add additional line to the display buffer");
 
   DISPLAY.lines[line_index].len = 0;
   DISPLAY.lines[line_index].chars = NULL;
