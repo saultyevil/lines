@@ -131,7 +131,7 @@ check_command_line (int argc, char **argv)
   char help[] =
     "atomix is a utility program used to inspect the atomic data used in Python.\n"
     "Python is required to be installed correctly for atomix to work.\n"
-    "To test atomix, one can load standard80_test.\n\n"
+    "\nTo test atomix, one can load the standard80_test test data.\n\n"
     "Usage:\n"
     "   atomix [-h] [atomic_data]\n\n"
     "   atomic_data  [optional]  the name of the atomic data to explore\n"
