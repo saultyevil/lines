@@ -150,6 +150,64 @@ get_ion_nion (void)
  * ************************************************************************** */
 
 void
+get_ion_element (void)
+{
+  int i, nion;
+  int z;
+  int firston, lastion;
+  int found = FALSE;
+  int form_return;
+  char element[LINELEN];
+  const int ndash = 40;
+  struct ions mion;
+
+  form_return = query_atomic_number (&z);
+  if (form_return == FORM_QUIT)
+    return;
+
+  for (i = 0; i < nelements; ++i)
+  {
+    if (ele[i].z == z)
+    {
+      found = TRUE;
+      firston = ele[i].firstion;
+      lastion = firston + ele[i].nions - 1;
+      break;
+    }
+  }
+
+  if (found == FALSE)
+  {
+    error_atomix ("Element Z = %i is not in the atomic data", z);
+    return;
+  }
+
+  get_element_name (z, element);
+  add_separator_to_display (ndash);
+
+  for (nion = firston; nion < lastion; ++nion)
+  {
+    mion = ion[nion];
+    add_to_display (" Ion number       : %i", nion);
+    add_to_display (" Element          : %s", element);
+    add_to_display (" Atomic number    : %i", mion.z);
+    add_to_display (" Number of ions   : %i", ele[mion.nelem].nions);
+    add_to_display (" Ionisation state : %i", mion.istate);
+    add_separator_to_display (ndash);
+  }
+
+  display (CONTENT_WINDOW, SCROLL_OK);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
 get_all_ions (void)
 {
   int nion;
@@ -169,18 +227,4 @@ get_all_ions (void)
   }
 
   display (CONTENT_WINDOW, SCROLL_OK);
-}
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-get_ion_element (void)
-{
-
 }
