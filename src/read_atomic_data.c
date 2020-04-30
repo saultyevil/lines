@@ -898,7 +898,7 @@ index_lines ()
  **********************************************************/
 
 int
-get_atomic_data (char *masterfile)
+get_atomic_data (char *masterfile, int use_relative)
 {
   int match;
   FILE *fptr, *mptr;
@@ -1283,23 +1283,31 @@ structure does not have this property! */
     return ATOMIC_FILE_IO_ERROR;
   }
 
-  char data[LINELENGTH];
   char *atomic_data_file_path = calloc (LINELENGTH, sizeof (char));
   char *sub_atomic_data_file_path = calloc (LINELENGTH, sizeof (char));
-  char *python_file_path; // = calloc (LINELENGTH, sizeof (char));
 
-  if ((python_file_path = getenv ("PYTHON")) == NULL)
+  char *python_file_path;
+
+  if (!use_relative)
   {
-    logfile ("Unable to find $PYTHON environment variable.\n");
-    return ATOMIC_ENVRIONMENT_ERROR;
+    char data[LINELENGTH];
+    if ((python_file_path = getenv ("PYTHON")) == NULL)
+    {
+      logfile ("Unable to find $PYTHON environment variable.\n");
+      return ATOMIC_ENVRIONMENT_ERROR;
+    }
+
+    if (python_file_path[strlen (python_file_path) - 1] != '/')
+      strcat (python_file_path, "/");
+
+    strcpy (atomic_data_file_path, python_file_path);
+    sprintf (data, "xdata/%s", masterfile);
+    strcat (atomic_data_file_path, data);
   }
-
-  if (python_file_path[strlen (python_file_path) - 1] != '/')
-    strcat (python_file_path, "/");
-
-  strcpy (atomic_data_file_path, python_file_path);
-  sprintf (data, "xdata/%s", masterfile);
-  strcat (atomic_data_file_path, data);
+  else
+  {
+    strcpy (atomic_data_file_path, masterfile);
+  }
 
   if ((mptr = fopen (atomic_data_file_path, "r")) == NULL)
   {
@@ -1320,12 +1328,18 @@ structure does not have this property! */
        * Open one of the files designated in the masterfile and begin to read it
        */
 
-      char adata[LINELENGTH];
-
-      sprintf (adata, "x");
-      strcat (adata, file);
-      strcpy (sub_atomic_data_file_path, python_file_path);
-      strcat (sub_atomic_data_file_path, adata);
+      if (!use_relative)
+      {
+        char adata[LINELENGTH];
+        sprintf (adata, "x");
+        strcat (adata, file);
+        strcpy (sub_atomic_data_file_path, python_file_path);
+        strcat (sub_atomic_data_file_path, adata);
+      }
+      else
+      {
+        strcpy (sub_atomic_data_file_path, file);
+      }
 
       if ((fptr = fopen (sub_atomic_data_file_path, "r")) == NULL)
       {

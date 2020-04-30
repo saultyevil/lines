@@ -44,6 +44,7 @@
 #define MENU_QUIT -1
 #define MENU_NULL -2
 #define INDX_OTHR -3
+#define ATOMIC_TEST -4
 #define CONTROL_MENU TRUE
 #define REDRAW_MENU FALSE
 

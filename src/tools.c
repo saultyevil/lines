@@ -44,10 +44,10 @@ get_random_subtitle (void)
     "https://github.com/saultyevil/atomix",
     "As simple as 4D Chess",
     "I have put you on a permanent ignore, public and private",
-    "From this Ghastly Eyrie I can see to the ends of the world, and I declare with utter certainty this one is in the bag!",
+    "From this Ghastly Eyrie I can see to the ends of the world, and I declare with utter certainty, that this one is in the bag!",
     "People say nothing is impossible, but I do nothing every day",
     "The difference between stupidity and genius is that a genius uses Atomix",
-    "I don’t believe in astrology; I’m a Sagittarius and skeptical",
+    "I don't believe in astrology; I'm a Sagittarius and skeptical",
     "Good enough for government work",
     "I have just been to see Her Majesty the Queen, and I will now form a government",
     "Metal Gear?",
@@ -130,19 +130,25 @@ check_command_line (int argc, char **argv)
 
   char help[] =
     "atomix is a utility program used to inspect the atomic data used in Python.\n"
-    "Python is required to be installed correctly for atomix to work.\n\n"
+    "Python is required to be installed correctly for atomix to work.\n"
+    "\nTo test atomix, one can load the standard80_test test data.\n\n"
     "Usage:\n"
     "   atomix [-h] [atomic_data]\n\n"
     "   atomic_data  [optional]  the name of the atomic data to explore\n"
     "   h            [optional]  print this help message\n";
 
-  if (argc == 2)
+  if (argc == 2 && strncmp (argv[1], "-h", 2) == 0)
+  {
+    printf ("%s", help);
+    exit (EXIT_SUCCESS);
+  }
+  else if (argc == 2)
   {
     strcpy (atomic_data_name, argv[1]);
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
       strcat (atomic_data_name, ".dat");
 
-    atomic_data_error = get_atomic_data (atomic_data_name);
+    atomic_data_error = get_atomic_data (atomic_data_name, FALSE);
 
     if (atomic_data_error)
     {
@@ -150,13 +156,7 @@ check_command_line (int argc, char **argv)
       printf ("Fatal error: error when reading atomic data : errno = %i\n", atomic_data_error);
       exit (EXIT_FAILURE);
     }
-
     provided = TRUE;
-  }
-  else if (argc > 2 && strcmp (argv[1], "-h") == 0)
-  {
-      printf ("%s", help);
-      exit (EXIT_SUCCESS);
   }
   else if (argc > 2)
   {
