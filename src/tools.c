@@ -130,13 +130,19 @@ check_command_line (int argc, char **argv)
 
   char help[] =
     "atomix is a utility program used to inspect the atomic data used in Python.\n"
-    "Python is required to be installed correctly for atomix to work.\n\n"
+    "Python is required to be installed correctly for atomix to work.\n"
+    "To test atomix, one can load standard80_test.\n\n"
     "Usage:\n"
     "   atomix [-h] [atomic_data]\n\n"
     "   atomic_data  [optional]  the name of the atomic data to explore\n"
     "   h            [optional]  print this help message\n";
 
-  if (argc == 2)
+  if (argc == 2 && strncmp (argv[1], "-h", 2) == 0)
+  {
+    printf ("%s", help);
+    exit (EXIT_SUCCESS);
+  }
+  else if (argc == 2)
   {
     strcpy (atomic_data_name, argv[1]);
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
@@ -150,13 +156,7 @@ check_command_line (int argc, char **argv)
       printf ("Fatal error: error when reading atomic data : errno = %i\n", atomic_data_error);
       exit (EXIT_FAILURE);
     }
-
     provided = TRUE;
-  }
-  else if (argc > 2 && strcmp (argv[1], "-h") == 0)
-  {
-      printf ("%s", help);
-      exit (EXIT_SUCCESS);
   }
   else if (argc > 2)
   {
