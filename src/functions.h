@@ -3,10 +3,10 @@ void bound_bound_main_menu(void);
 void get_bound_bound_lines(double wmin, double wmax);
 /* buffer.c */
 void clean_up_display_buffer(void);
-void scroll_buffer(Window_t win);
-void display_text_buffer(Window_t win, int scroll);
-void add_to_display_buffer(char *fmt, ...);
-void add_separator_to_buffer(const int len);
+void scroll_display (Window_t win);
+void display (Window_t win, int scroll);
+void add_to_display (char *fmt, ...);
+void add_separator_to_display (const int len);
 /* main.c */
 int main(int argc, char *argv[]);
 /* menu.c */
@@ -52,16 +52,16 @@ void init_single_question_form(Query_t *q, char *label, char *answer);
 void init_two_question_form(Query_t *q, char *label1, char *label2, char *answer1, char *answer2);
 int query_wavelength_range(double *wmin, double *wmax);
 int query_atomic_number(int *z);
+int query_ion_input(int nion_or_z, int *z, int *istate, int *nion);
 void query_atomic_data(void);
-void init_ions_form(Query_t *q, char *default_z, char *default_istate);
-void query_ion_input (int nion_or_z, int *z, int *istate, int *nion);
 /* elements.c */
 void elements_main_menu(void);
 void get_single_element(void);
 void get_elements(void);
 /* ions.c */
 void ions_main_menu(void);
-void get_ion(void);
+void get_ion_z(void);
+void get_ion_nion(void);
 void get_all_ions(void);
 void get_ion_element(void);
 /* levels.c */

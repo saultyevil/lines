@@ -161,9 +161,6 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
 
   bold_message (the_win, 1, 1, title_message);
 
-  if (q[nfields].field != NULL)
-    error_exit_atomix (EXIT_FAILURE, "query_user_for_input : final query is not NULL. Programming error!");
-
   /*
    * Allocate memory for the fields array, which will be  pointers to the fields
    * in the Query_t structure
@@ -288,30 +285,34 @@ init_single_question_form (Query_t *q, char *label, char *answer)
 void
 init_two_question_form (Query_t *q, char *label1, char *label2, char *answer1, char *answer2)
 {
+  int label_len;
+
+  label_len = MAX (strlen (label1), strlen (label2));
+
   q[0].buffer_number = 0;
   strcpy (q[0].buffer, label1);
-  q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
+  q[0].field = new_field (1, label_len, 0, 0, 0, 0);
   q[0].opts_off = FIELD_SKIP;
   q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
   q[0].background = NO_BG;
 
   q[1].buffer_number = 0;
   strcpy (q[1].buffer, answer1);
-  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
+  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, label_len + 2, 0, 0);
   q[1].opts_off = O_AUTOSKIP;
   q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[1].background = A_REVERSE;
 
   q[2].buffer_number = 0;
   strcpy (q[2].buffer, label2);
-  q[2].field = new_field (1, strlen (q[2].buffer), 2, 0, 0, 0);
+  q[2].field = new_field (1, label_len, 2, 0, 0, 0);
   q[2].opts_off = FIELD_SKIP;
   q[2].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
   q[2].background = NO_BG;
 
   q[3].buffer_number = 0;
   strcpy (q[3].buffer, answer2);
-  q[3].field = new_field (1, MAX_FIELD_INPUT, 2, strlen (q[2].buffer) + 2, 0, 0);
+  q[3].field = new_field (1, MAX_FIELD_INPUT, 2, label_len + 2, 0, 0);
   q[3].opts_off = O_AUTOSKIP;
   q[3].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[3].background = A_REVERSE;
@@ -351,10 +352,9 @@ query_wavelength_range (double *wmin, double *wmax)
     init_default = TRUE;
   }
 
-  wclear (the_win);
-
   while (valid != TRUE)
   {
+    wclear (the_win); 
     init_two_question_form (wavelength_query, "Minimum Wavelength : ", "Maximum Wavelength : ", string_wmin,
                             string_wmax);
     form_return = query_user (CONTENT_WINDOW, wavelength_query, 4, "Input the wavelength range");
@@ -403,10 +403,9 @@ query_atomic_number (int *z)
     init_query = TRUE;
   }
 
-  wclear (win);
-
   while (valid != TRUE)
   {
+    wclear (win);
     init_single_question_form (element_query, "Atomic number : ", default_element);
     form_return = query_user (CONTENT_WINDOW, element_query, 2, "Please input the atomic number of the element");
 
@@ -428,6 +427,91 @@ query_atomic_number (int *z)
     else
     {
       update_status_bar ("Invalid atomic number %i", *z);
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+int
+query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
+{
+  int nfields;
+  int form_return;
+  int valid = FALSE;
+  WINDOW *win = CONTENT_WINDOW.win;
+  Query_t *q;
+
+  static int init_name = FALSE;
+  static char string_z[MAX_FIELD_INPUT];
+  static char string_istat[MAX_FIELD_INPUT]; 
+  static char string_nion[MAX_FIELD_INPUT];
+  static Query_t nion_query[2];
+  static Query_t z_istate_query[4];
+
+  if (init_name == FALSE)
+  {
+    strcpy (string_z, "");
+    strcpy (string_istat, "");
+    strcpy (string_nion, "");
+    init_name = TRUE;
+  }
+
+  while (valid != TRUE)
+  {
+
+    wclear (win);
+
+    if (nion_or_z)
+    {
+      init_single_question_form (nion_query, "Ion Number : ", string_nion);
+      q = nion_query;
+      nfields = 2;
+    }
+    else
+    {
+      init_two_question_form (z_istate_query, "Atomic number : ", "Ionisation State : ", string_z, string_istat);
+      q = z_istate_query;
+      nfields = 4;
+    }
+
+    form_return = query_user (CONTENT_WINDOW, q, nfields, "Please select an ion");
+
+    if (form_return == FORM_QUIT)
+      return form_return;
+
+    if (nion_or_z)
+    {
+      *nion = (int) strtol (q[1].buffer, NULL, 10);
+      if (*nion > 0 && *nion < nions)
+      { 
+        valid = TRUE;
+      }
+      else
+      {
+        update_status_bar ("Invalid ion number %i when there are %i ions", *nion, nions);
+      }
+    } 
+    else
+    {
+      *z = (int) strtol (q[1].buffer, NULL, 10);
+      *istate = (int) strtol (q[3].buffer, NULL, 10);
+      if (*z > 0 && *istate > 0)
+      {
+        valid = TRUE;
+      }
+      else
+      {
+        update_status_bar ("Invalid atomic number %i or ionisation state %i, both should be non-zero", *z, *istate);
+      }
     }
   }
 
@@ -475,7 +559,7 @@ query_atomic_data (void)
     if (menu_index == MENU_QUIT)
     {
       update_status_bar ("Loading atomic data aborted... :-(");
-      display_text_buffer (CONTENT_WINDOW, NO_SCROLL);
+      display (CONTENT_WINDOW, NO_SCROLL);
       break;
     }
     else if (menu_index > MENU_QUIT)
@@ -507,29 +591,7 @@ query_atomic_data (void)
     wrefresh (win);
   }
 
-  display_text_buffer (CONTENT_WINDOW, NO_SCROLL);
+  display (CONTENT_WINDOW, NO_SCROLL);
   logfile ("\n");
   log_flush ();
-}
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
-{
-  int valid = FALSE;
-
-  static Query_t nion_query[2];
-  static Query_t z_istate_query[4];
-
-  while (valid != TRUE)
-  {
-
-  }
 }

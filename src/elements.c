@@ -40,7 +40,7 @@ elements_main_menu (void)
     return;
   }
 
-  menu_index = create_menu (CONTENT_WINDOW, "What do you want to query?", ELEMENTS_MENU_CHOICES, 
+  menu_index = create_menu (CONTENT_WINDOW, "What do you want to do?", ELEMENTS_MENU_CHOICES, 
                             ARRAY_SIZE (ELEMENTS_MENU_CHOICES), menu_index, CONTROL_MENU);
 }
 
@@ -57,11 +57,14 @@ get_single_element (void)
 {
   int i;
   int z;
+  int form_return;
   const int ndash = 40;
   struct elements element;
   int found = FALSE;
 
-  query_atomic_number (&z);
+  form_return = query_atomic_number (&z);
+  if (form_return == FORM_QUIT)
+    return;
 
   for (i = 0; i < nelements; ++i)
   {
@@ -79,18 +82,17 @@ get_single_element (void)
     return;
   }
 
-  add_to_display_buffer (" Element: %s", element.name);
-  add_separator_to_buffer (ndash);
-  add_to_display_buffer (" Z                        : %i", element.z);
-  add_to_display_buffer (" Abundance relative to H  : %3.2f", log10 (element.abun) + 12);
-  add_to_display_buffer (" Number of Ions           : %i", element.nions);
-  add_to_display_buffer (" First Ion Index          : %i", element.firstion);
-  add_to_display_buffer (" Last Ion Index           : %i", element.firstion + element.nions - 1);
-  add_to_display_buffer (" Highest Ionisation state : %i", element.istate_max);
-  add_separator_to_buffer (ndash);
+  add_to_display (" Element: %s", element.name);
+  add_separator_to_display (ndash);
+  add_to_display (" Z                        : %i", element.z);
+  add_to_display (" Abundance relative to H  : %3.2f", log10 (element.abun) + 12);
+  add_to_display (" Number of Ions           : %i", element.nions);
+  add_to_display (" First Ion Index          : %i", element.firstion);
+  add_to_display (" Last Ion Index           : %i", element.firstion + element.nions - 1);
+  add_to_display (" Highest Ionisation state : %i", element.istate_max);
+  add_separator_to_display (ndash);
 
-
-  display_text_buffer (CONTENT_WINDOW, SCROLL_OK);
+  display (CONTENT_WINDOW, SCROLL_OK);
 }
 
 /* ************************************************************************** */
@@ -108,22 +110,21 @@ get_single_element (void)
   const int ndash = 40;
   struct elements element;
 
-  add_separator_to_buffer (ndash);
+   add_separator_to_display (ndash);
 
   for (i = 0; i < nelements; ++i)
   {
     element = ele[i];
-    add_to_display_buffer (" Element: %s", element.name);
-    add_separator_to_buffer (ndash);
-    add_to_display_buffer (" Z                        : %i", element.z);
-    add_to_display_buffer (" Abundance relative to H  : %3.2f", log10 (element.abun) + 12);
-    add_to_display_buffer (" Number of Ions           : %i", element.nions);
-    add_to_display_buffer (" First Ion Index          : %i", element.firstion);
-    add_to_display_buffer (" Last Ion Index           : %i", element.firstion + element.nions - 1);
-    add_to_display_buffer (" Highest Ionisation state : %i", element.istate_max);
-    add_separator_to_buffer (ndash);
+    add_to_display (" Element: %s", element.name);
+    add_separator_to_display (ndash);
+    add_to_display (" Z                        : %i", element.z);
+    add_to_display (" Abundance relative to H  : %3.2f", log10 (element.abun) + 12);
+    add_to_display (" Number of Ions           : %i", element.nions);
+    add_to_display (" First Ion Index          : %i", element.firstion);
+    add_to_display (" Last Ion Index           : %i", element.firstion + element.nions - 1);
+    add_to_display (" Highest Ionisation state : %i", element.istate_max);
+    add_separator_to_display (ndash);
   }
 
-
-  display_text_buffer (CONTENT_WINDOW, SCROLL_OK);
+   display (CONTENT_WINDOW, SCROLL_OK);
  }

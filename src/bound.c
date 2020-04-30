@@ -52,7 +52,7 @@ bound_bound_main_menu (void)
 
   get_bound_bound_lines (wmin, wmax);
 
-  display_text_buffer (CONTENT_WINDOW, SCROLL_OK);
+  display (CONTENT_WINDOW, SCROLL_OK);
 }
 
 /* ************************************************************************** */
@@ -82,19 +82,19 @@ get_bound_bound_lines (double wmin, double wmax)
   double wl;
   char element[LINELEN];
 
-  add_to_display_buffer ("Bound-Bound Transitions: Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
-  add_separator_to_buffer (ndashes);
-  add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "levu",
-                         "levl", "nion");
-  add_separator_to_buffer (ndashes);
+  add_to_display ("Bound-Bound Transitions: Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
+  add_separator_to_display (ndashes);
+  add_to_display (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "levu",
+                  "levl", "nion");
+  add_separator_to_display (ndashes);
 
   for (i = nline_min; i < nline_max - 1; ++i)
   {
     get_element_name (lin_ptr[i]->z, element);
     wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
-    add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[i]->z, lin_ptr[i]->istate,
-                           lin_ptr[i]->levu, lin_ptr[i]->levl, lin_ptr[i]->nion);
+    add_to_display (" %-12f %-12s %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[i]->z, lin_ptr[i]->istate,
+                    lin_ptr[i]->levu, lin_ptr[i]->levl, lin_ptr[i]->nion);
   }
 
-  add_separator_to_buffer (ndashes);
+  add_separator_to_display (ndashes);
 }

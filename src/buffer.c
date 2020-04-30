@@ -29,7 +29,7 @@ Display_t DISPLAY = {0, NULL};
  * ************************************************************************** */
 
 void
-clean_up_display_buffer (void)
+clean_up_display (void)
 {
   int i;
 
@@ -38,6 +38,88 @@ clean_up_display_buffer (void)
   free (DISPLAY.lines);
   DISPLAY.nlines = 0;
 	DISPLAY.lines = NULL;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  Add a fmt string to the DISPLAY buffer.
+ *
+ * @param[in]  fmt  The formatted string
+ * @param[in]  ...  The arguments for the formatted string
+ *
+ * @details
+ *
+ * This function assumes that the string being added is a single, entire, line.
+ * A new line character is required at the end, but isn't mandatory. I think
+ * this way you can slowly construct a single "display" line over multiple
+ * strings stored in DISPLAY ... though, this isn't the intended way to use this
+ * function.
+ *
+ * Uses a bit of a hack, vsnprintf, to figure out the storage requirement for
+ * the string. The pointer for the new string is added to the DISPLAY buffer.
+ *
+ * PLS PLS PLS DO NOT HAVE A \n NEWLINE CHARACTER IN *fmt
+ *
+ * ************************************************************************** */
+
+void
+add_to_display (char *fmt, ...)
+{
+  int line_index;
+  int len;
+  va_list va, va_c;
+
+  DISPLAY.nlines++;
+  DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (Line_t));
+  line_index = DISPLAY.nlines - 1;
+
+  if (DISPLAY.lines == NULL)
+    error_exit_atomix (EXIT_FAILURE, "Unable to add additional line to the display buffer");
+
+  DISPLAY.lines[line_index].len = 0;
+  DISPLAY.lines[line_index].chars = NULL;
+
+  /*
+   * May be playing it extra safe here, but make a copy of va as va is not
+   * necessarily preserved after vsnprintf...
+   */
+
+  va_start (va, fmt);
+  va_copy (va_c, va);
+
+  len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
+  DISPLAY.lines[line_index].chars = malloc (len * sizeof (char) + 1);
+  len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
+  DISPLAY.lines[line_index].chars[len] = '\0';  // okay, so I don't trust vsprintf...
+  DISPLAY.lines[line_index].len = len;
+
+  logfile ("%s\n", DISPLAY.lines[line_index].chars);
+
+  va_end (va);
+  va_end (va_c);
+}
+
+/* ************************************************************************* */
+/**
+ * @brief  Add a line of dashes to the DISPLAY buffer.
+ *
+ * @param[in]  len  The number of dashes to draw.
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+add_separator_to_display (const int len)
+{
+  int i;
+  char tmp[len + 1];
+
+  for (i = 0; i < len; ++i)
+    tmp[i] = '-';
+  tmp[len] = '\0';
+
+  add_to_display (tmp);
 }
 
 /* ************************************************************************** */
@@ -52,7 +134,7 @@ clean_up_display_buffer (void)
  * ************************************************************************** */
 
 void
-scroll_buffer (Window_t win)
+scroll_display (Window_t win)
 {
   int i;
   int ch;
@@ -127,7 +209,7 @@ scroll_buffer (Window_t win)
  * ************************************************************************** */
 
 void
-display_text_buffer (Window_t win, int scroll)
+display (Window_t win, int scroll)
 {
   int i;
   WINDOW *the_win = win.win;
@@ -149,90 +231,8 @@ display_text_buffer (Window_t win, int scroll)
     wrefresh (the_win);
 
     if (scroll == SCROLL_OK)
-      scroll_buffer (win);
+      scroll_display (win);
   }
 
-  clean_up_display_buffer ();
-}
-
-/* ************************************************************************** */
-/**
- * @brief  Add a fmt string to the DISPLAY buffer.
- *
- * @param[in]  fmt  The formatted string
- * @param[in]  ...  The arguments for the formatted string
- *
- * @details
- *
- * This function assumes that the string being added is a single, entire, line.
- * A new line character is required at the end, but isn't mandatory. I think 
- * this way you can slowly construct a single "display" line over multiple 
- * strings stored in DISPLAY ... though, this isn't the intended way to use this
- * function.
- * 
- * Uses a bit of a hack, vsnprintf, to figure out the storage requirement for
- * the string. The pointer for the new string is added to the DISPLAY buffer.
- *
- * PLS PLS PLS DO NOT HAVE A \n NEWLINE CHARACTER IN *fmt
- *
- * ************************************************************************** */
-
-void
-add_to_display_buffer (char *fmt, ...)
-{
-  int line_index;
-  int len;
-  va_list va, va_c;
-
-  DISPLAY.nlines++;
-  DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (Line_t));
-  line_index = DISPLAY.nlines - 1;
-
-  if (DISPLAY.lines == NULL)
-    error_exit_atomix (EXIT_FAILURE, "Unable to add additional line to the display buffer");
-
-  DISPLAY.lines[line_index].len = 0;
-  DISPLAY.lines[line_index].chars = NULL;
-
-  /*
-   * May be playing it extra safe here, but make a copy of va as va is not
-   * necessarily preserved after vsnprintf...
-   */
-
-  va_start (va, fmt);
-  va_copy (va_c, va);
-
-  len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
-  DISPLAY.lines[line_index].chars = malloc (len * sizeof (char) + 1);
-  len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
-  DISPLAY.lines[line_index].chars[len] = '\0';  // okay, so I don't trust vsprintf...
-  DISPLAY.lines[line_index].len = len;
-
-  logfile ("%s\n", DISPLAY.lines[line_index].chars);
-  
-  va_end (va);
-  va_end (va_c);
-}
-
-/* ************************************************************************* */
-/**
- * @brief  Add a line of dashes to the DISPLAY buffer.
- *
- * @param[in]  len  The number of dashes to draw.
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-add_separator_to_buffer (const int len)
-{
-  int i;
-  char tmp[len + 1];
-
-  for (i = 0; i < len; ++i)
-    tmp[i] = '-';
-  tmp[len] = '\0';
-
-  add_to_display_buffer (tmp);
+  clean_up_display ();
 }

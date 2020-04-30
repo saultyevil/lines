@@ -23,6 +23,11 @@
  * ************************************************************************** */
 
 #define ARRAY_SIZE(x) (sizeof x / sizeof x[0])
+ 
+#define MAX(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
 
 /* ****************************************************************************
  *
@@ -42,7 +47,7 @@
 #define CONTROL_MENU TRUE
 #define REDRAW_MENU FALSE
 
-#define MAX_FIELD_INPUT 50
+#define MAX_FIELD_INPUT 30
 #define FIELD_SKIP -1
 #define FORM_QUIT -1
 #define FORM_BREAK -2

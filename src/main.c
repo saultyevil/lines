@@ -82,7 +82,7 @@ main (int argc, char *argv[])
 
   if (print_atomic)
   {
-    display_text_buffer (CONTENT_WINDOW, NO_SCROLL);
+    display (CONTENT_WINDOW, NO_SCROLL);
   }
   else
   {
