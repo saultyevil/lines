@@ -142,7 +142,7 @@ check_command_line (int argc, char **argv)
     if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
       strcat (atomic_data_name, ".dat");
 
-    atomic_data_error = get_atomic_data (atomic_data_name);
+    atomic_data_error = get_atomic_data (atomic_data_name, FALSE);
 
     if (atomic_data_error)
     {

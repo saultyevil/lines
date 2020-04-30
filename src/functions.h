@@ -44,7 +44,7 @@ int check_xsections(void);
 double a21(struct lines *line_ptr);
 double upsilon(int n_coll, double u0);
 int index_lines(void);
-int get_atomic_data(char *masterfile);
+int get_atomic_data(char *masterfile, int use_relative);
 /* query.c */
 void clean_up_form(FORM *form, FIELD **fields, int nfields);
 int control_form(FORM *form, int ch, int exit_index);
@@ -63,7 +63,7 @@ void get_elements(void);
 void ions_main_menu(void);
 void get_ion_z(void);
 void get_ion_nion(void);
-void get_all_ions(void);
 void get_ion_element(void);
+void get_all_ions(void);
 /* levels.c */
 void levels_main_menu(void);

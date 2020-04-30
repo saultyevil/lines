@@ -18,20 +18,20 @@
 
 const
 MenuItem_t ATOMIC_DATA_CHOICES[] = {
-  {NULL, 0        , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 1        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 2        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
-  {NULL, 3        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
-  {NULL, 4        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
-  {NULL, 5        , "h10_standard80"            , ": 10 Level H Macro-atom"},
-  {NULL, 6        , "h20"                       , ": 20 Level H Macro-atom"},
-  {NULL, 7        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
-  {NULL, 8        , "standard80"                , ": Standard Simple-atom"},
-  {NULL, 9        , "standard80_reduced"        , ": Reduced Simple-atom"},
-  {NULL, 10       , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
-  {NULL, 11       , "standard80_test"           , ": Standard Test Simple-atom"},
-  {NULL, INDX_OTHR, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
-  {NULL, MENU_NULL, NULL                        , NULL}
+  {NULL, 0          , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 1          , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 2          , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
+  {NULL, 3          , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
+  {NULL, 4          , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
+  {NULL, 5          , "h10_standard80"            , ": 10 Level H Macro-atom"},
+  {NULL, 6          , "h20"                       , ": 20 Level H Macro-atom"},
+  {NULL, 7          , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
+  {NULL, 8          , "standard80"                , ": Standard Simple-atom"},
+  {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
+  {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
+  {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
+  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
+  {NULL, MENU_NULL  , NULL                        , NULL}
 };
 
 /* ************************************************************************** */
@@ -534,6 +534,7 @@ query_atomic_data (void)
 {
   int valid = FALSE;
   int atomic_data_error;
+  int relative = FALSE;
   char atomic_data_name[MAX_FIELD_INPUT];
   WINDOW *win = CONTENT_WINDOW.win;
 
@@ -564,7 +565,12 @@ query_atomic_data (void)
     }
     else if (menu_index > MENU_QUIT)
     {
-      if (ATOMIC_DATA_CHOICES[menu_index].index != INDX_OTHR)
+      if (ATOMIC_DATA_CHOICES[menu_index].index == ATOMIC_TEST)
+      {
+        strcpy (atomic_data_name, "../data/standard80_test.dat");
+        relative = TRUE;
+      }
+      else if (ATOMIC_DATA_CHOICES[menu_index].index != INDX_OTHR)
       {
         strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[menu_index].name);
         strcat (atomic_data_name, ".dat");
@@ -574,10 +580,11 @@ query_atomic_data (void)
         init_single_question_form (atomic_data_query, "Master file : ", atomic_data_name);
         query_user (CONTENT_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file");
         strcpy (atomic_data_name, atomic_data_query[1].buffer);
+        relative = TRUE;
       }
     }
 
-    atomic_data_error = get_atomic_data (atomic_data_name);
+    atomic_data_error = get_atomic_data (atomic_data_name, relative);
 
     if (atomic_data_error)
     {
