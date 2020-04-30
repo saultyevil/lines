@@ -122,6 +122,39 @@ check_command_line (int argc, char **argv)
 
 /* ************************************************************************** */
 /**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+error_atomix (char *fmt, ...)
+{
+  int len;
+  char *str;
+  va_list va, va_c;
+
+  va_start (va, fmt);
+  va_copy (va_c, va);
+
+  len = vsnprintf (NULL, 0, fmt, va);
+  str = malloc (len * sizeof (char) + 1);
+  len = vsprintf (str, fmt, va_c);
+  str[len] = '\0';
+
+  va_end (va);
+  va_end (va_c);
+
+  wclear (CONTENT_WINDOW.win);
+  bold_message (CONTENT_WINDOW.win, 1, 1, str);
+  wrefresh (CONTENT_WINDOW.win);
+
+  free (str);
+}
+
+/* ************************************************************************** */
+/**
  * @brief  Exit atomix when something has gone wrong.
  *
  * @param[in]  errno  An error number

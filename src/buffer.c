@@ -62,8 +62,11 @@ scroll_buffer (Window_t win)
 
   line_start = 0;
 
-  while ((ch = wgetch (the_win)) != 'q')
+  while ((ch = wgetch (the_win)))
   {
+    if (ch == 'q' || ch == KEY_F(1))
+      break;
+
     if (DISPLAY.nlines > win.rows - 2)
     {
       wclear (the_win);
@@ -75,20 +78,15 @@ scroll_buffer (Window_t win)
 
       switch (ch)
       {
-        case KEY_UP:
-            line_start--;
+        case KEY_UP:line_start--;
           break;
-        case KEY_DOWN:
-            line_start++;
+        case KEY_DOWN:line_start++;
           break;
-        case KEY_NPAGE:
-          line_start += win.rows - 2;
+        case KEY_NPAGE:line_start += win.rows - 2;
           break;
-        case KEY_PPAGE:
-          line_start -= win.rows - 2;
+        case KEY_PPAGE:line_start -= win.rows - 2;
           break;
-        default:
-          break;
+        default:break;
       }
 
       /*
@@ -104,9 +102,9 @@ scroll_buffer (Window_t win)
 
       for (i = line_start, current_row = 1; i < DISPLAY.nlines && current_row < win.rows - 1; ++i, ++current_row)
         mvwprintw (the_win, current_row, 1, "%s", DISPLAY.lines[i].chars);
-
-      wrefresh (the_win);
     }
+
+    wrefresh (the_win);
   }
 }
 
@@ -143,10 +141,11 @@ display_text_buffer (Window_t win, int scroll)
   }
   else
   {
+    update_status_bar ("Press q of F1 to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
+
     for (i = 0; i < DISPLAY.nlines && i < win.rows - 2; ++i)
       mvwprintw (the_win, i + 1, 1, "%s", DISPLAY.lines[i].chars);
 
-    update_status_bar("Press q to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
     wrefresh (the_win);
 
     if (scroll == SCROLL_OK)

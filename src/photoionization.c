@@ -64,18 +64,17 @@ void
 get_photoionization_cross_sections (double wmin, double wmax)
 {
   int i;
-  int z, istate, phot_info;
   double wavelength;
   double fmin, fmax, fthreshold;
   char element[LINELEN];
-  const int ndashes = 64;
+  const int ndashes = 72;
 
   fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
   add_to_display_buffer ("Photoionization Edges: Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
   add_separator_to_buffer (ndashes);
-  add_to_display_buffer (" %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "PhotInfo");
+  add_to_display_buffer (" %-22s %-12s %-12s %-12s %-12s", "Wavelength Threshold", "Element", "Z", "istate", "PhotInfo");
   add_separator_to_buffer (ndashes);
 
   for (i = 0; i < NLEVELS; ++i)
@@ -83,12 +82,10 @@ get_photoionization_cross_sections (double wmin, double wmax)
     fthreshold = phot_top[i].freq[0];
     if (fthreshold > fmin && fthreshold < fmax)
     {
-      z = phot_top[i].z;
-      istate = phot_top[i].istate;
-      phot_info = ion[phot_top[i].nion].phot_info;
+      get_element_name (phot_top[i].z, element);
       wavelength = const_C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
-      get_element_name (z, element);
-      add_to_display_buffer (" %-12f %-12s %-12i %-12i %-12i", wavelength, element, z, istate, phot_info);
+      add_to_display_buffer (" %-22f %-12s %-12i %-12i %-12i", wavelength, element, phot_top[i].z, phot_top[i].istate,
+                             ion[phot_top[i].nion].phot_info);
     }
   }
 
