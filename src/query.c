@@ -17,19 +17,19 @@
 #include "atomix.h"
 
 const
-MenuItem_t ATOMIC_DATA_CHOICES[] ={
+MenuItem_t ATOMIC_DATA_CHOICES[] = {
   {NULL, 0        , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 0        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 0        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
-  {NULL, 0        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
-  {NULL, 0        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
-  {NULL, 0        , "h10_standard80"            , ": 10 Level H Macro-atom"},
-  {NULL, 0        , "h20"                       , ": 20 Level H Macro-atom"},
-  {NULL, 0        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
-  {NULL, 0        , "standard80"                , ": Standard Simple-atom"},
-  {NULL, 0        , "standard80_reduced"        , ": Reduced Simple-atom"},
-  {NULL, 0        , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
-  {NULL, 0        , "standard80_test"           , ": Standard Test Simple-atom"},
+  {NULL, 1        , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 2        , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
+  {NULL, 3        , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
+  {NULL, 4        , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
+  {NULL, 5        , "h10_standard80"            , ": 10 Level H Macro-atom"},
+  {NULL, 6        , "h20"                       , ": 20 Level H Macro-atom"},
+  {NULL, 7        , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
+  {NULL, 8        , "standard80"                , ": Standard Simple-atom"},
+  {NULL, 9        , "standard80_reduced"        , ": Reduced Simple-atom"},
+  {NULL, 10       , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
+  {NULL, 11       , "standard80_test"           , ": Standard Test Simple-atom"},
   {NULL, INDX_OTHR, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
   {NULL, MENU_NULL, NULL                        , NULL}
 };
@@ -147,7 +147,7 @@ control_form (FORM *form, int ch, int exit_index)
  * ************************************************************************** */
 
 int
-query_user (Window_t w, Query_t *q, int nfields, char *title_message, int default_field)
+query_user (Window_t w, Query_t *q, int nfields, char *title_message)
 {
   int i;
   int ch;
@@ -163,9 +163,6 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
 
   if (q[nfields].field != NULL)
     error_exit_atomix (EXIT_FAILURE, "query_user_for_input : final query is not NULL. Programming error!");
-  if (default_field > nfields)
-    error_exit_atomix (EXIT_FAILURE,
-                       "query_user_for_input : the default field is larger than the number of fields. Programming error!");
 
   /*
    * Allocate memory for the fields array, which will be  pointers to the fields
@@ -197,7 +194,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
   form = new_form (fields);
   set_form_win (form, the_win);
   set_form_sub (form, derwin (the_win, w.rows - 4, w.cols - 2, 3, 1));
-  set_current_field (form, fields[default_field]);
+  set_current_field (form, fields[1]);  // Always assume first input is default field
   update_status_bar ("Press F1 to cancel input");
   post_form (form);
   wrefresh (the_win);
@@ -242,11 +239,44 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
 
 /* ************************************************************************** */
 /**
- * @brief  Initialise a Query_t object for a form to query a wavelength range
+ * @brief  Initialise a Query_t object for a form to query one input
+ *         use.
  *
- * @param[in]  q             The Query_t object to initialise
- * @param[in]  default_wmin  The default minimum wavelength to initialise with
- * @param[in]  default_wmax  The default maximum wavelength to initialise with
+ * @param[out]  q       The Query_t object to initialise
+ * @param[in]   label   The question to ask for the field
+ * @param[in]   answer  The default answer field data to initialise
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+init_single_question_form (Query_t *q, char *label, char *answer)
+{
+  q[0].buffer_number = 0;
+  strcpy (q[0].buffer, label);
+  q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
+  q[0].opts_off = FIELD_SKIP;
+  q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
+  q[0].background = NO_BG;
+
+  q[1].buffer_number = 0;
+  strcpy (q[1].buffer, answer);
+  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
+  q[1].opts_off = O_AUTOSKIP;
+  q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
+  q[1].background = A_REVERSE;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  Initialise a Query_t object for a form to query two inputs
+ *
+ * @param[out]  q        The Query_t object to initialise
+ * @param[in]   label1   The label for field 1
+ * @param[in]   label2   The label for field 2
+ * @param[in]   answer1  The default answer for question 1
+ * @param[in]   answer2  The default answer for question 2
  *
  * @details
  *
@@ -256,42 +286,35 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message, int defaul
  * ************************************************************************** */
 
 void
-init_wavelength_form (Query_t *q, char *default_wmin, char *default_wmax)
+init_two_question_form (Query_t *q, char *label1, char *label2, char *answer1, char *answer2)
 {
-  // Minimum wavelength label
   q[0].buffer_number = 0;
-  strcpy (q[0].buffer, "Minimum Wavelength :");
+  strcpy (q[0].buffer, label1);
   q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
   q[0].opts_off = FIELD_SKIP;
   q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
   q[0].background = NO_BG;
 
-  // Minimum wavelength input field
   q[1].buffer_number = 0;
-  strcpy (q[1].buffer, default_wmin);
+  strcpy (q[1].buffer, answer1);
   q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
   q[1].opts_off = O_AUTOSKIP;
   q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[1].background = A_REVERSE;
 
-  // Maximum wavelength label
   q[2].buffer_number = 0;
-  strcpy (q[2].buffer, "Maximum Wavelength :");
+  strcpy (q[2].buffer, label2);
   q[2].field = new_field (1, strlen (q[2].buffer), 2, 0, 0, 0);
   q[2].opts_off = FIELD_SKIP;
   q[2].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
   q[2].background = NO_BG;
 
-  // Maximum wavelength input field
   q[3].buffer_number = 0;
-  strcpy (q[3].buffer, default_wmax);
+  strcpy (q[3].buffer, answer2);
   q[3].field = new_field (1, MAX_FIELD_INPUT, 2, strlen (q[2].buffer) + 2, 0, 0);
   q[3].opts_off = O_AUTOSKIP;
   q[3].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[3].background = A_REVERSE;
-
-  // Null entry
-  q[4].field = NULL;
 }
 
 /* ************************************************************************** */
@@ -312,27 +335,29 @@ init_wavelength_form (Query_t *q, char *default_wmin, char *default_wmax)
 int
 query_wavelength_range (double *wmin, double *wmax)
 {
-  int valid = FALSE;
   int form_return;
-  static int init_values = FALSE;
-  static char s_wmin[MAX_FIELD_INPUT];
-  static char s_wmax[MAX_FIELD_INPUT];
-  WINDOW *win = CONTENT_WINDOW.win;
+  int valid = FALSE;
+  WINDOW *the_win = CONTENT_WINDOW.win;
+
+  static int init_default = FALSE;
+  static char string_wmin[MAX_FIELD_INPUT];
+  static char string_wmax[MAX_FIELD_INPUT];
   static Query_t wavelength_query[5];
 
-  if (init_values == FALSE)
+  if (init_default == FALSE)
   {
-    strcpy (s_wmin, "");
-    strcpy (s_wmax, "");
-    init_values = TRUE;
+    strcpy (string_wmin, "");
+    strcpy (string_wmax, "");
+    init_default = TRUE;
   }
 
-  wclear (win);
+  wclear (the_win);
 
   while (valid != TRUE)
   {
-    init_wavelength_form (wavelength_query, s_wmin, s_wmax);
-    form_return = query_user (CONTENT_WINDOW, wavelength_query, 4, "Please input the wavelength ranges", 1);
+    init_two_question_form (wavelength_query, "Minimum Wavelength : ", "Maximum Wavelength : ", string_wmin,
+                            string_wmax);
+    form_return = query_user (CONTENT_WINDOW, wavelength_query, 4, "Input the wavelength range");
 
     if (form_return == FORM_QUIT)
       return form_return;
@@ -355,37 +380,58 @@ query_wavelength_range (double *wmin, double *wmax)
 
 /* ************************************************************************** */
 /**
- * @brief  Initialise a Query_t object for a form to query the atomic data to
- *         use.
- *
- * @param[in]  q             The Query_t object to initialise
- * @param[in]  default_data  The default atomic data to initialise
+ * @brief
  *
  * @details
  *
- * The "null field" is actually kinda redundant since a re-work of the query
- * function.
- *
  * ************************************************************************** */
 
-void
-init_atomic_data_form (Query_t *q, char *default_data)
+int
+query_atomic_number (int *z)
 {
-  q[0].buffer_number = 0;
-  strcpy (q[0].buffer, "Master file :");
-  q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
-  q[0].opts_off = FIELD_SKIP;
-  q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
-  q[0].background = NO_BG;
+  int form_return;
+  int valid = FALSE;
+  WINDOW *win = CONTENT_WINDOW.win;
 
-  q[1].buffer_number = 0;
-  strcpy (q[1].buffer, default_data);
-  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
-  q[1].opts_off = O_AUTOSKIP;
-  q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
-  q[1].background = A_REVERSE;
+  static int init_query = FALSE;
+  static char default_element[MAX_FIELD_INPUT];
+  static Query_t element_query[2];
 
-  q[2].field = NULL;
+  if (init_query == FALSE)
+  {
+    strcpy (default_element, "");
+    init_query = TRUE;
+  }
+
+  wclear (win);
+
+  while (valid != TRUE)
+  {
+    init_single_question_form (element_query, "Atomic number : ", default_element);
+    form_return = query_user (CONTENT_WINDOW, element_query, 2, "Please input the atomic number of the element");
+
+    if (form_return == FORM_QUIT)
+      return form_return;
+
+    /*
+     * strtol will take care of incorrect inputs, I think. If it's not an
+     * integer, it returns 0 or converts down to an int
+     */
+
+    *z = (int) strtol (element_query[1].buffer, NULL, 10);
+
+    if (*z > 0 && *z < 118)  // TODO: make constants in atomic.h
+    {
+      valid = TRUE;
+      strcpy (default_element, element_query[1].buffer);
+    }
+    else
+    {
+      update_status_bar ("Invalid atomic number %i", *z);
+    }
+  }
+
+  return EXIT_SUCCESS;
 }
 
 /* ************************************************************************** */
@@ -404,12 +450,12 @@ query_atomic_data (void)
 {
   int valid = FALSE;
   int atomic_data_error;
+  char atomic_data_name[MAX_FIELD_INPUT];
+  WINDOW *win = CONTENT_WINDOW.win;
+
   static int menu_index = 8;
   static int init_name = FALSE;
-  char atomic_data_name[MAX_FIELD_INPUT];
-  static WINDOW *error_win = NULL;
-  WINDOW *win = CONTENT_WINDOW.win;
-  static Query_t atomic_data_query[3];
+  static Query_t atomic_data_query[2];
 
   if (init_name == FALSE)
   {
@@ -441,8 +487,8 @@ query_atomic_data (void)
       }
       else
       {
-        init_atomic_data_form (atomic_data_query, atomic_data_name);
-        query_user (CONTENT_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file", 1);
+        init_single_question_form (atomic_data_query, "Master file : ", atomic_data_name);
+        query_user (CONTENT_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file");
         strcpy (atomic_data_name, atomic_data_query[1].buffer);
       }
     }
@@ -461,9 +507,29 @@ query_atomic_data (void)
     wrefresh (win);
   }
 
-  delwin (error_win);
-
   display_text_buffer (CONTENT_WINDOW, NO_SCROLL);
   logfile ("\n");
   log_flush ();
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
+{
+  int valid = FALSE;
+
+  static Query_t nion_query[2];
+  static Query_t z_istate_query[4];
+
+  while (valid != TRUE)
+  {
+
+  }
 }

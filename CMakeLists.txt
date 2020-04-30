@@ -24,6 +24,7 @@ set(SOURCE_FILES
         src/query.c
         src/elements.c
         src/ions.c
+        src/levels.c
    )
 
 # The curses library is stored in various places depending on system
