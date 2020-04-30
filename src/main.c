@@ -19,7 +19,8 @@ MenuItem_t MAIN_MENU_CHOICES[] = {
   {&bound_free_main_menu , 1        , "Bound-Free"        , "Query photionization edges"},
   {&elements_main_menu   , 2        , "Elements"          , "Query a specific element"},
   {&ions_main_menu       , 3        , "Ions"              , "Query a specific ion"},
-  {&query_atomic_data    , 4        , "Switch Atomic Data", "Switch the atomic data"},
+  {&levels_main_menu     , 4        , "Levels"            , "Query an atomic configuration"},
+  {&query_atomic_data    , 5        , "Switch Atomic Data", "Switch the atomic data"},
   {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit atomix"},
   {NULL                  , MENU_NULL, NULL                , NULL}
 };
