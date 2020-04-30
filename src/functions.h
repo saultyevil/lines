@@ -17,6 +17,7 @@ int create_menu(Window_t win, char *menu_message, const MenuItem_t *menu_items, 
 /* tools.c */
 void get_element_name(int z, char *element);
 int check_command_line(int argc, char **argv);
+void error_atomix(char *fmt, ...);
 void error_exit_atomix(int errno, char *fmt, ...);
 void menu_exit_atomix(void);
 char *trim_whitespaces(char *str);
@@ -46,13 +47,22 @@ int get_atomic_data(char *masterfile);
 /* query.c */
 void clean_up_form(FORM *form, FIELD **fields, int nfields);
 int control_form(FORM *form, int ch, int exit_index);
-int query_user(Window_t w, Query_t *q, int nfields, char *title_message, int default_field);
-void init_wavelength_form(Query_t *q, char *default_wmin, char *default_wmax);
+int query_user(Window_t w, Query_t *q, int nfields, char *title_message);
+void init_single_question_form(Query_t *q, char *label, char *answer);
+void init_two_question_form(Query_t *q, char *label1, char *label2, char *answer1, char *answer2);
 int query_wavelength_range(double *wmin, double *wmax);
-void init_atomic_data_form(Query_t *q, char *default_data);
+int query_atomic_number(int *z);
 void query_atomic_data(void);
+void init_ions_form(Query_t *q, char *default_z, char *default_istate);
+void query_ion_input (int nion_or_z, int *z, int *istate, int *nion);
 /* elements.c */
 void elements_main_menu(void);
-void get_single_element(int z);
+void get_single_element(void);
+void get_elements(void);
 /* ions.c */
 void ions_main_menu(void);
+void get_ion(void);
+void get_all_ions(void);
+void get_ion_element(void);
+/* levels.c */
+void levels_main_menu(void);
