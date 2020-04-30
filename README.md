@@ -13,8 +13,10 @@ disc winds in Tidal Disruption Events.
 ## Features
 
 * Change the atomic data files on the fly
-* Inspect the bound-bound transitions over a provided wavelength range
-* Inspect the photoionization edges over a provided wavelength range
+* Look at the bound-bound transitions over a provided wavelength range
+* Find all the photoionization edges over a provided wavelength range
+* Query the elements in the loaded data set
+* Have a gander at the ions, or a specific ion
 
 ## Requirements, Building and Usage
 
@@ -46,7 +48,6 @@ Here are some of the current plans for future development:
 
 * Improved and consistent UI design*
 * Being able to resize the window without the background UI breaking 
-* Scrollable lists
-* Other atomic features to search, i.e. levels, configurations
+* Other atomic features to search, i.e. levels
 
 *If we are lucky ;-)
