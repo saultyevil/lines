@@ -15,13 +15,13 @@
 
 const
 MenuItem_t MAIN_MENU_CHOICES[] = {
-  {&bound_bound_main_menu, 0        , "Bound-Bound"       , "Query bound-bound transitions"},
-  {&bound_free_main_menu , 1        , "Bound-Free"        , "Query photionization edges"},
-  {&elements_main_menu   , 2        , "Elements"          , "Query a specific element"},
-  {&ions_main_menu       , 3        , "Ions"              , "Query a specific ion"},
+  {&elements_main_menu   , 0        , "Elements"          , "Query the elements in the atomic data"},
+  {&ions_main_menu       , 1        , "Ions"              , "Query the ions in the atomic data"},
+  {&bound_bound_main_menu, 2        , "Bound-Bound"       , "Query possible bound-bound transitions"},
+  {&bound_free_main_menu , 3        , "Bound-Free"        , "Query the photionization edges"},
   {&levels_main_menu     , 4        , "Levels"            , "Query an atomic configuration"},
-  {&query_atomic_data    , 5        , "Switch Atomic Data", "Switch the atomic data"},
-  {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit atomix"},
+  {&switch_atomic_data   , 5        , "Switch Atomic Data", "Switch atomic data data sets"},
+  {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit Atomix"},
   {NULL                  , MENU_NULL, NULL                , NULL}
 };
 
@@ -86,7 +86,7 @@ main (int argc, char *argv[])
   }
   else
   {
-    query_atomic_data ();
+    switch_atomic_data ();
   }
 
   /*

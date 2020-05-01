@@ -54,7 +54,7 @@ void init_two_question_form(Query_t *q, char *label1, char *label2, char *answer
 int query_wavelength_range(double *wmin, double *wmax);
 int query_atomic_number(int *z);
 int query_ion_input(int nion_or_z, int *z, int *istate, int *nion);
-void query_atomic_data(void);
+void switch_atomic_data (void);
 /* elements.c */
 void elements_main_menu(void);
 void get_single_element(void);

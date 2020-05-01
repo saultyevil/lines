@@ -6,13 +6,16 @@
  *
  * @brief
  *
- * TODO: print all elements
- * 
+ * Functions for querying the elements in the atomic data.
+ *
  * ************************************************************************** */
 
 #include <math.h>
 
 #include "atomix.h"
+
+static const
+int ndash = 40;
 
 const
 MenuItem_t ELEMENTS_MENU_CHOICES[] = {
@@ -23,9 +26,12 @@ MenuItem_t ELEMENTS_MENU_CHOICES[] = {
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief The main menu for element queries.
  *
  * @details
+ *
+ * This function is basically a wrapper around create_menu to allow a user to
+ * choose the different querying options.
  *
  * ************************************************************************** */
 
@@ -40,15 +46,50 @@ elements_main_menu (void)
     return;
   }
 
-  menu_index = create_menu (CONTENT_WINDOW, "What do you want to do?", ELEMENTS_MENU_CHOICES, 
+  menu_index = create_menu (CONTENT_WINDOW, "Element Queries", ELEMENTS_MENU_CHOICES,
                             ARRAY_SIZE (ELEMENTS_MENU_CHOICES), menu_index, CONTROL_MENU);
 }
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print standard information about an element to screen.
+ *
+ * @param[in]  e  The element to print to screen
  *
  * @details
+ *
+ * Prints an element to screen using a standardised output.
+ *
+ * ************************************************************************** */
+
+void
+add_element_to_display (struct elements e, int detailed)
+{
+  add_to_display (" Element: %s", e.name);
+  add_separator_to_display (ndash);
+  add_to_display (" Z                        : %i", e.z);
+  add_to_display (" Abundance relative to H  : %3.2f", log10 (e.abun) + 12);
+  add_to_display (" Number of Ions           : %i", e.nions);
+  add_to_display (" First Ion Index          : %i", e.firstion);
+  add_to_display (" Last Ion Index           : %i", e.firstion + e.nions - 1);
+  add_to_display (" Highest Ionisation state : %i", e.istate_max);
+  add_separator_to_display (ndash);
+
+  if (!detailed)
+    return;
+
+  // TODO: add all bb and bf transitions
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  Prints details of a single element to screen.
+ *
+ * @details
+ *
+ * Queries the user for the atomic number of the element to be printed out. If
+ * the element is not in the atomic data, then an error message is printed
+ * instead.
  *
  * ************************************************************************** */
 
@@ -56,50 +97,39 @@ void
 get_single_element (void)
 {
   int i;
-  int z;
-  int form_return;
-  const int ndash = 40;
-  struct elements element;
+  int atomic_z;
   int found = FALSE;
 
-  form_return = query_atomic_number (&z);
-  if (form_return == FORM_QUIT)
+  if (query_atomic_number (&atomic_z) == FORM_QUIT)
     return;
 
   for (i = 0; i < nelements; ++i)
   {
-    element = ele[i];
-    if (element.z == z)
+    if (ele[i].z == atomic_z)
     {
       found = TRUE;
       break;
     }
   }
 
-  if (found == FALSE)
+  if (!found)
   {
-    error_atomix ("Element Z = %i is not in the atomic data", z);
+    error_atomix ("Element Z = %i is not in the atomic data", atomic_z);
     return;
   }
 
-  add_to_display (" Element: %s", element.name);
   add_separator_to_display (ndash);
-  add_to_display (" Z                        : %i", element.z);
-  add_to_display (" Abundance relative to H  : %3.2f", log10 (element.abun) + 12);
-  add_to_display (" Number of Ions           : %i", element.nions);
-  add_to_display (" First Ion Index          : %i", element.firstion);
-  add_to_display (" Last Ion Index           : %i", element.firstion + element.nions - 1);
-  add_to_display (" Highest Ionisation state : %i", element.istate_max);
-  add_separator_to_display (ndash);
-
+  add_element_to_display (ele[i], TRUE);
   display (CONTENT_WINDOW, SCROLL_OK);
 }
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief Prints details of all the elements in the atomic data.
  *
  * @details
+ *
+ * Loops over the entire ele structre to and prints each one.
  *
  * ************************************************************************** */
 
@@ -107,24 +137,11 @@ get_single_element (void)
  get_elements (void)
  {
   int i;
-  const int ndash = 40;
-  struct elements element;
 
    add_separator_to_display (ndash);
 
   for (i = 0; i < nelements; ++i)
-  {
-    element = ele[i];
-    add_to_display (" Element: %s", element.name);
-    add_separator_to_display (ndash);
-    add_to_display (" Z                        : %i", element.z);
-    add_to_display (" Abundance relative to H  : %3.2f", log10 (element.abun) + 12);
-    add_to_display (" Number of Ions           : %i", element.nions);
-    add_to_display (" First Ion Index          : %i", element.firstion);
-    add_to_display (" Last Ion Index           : %i", element.firstion + element.nions - 1);
-    add_to_display (" Highest Ionisation state : %i", element.istate_max);
-    add_separator_to_display (ndash);
-  }
+    add_element_to_display (ele[i], FALSE);
 
    display (CONTENT_WINDOW, SCROLL_OK);
  }

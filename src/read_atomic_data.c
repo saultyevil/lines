@@ -508,29 +508,29 @@ check_xsections ()
   for (n = 0; n < nphot_total; n++)
   {
     nion = phot_top[n].nion;
-    if (ion[nion].phot_info == 1)
+    if (ions[nion].phot_info == 1)
       add_error_to_log
         ("Topbase Ion %i Z %i istate %i nground %i ilv %i ntop %i f0 %8.4e IP %8.4e\n",
-         nion, ion[nion].z, ion[nion].istate, ion[nion].ntop_ground, phot_top[n].nlev, ion[nion].ntop, phot_top[n].freq[0], ion[nion].ip);
-    else if (ion[nion].phot_info == 0)
+         nion, ions[nion].z, ions[nion].istate, ions[nion].ntop_ground, phot_top[n].nlev, ions[nion].ntop, phot_top[n].freq[0], ions[nion].ip);
+    else if (ions[nion].phot_info == 0)
       add_error_to_log ("Vfky Ion %i Z %i istate %i nground %i f0 %8.4e IP %8.4e\n",
-             nion, ion[nion].z, ion[nion].istate, ion[nion].nxphot, phot_top[n].freq[0], ion[nion].ip);
+                        nion, ions[nion].z, ions[nion].istate, ions[nion].nxphot, phot_top[n].freq[0], ions[nion].ip);
 
     /* some simple checks -- could be made more robust */
-    if (ion[nion].n_lte_max == 0 && ion[nion].phot_info == 1)
+    if (ions[nion].n_lte_max == 0 && ions[nion].phot_info == 1)
     {
       logfile
         ("get_atomicdata: not tracking levels for ion %i z %i istate %i, yet marked as topbase xsection!\n",
-         nion, ion[nion].z, ion[nion].istate);
+         nion, ions[nion].z, ions[nion].istate);
     }
-    if (ion[nion].phot_info != 1 && ion[nion].macro_info)
+    if (ions[nion].phot_info != 1 && ions[nion].macro_info)
     {
       logfile
         ("get_atomicdata: macro atom but no topbase xsection! ion %i z %i istate %i, yet marked as topbase xsection!\n",
-         nion, ion[nion].z, ion[nion].istate);
+         nion, ions[nion].z, ions[nion].istate);
     }
 
-    if (ion[nion].macro_info != phot_top[n].macro_info)
+    if (ions[nion].macro_info != phot_top[n].macro_info)
     {
       logfile ("Macro info for ion doesn't match with xsection!! Could be serious.\n");
     }
@@ -981,12 +981,12 @@ get_atomic_data (char *masterfile, int use_relative)
   }
 
 
-  if (ion != NULL)
+  if (ions != NULL)
   {
-    free (ion);
+    free (ions);
   }
-  ion = (IonPtr) calloc (sizeof (ion_dummy), NIONS);
-  if (ion == NULL)
+  ions = (IonPtr) calloc (sizeof (ion_dummy), NIONS);
+  if (ions == NULL)
   {
     logfile ("There is a problem in allocating memory for the ion structure\n");
     return ATOMIC_MEMORY_ISSUE_ERROR;
@@ -1057,35 +1057,35 @@ get_atomic_data (char *masterfile, int use_relative)
   for (n = 0; n < NIONS; n++)
   {
     simple_line_ignore[n] = 0;  // diagnostic counter for how many lines ignored
-    ion[n].z = (-1);
-    ion[n].istate = (-1);
-    ion[n].nelem = (-1);
-    ion[n].ip = (-1);
-    ion[n].g = (-1);
-    ion[n].nmax = (-1);
-    ion[n].firstlevel = (-1);
-    ion[n].nlevels = (-1);
-    ion[n].first_nlte_level = (-1);
-    ion[n].first_levden = (-1);
-    ion[n].nlte = (-1);
-    ion[n].phot_info = (-1);
-    ion[n].macro_info = (-1);   //Initialise - don't know if using Macro Atoms or not: set to -1 (SS)
-    ion[n].ntop_first = 0;      // The fact that ntop_first and ntop  are initialized to 0 and not -1 is important
-    ion[n].ntop_ground = 0;     //NSH 0312 initialize the new pointer for GS cross sections
-    ion[n].ntop = 0;
-    ion[n].nxphot = (-1);
-    ion[n].lev_type = (-1);     // Initialise to indicate we don't know what types of configurations will be read
-    ion[n].drflag = 0;          //Initialise to indicate as far as we know, there are no dielectronic recombination parameters associated with this ion.
-    ion[n].total_rrflag = 0;    //Initialise to say this ion has no Badnell total recombination data
-    ion[n].nxtotalrr = -1;      //Initialise the pointer into the bad_t_rr structure.
-    ion[n].bad_gs_rr_t_flag = 0;        //Initialise to say this ion has no Badnell ground state recombination data
-    ion[n].bad_gs_rr_r_flag = 0;        //Initialise to say this ion has no Badnell ground state recombination data
-    ion[n].nxbadgsrr = -1;      //Initialise the pointer into the bad_gs_rr structure.
-    ion[n].dere_di_flag = 0;    //Initialise to say this ion has no Dere DI rate data
-    ion[n].nxderedi = -1;       //Initialise the pointer into the Dere DI rate structure
-    ion[n].n_inner = 0;         //Initialise the pointer to say we have no inner shell ionization cross sections
+    ions[n].z = (-1);
+    ions[n].istate = (-1);
+    ions[n].nelem = (-1);
+    ions[n].ip = (-1);
+    ions[n].g = (-1);
+    ions[n].nmax = (-1);
+    ions[n].firstlevel = (-1);
+    ions[n].nlevels = (-1);
+    ions[n].first_nlte_level = (-1);
+    ions[n].first_levden = (-1);
+    ions[n].nlte = (-1);
+    ions[n].phot_info = (-1);
+    ions[n].macro_info = (-1);   //Initialise - don't know if using Macro Atoms or not: set to -1 (SS)
+    ions[n].ntop_first = 0;      // The fact that ntop_first and ntop  are initialized to 0 and not -1 is important
+    ions[n].ntop_ground = 0;     //NSH 0312 initialize the new pointer for GS cross sections
+    ions[n].ntop = 0;
+    ions[n].nxphot = (-1);
+    ions[n].lev_type = (-1);     // Initialise to indicate we don't know what types of configurations will be read
+    ions[n].drflag = 0;          //Initialise to indicate as far as we know, there are no dielectronic recombination parameters associated with this ion.
+    ions[n].total_rrflag = 0;    //Initialise to say this ion has no Badnell total recombination data
+    ions[n].nxtotalrr = -1;      //Initialise the pointer into the bad_t_rr structure.
+    ions[n].bad_gs_rr_t_flag = 0;        //Initialise to say this ion has no Badnell ground state recombination data
+    ions[n].bad_gs_rr_r_flag = 0;        //Initialise to say this ion has no Badnell ground state recombination data
+    ions[n].nxbadgsrr = -1;      //Initialise the pointer into the bad_gs_rr structure.
+    ions[n].dere_di_flag = 0;    //Initialise to say this ion has no Dere DI rate data
+    ions[n].nxderedi = -1;       //Initialise the pointer into the Dere DI rate structure
+    ions[n].n_inner = 0;         //Initialise the pointer to say we have no inner shell ionization cross sections
     for (i = 0; i < N_INNER; i++)
-      ion[n].nxinner[i] = -1;   //Inintialise the inner shell pointer array
+      ions[n].nxinner[i] = -1;   //Inintialise the inner shell pointer array
   }
 
   nlevels = nxphot = nphot_total = ntop_phot = nauger = ndrecomb = n_inner_tot = 0;     //Added counter for DR//
@@ -1490,9 +1490,9 @@ structure does not have this property! */
 
             if (nlte > 0)
             {                     // Then we want to consider some of these levels as non-lte
-              ion[nions].first_levden = nlte_levels;      /* This is the index to into
+              ions[nions].first_levden = nlte_levels;      /* This is the index to into
                                                            the levden aray */
-              ion[nions].n_lte_max = nlte;        //Reserve this many elements of levden
+              ions[nions].n_lte_max = nlte;        //Reserve this many elements of levden
               nlte_levels += nlte;
               if (nlte_levels > NLTE_LEVELS)
               {
@@ -1501,20 +1501,20 @@ structure does not have this property! */
               }
 
             }
-            ion[nions].z = z;
-            ion[nions].istate = istate;
-            ion[nions].g = gg;
-            ion[nions].ip = p * EV2ERGS;
-            ion[nions].nmax = nmax;
+            ions[nions].z = z;
+            ions[nions].istate = istate;
+            ions[nions].g = gg;
+            ions[nions].ip = p * EV2ERGS;
+            ions[nions].nmax = nmax;
 /* Use the keyword IonM to classify the ion as a macro-ion (IonM) or not (simply Ion) */
             if (strncmp (word, "IonM", 4) == 0)
             {
-              ion[nions].macro_info = 1;
+              ions[nions].macro_info = 1;
               nions_macro++;
             }
             else
             {
-              ion[nions].macro_info = 0;
+              ions[nions].macro_info = 0;
               nions_simple++;
             }
             nions++;
@@ -1684,7 +1684,7 @@ the program working in both cases, and certainly mixed cases  04apr ksl  */
             }
 // Now check that the ion for this level is already known.  If not break out
             n = 0;
-            while ((ion[n].z != z || ion[n].istate != istate) && n < nions)
+            while ((ions[n].z != z || ions[n].istate != istate) && n < nions)
               n++;
             if (n == nions)
             {
@@ -1697,9 +1697,9 @@ the program working in both cases, and certainly mixed cases  04apr ksl  */
              * ion line
              */
 
-            if (lev_type == 1 && ilv > ion[n].n_lte_max)
+            if (lev_type == 1 && ilv > ions[n].n_lte_max)
             {
-              logfile ("get_atomic_data: macro level %d ge %d for z %d  istate %d\n", ilv, ion[n].n_lte_max, ion[n].z, ion[n].istate);
+              logfile ("get_atomic_data: macro level %d ge %d for z %d  istate %d\n", ilv, ions[n].n_lte_max, ions[n].z, ions[n].istate);
               //exit(0);
               break;
             }
@@ -1710,11 +1710,11 @@ Now either set the type of level that will be used for this ion or set it if
 a level type has not been established
 		   */
 
-            if (ion[n].lev_type == (-1))
+            if (ions[n].lev_type == (-1))
             {
-              ion[n].lev_type = lev_type;
+              ions[n].lev_type = lev_type;
             }
-            else if (ion[n].lev_type != lev_type)
+            else if (ions[n].lev_type != lev_type)
             {
               break;
             }
@@ -1728,12 +1728,12 @@ a level type has not been established
 
 
 // Next steps should never happen; we have added a more robust mechanism to prevent any kind of mix and match above
-            if (ion[n].macro_info == 1 && mflag == -1)
+            if (ions[n].macro_info == 1 && mflag == -1)
             {                     //it is already flagged as macro atom - current read is for LevTop - don't use it (SS)
               logfile ("Get_atomic_data: file %s  Ignoring LevTop data for ion %d - already using Macro Atom data\n", file, n);
               break;
             }
-            if (ion[n].macro_info == 0 && mflag == 1)
+            if (ions[n].macro_info == 0 && mflag == 1)
             {                     //It is already flagged as simple atom and this is  before MacroAtom data - so ignore.  ksl
               logfile ("Get_atomic_data: file %s  Trying to read MacroAtom data after LevTop data for ion %d. Not allowed\n", file, n);
               break;
@@ -1788,18 +1788,18 @@ a level type has not been established
              */
 
 
-            if (ion[n].n_lte_max > 0)
+            if (ions[n].n_lte_max > 0)
             {                     // Then this ion wants nlte levels
-              if (ion[n].first_nlte_level < 0)
+              if (ions[n].first_nlte_level < 0)
               {                   // Then this is the first one that has been found
-                ion[n].first_nlte_level = nlevels;
-                ion[n].nlte = 1;
-                config[nlevels].nden = ion[n].first_levden;
+                ions[n].first_nlte_level = nlevels;
+                ions[n].nlte = 1;
+                config[nlevels].nden = ions[n].first_levden;
               }
-              else if (ion[n].n_lte_max > ion[n].nlte)
+              else if (ions[n].n_lte_max > ions[n].nlte)
               {
-                config[nlevels].nden = ion[n].first_levden + ion[n].nlte;
-                ion[n].nlte++;
+                config[nlevels].nden = ions[n].first_levden + ions[n].nlte;
+                ions[n].nlte++;
               }
               else
               {
@@ -1817,13 +1817,13 @@ is already incremented
 
 */
 
-            if (ion[n].firstlevel < 0)
+            if (ions[n].firstlevel < 0)
             {
-              ion[n].firstlevel = nlevels;
-              ion[n].nlevels = 1;
+              ions[n].firstlevel = nlevels;
+              ions[n].nlevels = 1;
             }
             else
-              ion[n].nlevels++;
+              ions[n].nlevels++;
 
 
 
@@ -1865,7 +1865,7 @@ is already incremented
 
 // Next section is identical already to case N
             n = 0;
-            while ((ion[n].z != z || ion[n].istate != istate) && n < nions)
+            while ((ions[n].z != z || ions[n].istate != istate) && n < nions)
               n++;
             if (n == nions)
             {
@@ -1879,11 +1879,11 @@ is already incremented
              * a level type has not been established
              */
 
-            if (ion[n].lev_type == (-1))
+            if (ions[n].lev_type == (-1))
             {
-              ion[n].lev_type = lev_type;
+              ions[n].lev_type = lev_type;
             }
-            else if (ion[n].lev_type != lev_type)
+            else if (ions[n].lev_type != lev_type)
             {
 
               break;
@@ -1894,7 +1894,7 @@ is already incremented
 /* Check whether this is a macro-ion.  If it is a macro-ion, but the level appears to be described as a
 simple level (i.e without a keyword LeVMacro), then skip it, since a macro-ion has to have all the levels
 described as macro-levels. */
-            if (ion[n].macro_info == 1)
+            if (ions[n].macro_info == 1)
             {
               logfile ("get_atomic_data: file %s line %d has simple level for ion[%d], which is a macro-ion\n", file, lineno, n);
               break;
@@ -1903,14 +1903,14 @@ described as macro-levels. */
    an ion may have simple levels, i.e. levels with no entries in the plasma structure levden array, but this
    will only be the case if there are too many of this type of level.
 */
-            if (ion[n].nlte > 0)
+            if (ions[n].nlte > 0)
             {
               logfile ("get_atomic_data:  file %s line %d has simple level for ion[%d], which has non_lte_levels\n", file, lineno, n);
               break;
             }
 
 /*  Check whether we already have too many levels specified for this ion. If so, skip */
-            if (ion[n].nmax == ion[n].nlevels)
+            if (ions[n].nmax == ions[n].nlevels)
             {
 
               add_error_to_log ("get_atomic_data: file %s line %d has level exceeding the number allowed for ion[%d]\n", file, lineno, n);
@@ -1927,13 +1927,13 @@ described as macro-levels. */
             config[nlevels].q_num = qqnum;
             config[nlevels].g = gg;
             config[nlevels].ex = exx;
-            if (ion[n].firstlevel < 0)
+            if (ions[n].firstlevel < 0)
             {
-              ion[n].firstlevel = nlevels;
-              ion[n].nlevels = 1;
+              ions[n].firstlevel = nlevels;
+              ions[n].nlevels = 1;
             }
             else
-              ion[n].nlevels++;
+              ions[n].nlevels++;
 
 
 /* Now declare that this level has no corresponding element in the levden array which is part
@@ -2109,21 +2109,21 @@ described as macro-levels. */
               phot_top[ntop_phot].nlast = -1;
               phot_top[ntop_phot].macro_info = 1;
 
-              if (ion[config[m].nion].phot_info == -1)
+              if (ions[config[m].nion].phot_info == -1)
               {
-                ion[config[m].nion].phot_info = 1;        /* Mark this ion as using TOPBASE photo */
-                ion[config[m].nion].ntop_first = ntop_phot;
+                ions[config[m].nion].phot_info = 1;        /* Mark this ion as using TOPBASE photo */
+                ions[config[m].nion].ntop_first = ntop_phot;
               }
 
               /* next line sees if the topbase level just read in is the ground state -
                  if it is, the ion structure element ntop_ground is set to that topbase level number
                  note that m is the lower level here */
-              if (m == config[ion[config[n].nion].first_nlte_level].ilv)
+              if (m == config[ions[config[n].nion].first_nlte_level].ilv)
               {
-                ion[config[n].nion].ntop_ground = ntop_phot;
+                ions[config[n].nion].ntop_ground = ntop_phot;
               }
 
-              ion[config[m].nion].ntop++;
+              ions[config[m].nion].ntop++;
 
               // Finish up this section by storing the photionization data properly
 
@@ -2186,7 +2186,7 @@ described as macro-levels. */
                 add_error_to_log ("No level found to match PhotTop data in file %s on line %d. Data ignored.\n", file, lineno);
                 break;            // There was no pre-existing ion
               }
-              if (ion[config[n].nion].macro_info == 0)    //this is not a macro atom level (SS)
+              if (ions[config[n].nion].macro_info == 0)    //this is not a macro atom level (SS)
               {
                 phot_top[ntop_phot].nlev = n;     // level associated with this crossection.
                 phot_top[ntop_phot].nion = config[n].nion;
@@ -2198,19 +2198,19 @@ described as macro-levels. */
 
                 /* next line sees if the topbase level just read in is the ground state -
                    if it is, the ion structure element ntop_ground is set to that topbase level number */
-                if (islp == config[ion[config[n].nion].first_nlte_level].isp && ilv == config[ion[config[n].nion].first_nlte_level].ilv)
+                if (islp == config[ions[config[n].nion].first_nlte_level].isp && ilv == config[ions[config[n].nion].first_nlte_level].ilv)
                 {
-                  ion[config[n].nion].ntop_ground = ntop_phot;
+                  ions[config[n].nion].ntop_ground = ntop_phot;
                 }
 
 
-                if (ion[config[n].nion].phot_info == -1)
+                if (ions[config[n].nion].phot_info == -1)
                 {
-                  ion[config[n].nion].phot_info = 1;      /* Mark this ion as using TOPBASE photo */
-                  ion[config[n].nion].ntop_first = ntop_phot;
+                  ions[config[n].nion].phot_info = 1;      /* Mark this ion as using TOPBASE photo */
+                  ions[config[n].nion].ntop_first = ntop_phot;
 
                 }
-                else if (ion[config[n].nion].phot_info == (0))
+                else if (ions[config[n].nion].phot_info == (0))
                 {
                   logfile
                     ("Get_atomic_data: file %s VFKY and Topbase photoionization x-sections in wrong order for nion %d\n",
@@ -2218,7 +2218,7 @@ described as macro-levels. */
                   logfile ("             Read topbase x-sections before VFKY if using both types!!\n");
                   return ATOMIC_ERROR_TODO;
                 }
-                ion[config[n].nion].ntop++;
+                ions[config[n].nion].ntop++;
                 for (n = 0; n < np; n++)
                 {
                   phot_top[ntop_phot].freq[n] = xe[n] * EV2ERGS / H;      // convert from eV to freqency
@@ -2274,12 +2274,12 @@ described as macro-levels. */
 
               for (nion = 0; nion < nions; nion++)
               {
-                if (ion[nion].z == z && ion[nion].istate == istate && ion[nion].macro_info != 1)
+                if (ions[nion].z == z && ions[nion].istate == istate && ions[nion].macro_info != 1)
                 {
-                  if (ion[nion].phot_info == -1)
+                  if (ions[nion].phot_info == -1)
                   {
                     /* Then there is a match */
-                    phot_top[nphot_total].nlev = ion[nion].firstlevel;    // ground state
+                    phot_top[nphot_total].nlev = ions[nion].firstlevel;    // ground state
                     phot_top[nphot_total].nion = nion;
                     phot_top[nphot_total].z = z;
                     phot_top[nphot_total].istate = istate;
@@ -2287,8 +2287,8 @@ described as macro-levels. */
                     phot_top[nphot_total].nlast = -1;
                     phot_top[nphot_total].macro_info = 0;
 
-                    ion[nion].phot_info = 0;      /* Mark this ion as using VFKY photo */
-                    ion[nion].nxphot = nphot_total;
+                    ions[nion].phot_info = 0;      /* Mark this ion as using VFKY photo */
+                    ions[nion].nxphot = nphot_total;
 
                     for (n = 0; n < np; n++)
                     {
@@ -2301,26 +2301,26 @@ described as macro-levels. */
                     nphot_total++;
                   }
 
-                  else if (ion[nion].phot_info == 1 && ion[nion].macro_info != 1)
+                  else if (ions[nion].phot_info == 1 && ions[nion].macro_info != 1)
                     /* We already have a topbase cross section, but the VFKY
                        data is superior for the ground state, so we replace that data with the current data
                        JM 1508 -- don't do this with macro-atoms for the moment */
                   {
-                    phot_top[ion[nion].ntop_ground].nlev = ion[nion].firstlevel;  // ground state
-                    phot_top[ion[nion].ntop_ground].nion = nion;
-                    phot_top[ion[nion].ntop_ground].z = z;
-                    phot_top[ion[nion].ntop_ground].istate = istate;
-                    phot_top[ion[nion].ntop_ground].np = np;
-                    phot_top[ion[nion].ntop_ground].nlast = -1;
-                    phot_top[ion[nion].ntop_ground].macro_info = 0;
-                    ion[nion].phot_info = 2;      //We mark this as having hybrid data - VFKY ground, TB excited, potentially VFKY innershell
+                    phot_top[ions[nion].ntop_ground].nlev = ions[nion].firstlevel;  // ground state
+                    phot_top[ions[nion].ntop_ground].nion = nion;
+                    phot_top[ions[nion].ntop_ground].z = z;
+                    phot_top[ions[nion].ntop_ground].istate = istate;
+                    phot_top[ions[nion].ntop_ground].np = np;
+                    phot_top[ions[nion].ntop_ground].nlast = -1;
+                    phot_top[ions[nion].ntop_ground].macro_info = 0;
+                    ions[nion].phot_info = 2;      //We mark this as having hybrid data - VFKY ground, TB excited, potentially VFKY innershell
                     for (n = 0; n < np; n++)
                     {
-                      phot_top[ion[nion].ntop_ground].freq[n] = xe[n] * EV2ERGS / H;      // convert from eV to freqency
-                      phot_top[ion[nion].ntop_ground].x[n] = xx[n];       // leave cross sections in  CGS
+                      phot_top[ions[nion].ntop_ground].freq[n] = xe[n] * EV2ERGS / H;      // convert from eV to freqency
+                      phot_top[ions[nion].ntop_ground].x[n] = xx[n];       // leave cross sections in  CGS
                     }
-                    if (phot_freq_min > phot_top[ion[nion].ntop_ground].freq[0])
-                      phot_freq_min = phot_top[ion[nion].ntop_ground].freq[0];
+                    if (phot_freq_min > phot_top[ions[nion].ntop_ground].freq[0])
+                      phot_freq_min = phot_top[ions[nion].ntop_ground].freq[0];
                     add_error_to_log
                       ("Get_atomic_data: file %s  Replacing ground state topbase photoionization for ion %d with VFKY photoionization\n",
                        file, nion);
@@ -2374,10 +2374,10 @@ described as macro-levels. */
             }
             for (nion = 0; nion < nions; nion++)
             {
-              if (ion[nion].z == z && ion[nion].istate == istate && ion[nion].macro_info != 1)
+              if (ions[nion].z == z && ions[nion].istate == istate && ions[nion].macro_info != 1)
               {
                 /* Then there is a match */
-                inner_cross[n_inner_tot].nlev = ion[nion].firstlevel;     //All these are for the ground state
+                inner_cross[n_inner_tot].nlev = ions[nion].firstlevel;     //All these are for the ground state
                 inner_cross[n_inner_tot].nion = nion;
                 inner_cross[n_inner_tot].np = np;
                 inner_cross[n_inner_tot].z = z;
@@ -2385,8 +2385,8 @@ described as macro-levels. */
                 inner_cross[n_inner_tot].n = in;
                 inner_cross[n_inner_tot].l = il;
                 inner_cross[n_inner_tot].nlast = -1;
-                ion[nion].n_inner++;      /*Increment the number of inner shells */
-                ion[nion].nxinner[ion[nion].n_inner] = n_inner_tot;
+                ions[nion].n_inner++;      /*Increment the number of inner shells */
+                ions[nion].nxinner[ions[nion].n_inner] = n_inner_tot;
                 for (n = 0; n < np; n++)
                 {
                   inner_cross[n_inner_tot].freq[n] = xe[n] * EV2ERGS / H; // convert from eV to freqency
@@ -2696,7 +2696,7 @@ described as macro-levels. */
               logfile ("get_atomic_data: file %s line %d : line has el (%f) > eu (%f)\n", file, lineno, el, eu);
             for (n = 0; n < nions; n++)
             {
-              if (ion[n].z == z && ion[n].istate == istate)
+              if (ions[n].z == z && ions[n].istate == istate)
               {                   /* Then there is a match */
                 if (freq == 0 || f <= 0 || gl == 0 || gu == 0)
                 {
@@ -2708,14 +2708,14 @@ described as macro-levels. */
 /* XXXX  04 April ksl -- Right now have enforced a clean separation between macro-ions and simple-ions
 but this is proably not what we want if we move all bf & fb transitions to macro-ion approach.  We
 would like to have simple lines for macro-ions */
-                if (ion[n].macro_info == 1 && mflag == -1)
+                if (ions[n].macro_info == 1 && mflag == -1)
                 {
                   /* count how many times this happens to report to user */
                   simple_line_ignore[n] += 1;
                   break;
                 }
 
-                if (ion[n].macro_info == -1 && mflag == 1)
+                if (ions[n].macro_info == -1 && mflag == 1)
                 {
                   logfile ("Getatomic_data: Macro Atom line data supplied for ion %d\n but there is no suitable level data\n", n);
                   return ATOMIC_ERROR_TODO;
@@ -2776,7 +2776,7 @@ would like to have simple lines for macro-ions */
             }
             for (n = 0; n < nions; n++)
             {
-              if (ion[n].z == z && ion[n].istate == istate)
+              if (ions[n].z == z && ions[n].istate == istate)
               {                   /* Then there is a match */
                 ground_frac[n].z = z;
                 ground_frac[n].istate = istate;
@@ -2823,22 +2823,22 @@ would like to have simple lines for macro-ions */
 
             for (n = 0; n < nions; n++)   //Loop over ions to find the correct place to put the data
             {
-              if (ion[n].z == z && ion[n].istate == istate)       // this works out which ion we are dealing with
+              if (ions[n].z == z && ions[n].istate == istate)       // this works out which ion we are dealing with
               {
-                if (ion[n].drflag == 0)   //This is the first time we have dealt with this ion
+                if (ions[n].drflag == 0)   //This is the first time we have dealt with this ion
                 {
                   drecomb[ndrecomb].nion = n;     //put the ion number into the DR structure
                   drecomb[ndrecomb].nparam = nparam;      //Put the number of parameters we ware going to read in, into the DR structure so we know what to iterate over later
-                  ion[n].nxdrecomb = ndrecomb;    //put the number of the DR into the ion
+                  ions[n].nxdrecomb = ndrecomb;    //put the number of the DR into the ion
                   drecomb[ndrecomb].type = DRTYPE_BADNELL;        //define the type of data
                   ndrecomb++;     //increment the counter of number of dielectronic recombination parameter sets
-                  ion[n].drflag++;        //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
+                  ions[n].drflag++;        //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
 
                 }
                 if (drflag == 'E')        // this ion has no parameters, so it must be the first time through
                 {
 
-                  n1 = ion[n].nxdrecomb;  //     Get the pointer to the correct bit of the recombination coefficient array. This should already be set from the first time through
+                  n1 = ions[n].nxdrecomb;  //     Get the pointer to the correct bit of the recombination coefficient array. This should already be set from the first time through
                   for (n2 = 0; n2 < nparam; n2++)
                   {
                     drecomb[n1].e[n2] = drp[n2];  //we are getting e parameters
@@ -2848,7 +2848,7 @@ would like to have simple lines for macro-ions */
                 }
                 else if (drflag == 'C')   //                  must be the second time though, so no need to read in all the other things
                 {
-                  n1 = ion[n].nxdrecomb;  //     Get the pointer to the correct bit of the recombination coefficient array. This should already be set from the first time through
+                  n1 = ions[n].nxdrecomb;  //     Get the pointer to the correct bit of the recombination coefficient array. This should already be set from the first time through
                   for (n2 = 0; n2 < nparam; n2++)
                   {
                     drecomb[n1].c[n2] = drp[n2];  //           we are getting e parameters
@@ -2893,19 +2893,19 @@ would like to have simple lines for macro-ions */
 
             for (n = 0; n < nions; n++)   //Loop over ions to find the correct place to put the data
             {
-              if (ion[n].z == z && ion[n].istate == istate)       // this works out which ion we are dealing with
+              if (ions[n].z == z && ions[n].istate == istate)       // this works out which ion we are dealing with
               {
-                if (ion[n].drflag == 0)   //This is the first time we have dealt with this ion
+                if (ions[n].drflag == 0)   //This is the first time we have dealt with this ion
                 {
                   drecomb[ndrecomb].nion = n;     //put the ion number into the DR structure
                   drecomb[ndrecomb].nparam = nparam;      //Put the number of parameters we ware going to read in, into the DR structure so we know what to iterate over later
-                  ion[n].nxdrecomb = ndrecomb;    //put the number of the DR into the ion
+                  ions[n].nxdrecomb = ndrecomb;    //put the number of the DR into the ion
                   drecomb[ndrecomb].type = DRTYPE_SHULL;  //define the type of data
                   ndrecomb++;     //increment the counter of number of dielectronic recombination parameter sets
-                  ion[n].drflag++;        //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
+                  ions[n].drflag++;        //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
 
                 }
-                n1 = ion[n].nxdrecomb;    //     Get the pointer to the correct bit of the recombination coefficient array. This should already be set from the first time through
+                n1 = ions[n].nxdrecomb;    //     Get the pointer to the correct bit of the recombination coefficient array. This should already be set from the first time through
                 for (n2 = 0; n2 < nparam; n2++)
                 {
                   drecomb[n1].shull[n2] = drp[n2];        //we are getting e parameters
@@ -2949,22 +2949,22 @@ would like to have simple lines for macro-ions */
             istate = ne;          //         get the traditional ionisation state
             for (n = 0; n < nions; n++)   //Loop over ions to find the correct place to put the data
             {
-              if (ion[n].z == z && ion[n].istate == istate)       // this works out which ion we are dealing with
+              if (ions[n].z == z && ions[n].istate == istate)       // this works out which ion we are dealing with
               {
-                if (ion[n].total_rrflag == 0)     // this ion has no parameters, so it must be the first time through
+                if (ions[n].total_rrflag == 0)     // this ion has no parameters, so it must be the first time through
                 {
                   total_rr[n_total_rr].nion = n;  //put the ion number into the bad_t_rr structure
-                  ion[n].nxtotalrr = n_total_rr;  /*put the number of the bad_t_rr into the ion
+                  ions[n].nxtotalrr = n_total_rr;  /*put the number of the bad_t_rr into the ion
                                                    structure so we can go either way. */
                   total_rr[n_total_rr].type = RRTYPE_BADNELL;
                   for (n1 = 0; n1 < nparam; n1++)
                   {
                     total_rr[n_total_rr].params[n1] = btrr[n1];   //we are getting  parameters
                   }
-                  ion[n].total_rrflag++;  //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
+                  ions[n].total_rrflag++;  //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
                   n_total_rr++;   //increment the counter of number of dielectronic recombination parameter sets
                 }
-                else if (ion[n].total_rrflag > 0) //       unexpected second line matching z and charge
+                else if (ions[n].total_rrflag > 0) //       unexpected second line matching z and charge
                 {
                   logfile ("More than one badnell total RR rate for ion %i\n", n);
                   logfile ("Get_atomic_data: %s\n", aline);
@@ -3012,22 +3012,22 @@ would like to have simple lines for macro-ions */
             istate = ne;          //         get the traditional ionisation state
             for (n = 0; n < nions; n++)   //Loop over ions to find the correct place to put the data
             {
-              if (ion[n].z == z && ion[n].istate == istate)       // this works out which ion we are dealing with
+              if (ions[n].z == z && ions[n].istate == istate)       // this works out which ion we are dealing with
               {
-                if (ion[n].total_rrflag == 0)     // this ion has no parameters, so it must be the first time through
+                if (ions[n].total_rrflag == 0)     // this ion has no parameters, so it must be the first time through
                 {
                   total_rr[n_total_rr].nion = n;  //put the ion number into the bad_t_rr structure
-                  ion[n].nxtotalrr = n_total_rr;  /*put the number of the bad_t_rr into the ion
+                  ions[n].nxtotalrr = n_total_rr;  /*put the number of the bad_t_rr into the ion
                                                    structure so we can go either way. */
                   total_rr[n_total_rr].type = RRTYPE_SHULL;
                   for (n1 = 0; n1 < nparam; n1++)
                   {
                     total_rr[n_total_rr].params[n1] = btrr[n1];   //we are getting  parameters
                   }
-                  ion[n].total_rrflag++;  //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
+                  ions[n].total_rrflag++;  //increment the flag by 1. We will do this rather than simply setting it to 1 so we will get errors if we do this more than once....
                   n_total_rr++;   //increment the counter of number of dielectronic recombination parameter sets
                 }
-                else if (ion[n].total_rrflag > 0) //       unexpected second line matching z and charge
+                else if (ions[n].total_rrflag > 0) //       unexpected second line matching z and charge
                 {
                   logfile ("More than one total RR rate for ion %i\n", n);
                   logfile ("Get_atomic_data: %s\n", aline);
@@ -3073,30 +3073,30 @@ would like to have simple lines for macro-ions */
             istate = z - ne + 1;  //         get the traditional ionisation state
             for (n = 0; n < nions; n++)   //Loop over ions to find the correct place to put the data
             {
-              if (ion[n].z == z && ion[n].istate == istate)       // this works out which ion we are dealing with
+              if (ions[n].z == z && ions[n].istate == istate)       // this works out which ion we are dealing with
               {
-                if (ion[n].bad_gs_rr_t_flag == 0 && ion[n].bad_gs_rr_r_flag == 0) //This is first set of this type of data for this ion
+                if (ions[n].bad_gs_rr_t_flag == 0 && ions[n].bad_gs_rr_r_flag == 0) //This is first set of this type of data for this ion
                 {
                   bad_gs_rr[n_bad_gs_rr].nion = n;        //put the ion number into the bad_t_rr structure
-                  ion[n].nxbadgsrr = n_bad_gs_rr; //put the number of the bad_t_rr into the ion structure so we can go either way.
+                  ions[n].nxbadgsrr = n_bad_gs_rr; //put the number of the bad_t_rr into the ion structure so we can go either way.
                   n_bad_gs_rr++;  //increment the counter of number of ground state RR
                 }
                 /*Now work out what type of line it is, and where it needs to go */
                 if (gsflag == 'T')        //it is a temperature line
                 {
-                  if (ion[n].bad_gs_rr_t_flag == 0)       //and we need a temp line for this ion
+                  if (ions[n].bad_gs_rr_t_flag == 0)       //and we need a temp line for this ion
                   {
                     if (gstemp[0] > gstmin)
                       gstmin = gstemp[0];
                     if (gstemp[18] < gstmax)
                       gstmax = gstemp[18];
-                    ion[n].bad_gs_rr_t_flag = 1;  //set the flag
+                    ions[n].bad_gs_rr_t_flag = 1;  //set the flag
                     for (n1 = 0; n1 < nparam; n1++)
                     {
-                      bad_gs_rr[ion[n].nxbadgsrr].temps[n1] = gstemp[n1];
+                      bad_gs_rr[ions[n].nxbadgsrr].temps[n1] = gstemp[n1];
                     }
                   }
-                  else if (ion[n].bad_gs_rr_t_flag == 1)  //we already have a temp line for this ion
+                  else if (ions[n].bad_gs_rr_t_flag == 1)  //we already have a temp line for this ion
                   {
                     logfile ("More than one temp line for badnell GS RR rate for ion %i\n", n);
                     logfile ("Get_atomic_data: %s\n", aline);
@@ -3110,15 +3110,15 @@ would like to have simple lines for macro-ions */
                 }
                 else if (gsflag == 'R')   //it is a rate line
                 {
-                  if (ion[n].bad_gs_rr_r_flag == 0)       //and we need a rate line for this ion
+                  if (ions[n].bad_gs_rr_r_flag == 0)       //and we need a rate line for this ion
                   {
-                    ion[n].bad_gs_rr_r_flag = 1;  //set the flag
+                    ions[n].bad_gs_rr_r_flag = 1;  //set the flag
                     for (n1 = 0; n1 < nparam; n1++)
                     {
-                      bad_gs_rr[ion[n].nxbadgsrr].rates[n1] = gstemp[n1];
+                      bad_gs_rr[ions[n].nxbadgsrr].rates[n1] = gstemp[n1];
                     }
                   }
-                  else if (ion[n].bad_gs_rr_r_flag == 1)  //we already have a rate line for this ion
+                  else if (ions[n].bad_gs_rr_r_flag == 1)  //we already have a rate line for this ion
                   {
                     logfile ("More than one rate line for badnell GS RR rate for ion %i\n", n);
                     logfile ("Get_atomic_data: %s\n", aline);
@@ -3209,13 +3209,13 @@ would like to have simple lines for macro-ions */
             }
             for (n = 0; n < nions; n++)   //Loop over ions to find the correct place to put the data
             {
-              if (ion[n].z == z && ion[n].istate == istate)       // this works out which ion we are dealing with
+              if (ions[n].z == z && ions[n].istate == istate)       // this works out which ion we are dealing with
               {
-                if (ion[n].dere_di_flag == 0)     //This is first set of this type of data for this ion
+                if (ions[n].dere_di_flag == 0)     //This is first set of this type of data for this ion
                 {
-                  ion[n].dere_di_flag = 1;
+                  ions[n].dere_di_flag = 1;
                   dere_di_rate[n_dere_di_rate].nion = n;  //put the ion number into the dere_di_rate structure
-                  ion[n].nxderedi = n_dere_di_rate;       //put the number of the dere_di_rate into the ion structure so we can go either way.
+                  ions[n].nxderedi = n_dere_di_rate;       //put the number of the dere_di_rate into the ion structure so we can go either way.
                   dere_di_rate[n_dere_di_rate].xi = et;
                   dere_di_rate[n_dere_di_rate].min_temp = tmin;
                   dere_di_rate[n_dere_di_rate].nspline = nspline;
@@ -3534,20 +3534,20 @@ exit if there is an element with no ions */
   for (nelem = 0; nelem < nelements; nelem++)
   {
     n = 0;
-    while (ion[n].z != ele[nelem].z && n < nions)
+    while (ions[n].z != ele[nelem].z && n < nions)
       n++;                      /* Find the first ion of that element for which there is data */
 
     ele[nelem].firstion = n;
-    ion[n].nelem = nelem;
+    ions[n].nelem = nelem;
 
     /* find the highest ion stage and the number of ions */
-    ele[nelem].istate_max = ion[n].istate;
+    ele[nelem].istate_max = ions[n].istate;
 
-    while (ion[n].z == ele[nelem].z && n < nions)
+    while (ions[n].z == ele[nelem].z && n < nions)
     {
-      if (ele[nelem].istate_max < ion[n].istate)
-        ele[nelem].istate_max = ion[n].istate;
-      ion[n].nelem = nelem;
+      if (ele[nelem].istate_max < ions[n].istate)
+        ele[nelem].istate_max = ions[n].istate;
+      ions[n].nelem = nelem;
       n++;
     }
     ele[nelem].nions = n - ele[nelem].firstion;
@@ -3575,10 +3575,10 @@ a total emission oscillator strength for the level....really ought to be radiati
 
   for (n = 0; n < nlines; n++)
   {
-    if (ion[line[n].nion].macro_info == 0)      // not a macro atom (SS)
+    if (ions[line[n].nion].macro_info == 0)      // not a macro atom (SS)
     {
-      mstart = ion[line[n].nion].firstlevel;
-      mstop = mstart + ion[line[n].nion].nlevels;
+      mstart = ions[line[n].nion].firstlevel;
+      mstop = mstart + ions[line[n].nion].nlevels;
 
       m = mstart;
       while (config[m].ilv != line[n].levl && m < mstop)
@@ -3606,9 +3606,9 @@ or zero so that simple checks of true and false can be used for them */
 
   for (n = 0; n < nions; n++)
   {
-    if (ion[n].macro_info == -1)
+    if (ions[n].macro_info == -1)
     {
-      logfile ("Ion %d for element %s and ion %d is of unknown type\n", n, ion[n].z, ion[n].istate);
+      logfile ("Ion %d for element %s and ion %d is of unknown type\n", n, ions[n].z, ions[n].istate);
       return ATOMIC_ERROR_TODO;
     }
   }
@@ -3698,7 +3698,7 @@ or zero so that simple checks of true and false can be used for them */
     {
       fprintf (fptr,
                "ion %3d z %3d istate %3d firstlevel %3d nlevels %3d potential %8.3g\n",
-               n, ion[n].z, ion[n].istate, ion[n].firstlevel, ion[n].nlevels, ion[n].ip / EV2ERGS);
+               n, ions[n].z, ions[n].istate, ions[n].firstlevel, ions[n].nlevels, ions[n].ip / EV2ERGS);
     }
 
     /* Write the excitation level data */
