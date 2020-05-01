@@ -16,24 +16,6 @@
 
 #include "atomix.h"
 
-const
-MenuItem_t ATOMIC_DATA_CHOICES[] = {
-  {NULL, 0          , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 1          , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 2          , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
-  {NULL, 3          , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
-  {NULL, 4          , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
-  {NULL, 5          , "h10_standard80"            , ": 10 Level H Macro-atom"},
-  {NULL, 6          , "h20"                       , ": 20 Level H Macro-atom"},
-  {NULL, 7          , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
-  {NULL, 8          , "standard80"                , ": Standard Simple-atom"},
-  {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
-  {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
-  {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
-  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
-  {NULL, MENU_NULL  , NULL                        , NULL}
-};
-
 /* ************************************************************************** */
 /**
  * @brief  Clean up a form.
@@ -74,8 +56,6 @@ clean_up_form (FORM *form, FIELD **fields, int nfields)
  * The purpose of this function is to control the form given a key input ch. If
  * enter is pressed on a field, then it'll go to the next field. If enter is
  * pressed on exit_input, then the form will exit.
- *
- * TODO: input validation, i.e. make sure both fields are filled in
  *
  * ************************************************************************** */
 
@@ -362,9 +342,8 @@ query_wavelength_range (double *wmin, double *wmax)
     if (form_return == FORM_QUIT)
       return form_return;
 
-    *wmin = strtof (wavelength_query[1].buffer, NULL);
-    *wmax = strtof (wavelength_query[3].buffer, NULL);
-
+    *wmin = strtod (wavelength_query[1].buffer, NULL);
+    *wmax = strtod (wavelength_query[3].buffer, NULL);
     if (*wmax > *wmin)
     {
       valid = TRUE;
@@ -412,13 +391,7 @@ query_atomic_number (int *z)
     if (form_return == FORM_QUIT)
       return form_return;
 
-    /*
-     * strtol will take care of incorrect inputs, I think. If it's not an
-     * integer, it returns 0 or converts down to an int
-     */
-
     *z = (int) strtol (element_query[1].buffer, NULL, 10);
-
     if (*z > 0 && *z < 118)  // TODO: make constants in atomic.h
     {
       valid = TRUE;
@@ -491,7 +464,7 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
     if (nion_or_z)
     {
       *nion = (int) strtol (q[1].buffer, NULL, 10);
-      if (*nion > 0 && *nion < nions)
+      if (*nion >= 0 && *nion < nions)
       { 
         valid = TRUE;
       }
@@ -529,8 +502,26 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
  *
  * ************************************************************************** */
 
+const
+MenuItem_t ATOMIC_DATA_CHOICES[] = {
+  {NULL, 0          , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 1          , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 2          , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
+  {NULL, 3          , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
+  {NULL, 4          , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
+  {NULL, 5          , "h10_standard80"            , ": 10 Level H Macro-atom"},
+  {NULL, 6          , "h20"                       , ": 20 Level H Macro-atom"},
+  {NULL, 7          , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
+  {NULL, 8          , "standard80"                , ": Standard Simple-atom"},
+  {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
+  {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
+  {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
+  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
+  {NULL, MENU_NULL  , NULL                        , NULL}
+};
+
 void
-query_atomic_data (void)
+switch_atomic_data (void)
 {
   int valid = FALSE;
   int atomic_data_error;

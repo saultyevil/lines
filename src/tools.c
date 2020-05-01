@@ -118,7 +118,9 @@ get_element_name (int z, char *element)
  * 
  * This function is called before ncurses is initialised, thus printf should be
  * used instead when expanding it.
- * 
+ *
+ * TODO: better way to parse command line for multiple arguments
+ *
  * ************************************************************************** */
 
 int

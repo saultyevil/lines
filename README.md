@@ -8,7 +8,7 @@ It was made originally to try and decipher some of the mysterious spectral lines
 and edges in the synthetic spectra created by Python for models of accretion 
 disc winds in Tidal Disruption Events.
 
-![Atomix](atomix_3.1a.png)
+![Atomix](atomix.png)
 
 ## Features
 

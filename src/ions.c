@@ -6,17 +6,22 @@
  *
  * @brief
  *
+ *  Functions for querying
+ *
  * ************************************************************************** */
 
 #include "atomix.h"
 
+static const
+int ndash = 43;
+
 const
 MenuItem_t IONS_MENU_CHOICES[] = {
-  {&get_all_ions   , 0        , "All ions"          , "Query all ions in the atomic data"},
-  {&get_ion_z      , 1        , "Single ion by Z"   , "Query a single ion by atomic number and ionisation state"},
-  {&get_ion_nion   , 2        , "Single ion by nion", "Query a single ion by ion number"},
-  {&get_ion_element, 3        , "Element ions"      , "Query all the ions for an element"},
-  {NULL            , MENU_NULL, NULL                , NULL}
+  {&get_all_ions   , 0        , "All ions"                   , "Print all the ions in the atomic data"},
+  {&get_ion_element, 1        , "Ions for an element"        , "Print all the ions for an element"},
+  {&get_ion_z      , 2        , "Single ion by atomic number", "Detailed output for a single ion by atomic number and ionisation state"},
+  {&get_ion_nion   , 3        , "Single ion by ion number"   , "Detailed output for a single ion by ion number"},
+  {NULL            , MENU_NULL, NULL                         , NULL}
 };
 
 /* ************************************************************************** */
@@ -38,9 +43,8 @@ ions_main_menu (void)
 		return;
 	}
 
-	menu_index = create_menu (CONTENT_WINDOW, "What do you want to do?", IONS_MENU_CHOICES, 
+	menu_index = create_menu (CONTENT_WINDOW, "Ion Queries", IONS_MENU_CHOICES,
 		                      ARRAY_SIZE (IONS_MENU_CHOICES), menu_index, CONTROL_MENU);
-
 }
 
 /* ************************************************************************** */
@@ -52,47 +56,111 @@ ions_main_menu (void)
  * ************************************************************************** */
 
 void
+add_ion_to_display (int nion, int detailed, int basic)
+{
+  int i;
+  int count;
+  double wl;
+  char element[LINELEN];
+  struct ions ion;
+
+  ion = ions[nion];
+  get_element_name (ion.z, element);
+
+  if (basic)
+    add_to_display (" Element                     : %s", element);
+  add_separator_to_display (ndash);
+  if (basic)
+    add_to_display (" Atomic number               : %i", ion.z);
+  add_to_display (" Ion number                  : %i", nion);
+  add_to_display (" Ionisation state            : %i", ion.istate);
+  add_to_display (" Photionization info         : %i", ion.phot_info);
+  add_to_display (" Ionisation potential        : %.2e eV", ion.ip / EV2ERGS);
+  if (basic)
+  {
+    add_to_display (" Number of ions for element  : %i", ele[ion.nelem].nions);
+    add_separator_to_display (ndash);
+  }
+
+  if (!detailed)
+    return;
+
+  add_to_display (" Bound-bound transitions for this ion");
+  add_separator_to_display (ndash);
+  add_to_display (" %-12s %-12s %-12s", "Wavelength", "levu", "levl");
+
+  count = 0;
+
+  for (i = 0; i < nlines; ++i)
+  {
+    if (lin_ptr[i]->z == ion.z && lin_ptr[i]->istate == ion.istate)
+    {
+      count++;
+      wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
+      add_to_display (" %-12.2f %-12i %-12i", wl, lin_ptr[i]->levu, lin_ptr[i]->levl);
+    }
+  }
+
+  add_separator_to_display (ndash);
+  add_to_display (" %i lines", count);
+  add_separator_to_display (ndash);
+  add_to_display (" Bound-free transitions for this ion: ");
+  add_separator_to_display (ndash);
+  add_to_display (" %-12s %-12s %-12s", "Wavelength", "n", "l");
+
+  count = 0;
+
+  for (i = 0; i < nphot_total; ++i)
+  {
+    if (phot_top[i].z == ion.z && phot_top[i].istate == ion.istate)
+    {
+      count++;
+      wl = const_C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
+      add_to_display (" %-12.2f %-12i %-12i", wl, phot_top[i].n, phot_top[i].l);
+    }
+  }
+
+  add_separator_to_display (ndash);
+  add_to_display (" %i edges", count);
+  add_separator_to_display (ndash);
+}
+
+
+/* ************************************************************************** */
+/**
+ * @brief  Print detailed information about a single ion.
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
 get_ion_z (void)
 {
   int nion;
 	int z, istate;
-  int form_return;
   int found = FALSE;
-  char element[LINELEN];
 
-	const int ndash = 40;
-	struct ions mion;
-
-  form_return = query_ion_input (FALSE, &z, &istate, NULL);
-  if (form_return == FORM_QUIT)
+  if (query_ion_input (FALSE, &z, &istate, NULL) == FORM_QUIT)
     return;
 
   for (nion = 0; nion < nions; ++nion)
   {
-    mion = ion[nion];
-    if (mion.z == z && mion.istate == istate)
+    if (ions[nion].z == z && ions[nion].istate == istate)
     {
       found = TRUE;
       break;
     }
   }
 
-  if (found == FALSE)
+  if (!found)
   {
-    error_atomix ("Unable to find configuration Z = %i Ionisation State = %i", z, istate);
+    error_atomix ("Unable to find configuration Z = %i : Ionisation State = %i", z, istate);
     return;
   }
 
-  get_element_name (mion.z, element);
-
   add_separator_to_display (ndash);
-  add_to_display (" Ion number       : %i", nion);
-  add_to_display (" Element          : %s", element);
-  add_to_display (" Atomic number    : %i", mion.z);
-  add_to_display (" Number of ions   : %i", ele[mion.nelem].nions);
-  add_to_display (" Ionisation state : %i", mion.istate);
-  add_separator_to_display (ndash);
-
+  add_ion_to_display (nion, TRUE, TRUE);
   display (CONTENT_WINDOW, SCROLL_OK);
 }
 
@@ -108,36 +176,21 @@ void
 get_ion_nion (void)
 {
   int nion;
-  char element[LINELEN];
-  int form_return;
 
-  const int ndash = 40;
-  struct ions mion;
-  
-  form_return = query_ion_input (TRUE, NULL, NULL, &nion);
-  if (form_return == FORM_QUIT)
+  if (query_ion_input (TRUE, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
   if (nion < 0)
     nion *= -1;
 
-  if(nion > nions)
+  if(nion > nions - 1)
   {
-    error_atomix ("Invalid ion choice %i when there are only %i ions", nion, nions);
+    error_atomix ("Invalid ion index choice %i when there are only %i ion indices", nion, nions);
     return;
   }
 
-  mion = ion[nion];
-  get_element_name (mion.z, element);
-
   add_separator_to_display (ndash);
-  add_to_display (" Ion number       : %i", nion);
-  add_to_display (" Element          : %s", element);
-  add_to_display (" Atomic number    : %i", mion.z);
-  add_to_display (" Number of ions   : %i", ele[mion.nelem].nions);
-  add_to_display (" Ionisation state : %i", mion.istate);
-  add_separator_to_display (ndash);
-
+  add_ion_to_display (nion, TRUE, TRUE);
   display (CONTENT_WINDOW, SCROLL_OK);
 }
 
@@ -153,16 +206,10 @@ void
 get_ion_element (void)
 {
   int i, nion;
-  int z;
-  int firston, lastion;
+  int z, firston, lastion;
   int found = FALSE;
-  int form_return;
-  char element[LINELEN];
-  const int ndash = 40;
-  struct ions mion;
 
-  form_return = query_atomic_number (&z);
-  if (form_return == FORM_QUIT)
+  if (query_atomic_number (&z) == FORM_QUIT)
     return;
 
   for (i = 0; i < nelements; ++i)
@@ -176,25 +223,19 @@ get_ion_element (void)
     }
   }
 
-  if (found == FALSE)
+  if (!found)
   {
     error_atomix ("Element Z = %i is not in the atomic data", z);
     return;
   }
 
-  get_element_name (z, element);
   add_separator_to_display (ndash);
+  add_to_display (" There are %i ions for %s", lastion - firston, ele[i].name);
 
   for (nion = firston; nion < lastion; ++nion)
-  {
-    mion = ion[nion];
-    add_to_display (" Ion number       : %i", nion);
-    add_to_display (" Element          : %s", element);
-    add_to_display (" Atomic number    : %i", mion.z);
-    add_to_display (" Number of ions   : %i", ele[mion.nelem].nions);
-    add_to_display (" Ionisation state : %i", mion.istate);
-    add_separator_to_display (ndash);
-  }
+    add_ion_to_display (nion, FALSE, FALSE);
+
+  add_separator_to_display (ndash);
 
   display (CONTENT_WINDOW, SCROLL_OK);
 }
@@ -211,20 +252,11 @@ void
 get_all_ions (void)
 {
   int nion;
-  const int ndash = 40;
-  struct ions mion;
 
   add_separator_to_display (ndash);
 
   for (nion = 0; nion < nions; ++nion)
-  {
-    mion = ion[nion];
-    add_to_display (" Ion number       : %i", nion);
-    add_to_display (" Atomic number    : %i", mion.z);
-    add_to_display (" Number of ions   : %i", ele[mion.nelem].nions);
-    add_to_display (" Ionisation state : %i", mion.istate);
-    add_separator_to_display (ndash);
-  }
+    add_ion_to_display (nion, FALSE, TRUE);
 
   display (CONTENT_WINDOW, SCROLL_OK);
 }

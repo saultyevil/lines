@@ -37,7 +37,7 @@ clean_up_display (void)
     free (DISPLAY.lines[i].chars);
   free (DISPLAY.lines);
   DISPLAY.nlines = 0;
-	DISPLAY.lines = NULL;
+  DISPLAY.lines = NULL;
 }
 
 /* ************************************************************************** */

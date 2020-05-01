@@ -187,7 +187,7 @@ typedef struct ions
 }
 ion_dummy, *IonPtr;
 
-IonPtr ion;
+IonPtr ions;
 
 
 /* And now for the arrays which describe the energy levels.  In the Topbase data, g is float (although
