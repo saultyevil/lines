@@ -161,7 +161,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
   {
     fields[i] = q[i].field;
     set_field_buffer (q[i].field, q[i].buffer_number, q[i].buffer);
-    if (q[i].background != NO_BG)
+    if (q[i].background != FIELD_NO_BKG)
       set_field_back (q[i].field, q[i].background);
     if (q[i].opts_on != FIELD_SKIP)
       set_field_opts (q[i].field, q[i].opts_on);
@@ -237,11 +237,11 @@ init_single_question_form (Query_t *q, char *label, char *answer)
   q[0].field = new_field (1, strlen (q[0].buffer), 0, 0, 0, 0);
   q[0].opts_off = FIELD_SKIP;
   q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
-  q[0].background = NO_BG;
+  q[0].background = FIELD_NO_BKG;
 
   q[1].buffer_number = 0;
   strcpy (q[1].buffer, answer);
-  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, strlen (q[0].buffer) + 2, 0, 0);
+  q[1].field = new_field (1, FIELD_INPUT_LEN, 0, strlen (q[0].buffer) + 2, 0, 0);
   q[1].opts_off = O_AUTOSKIP;
   q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[1].background = A_REVERSE;
@@ -276,11 +276,11 @@ init_two_question_form (Query_t *q, char *label1, char *label2, char *answer1, c
   q[0].field = new_field (1, label_len, 0, 0, 0, 0);
   q[0].opts_off = FIELD_SKIP;
   q[0].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
-  q[0].background = NO_BG;
+  q[0].background = FIELD_NO_BKG;
 
   q[1].buffer_number = 0;
   strcpy (q[1].buffer, answer1);
-  q[1].field = new_field (1, MAX_FIELD_INPUT, 0, label_len + 2, 0, 0);
+  q[1].field = new_field (1, FIELD_INPUT_LEN, 0, label_len + 2, 0, 0);
   q[1].opts_off = O_AUTOSKIP;
   q[1].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[1].background = A_REVERSE;
@@ -290,11 +290,11 @@ init_two_question_form (Query_t *q, char *label1, char *label2, char *answer1, c
   q[2].field = new_field (1, label_len, 2, 0, 0, 0);
   q[2].opts_off = FIELD_SKIP;
   q[2].opts_on = O_VISIBLE | O_PUBLIC | O_AUTOSKIP;
-  q[2].background = NO_BG;
+  q[2].background = FIELD_NO_BKG;
 
   q[3].buffer_number = 0;
   strcpy (q[3].buffer, answer2);
-  q[3].field = new_field (1, MAX_FIELD_INPUT, 2, label_len + 2, 0, 0);
+  q[3].field = new_field (1, FIELD_INPUT_LEN, 2, label_len + 2, 0, 0);
   q[3].opts_off = O_AUTOSKIP;
   q[3].opts_on = O_VISIBLE | O_PUBLIC | O_EDIT | O_ACTIVE;
   q[3].background = A_REVERSE;
@@ -323,8 +323,8 @@ query_wavelength_range (double *wmin, double *wmax)
   WINDOW *the_win = CONTENT_WINDOW.win;
 
   static int init_default = FALSE;
-  static char string_wmin[MAX_FIELD_INPUT];
-  static char string_wmax[MAX_FIELD_INPUT];
+  static char string_wmin[FIELD_INPUT_LEN];
+  static char string_wmax[FIELD_INPUT_LEN];
   static Query_t wavelength_query[5];
 
   if (init_default == FALSE)
@@ -377,7 +377,7 @@ query_atomic_number (int *z)
   WINDOW *win = CONTENT_WINDOW.win;
 
   static int init_query = FALSE;
-  static char default_element[MAX_FIELD_INPUT];
+  static char default_element[FIELD_INPUT_LEN];
   static Query_t element_query[2];
 
   if (init_query == FALSE)
@@ -428,9 +428,9 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
   Query_t *q;
 
   static int init_name = FALSE;
-  static char string_z[MAX_FIELD_INPUT];
-  static char string_istat[MAX_FIELD_INPUT]; 
-  static char string_nion[MAX_FIELD_INPUT];
+  static char string_z[FIELD_INPUT_LEN];
+  static char string_istat[FIELD_INPUT_LEN];
+  static char string_nion[FIELD_INPUT_LEN];
   static Query_t nion_query[2];
   static Query_t z_istate_query[4];
 
@@ -520,17 +520,17 @@ MenuItem_t ATOMIC_DATA_CHOICES[] = {
   {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
   {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
   {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
-  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"}
+  {NULL, INDEX_OTHER, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"}
 };
 
 void
 switch_atomic_data (void)
 {
-  int valid = FALSE;
+  int valid_input = FALSE;
   int atomic_data_error;
   int relative = FALSE;
-  char atomic_data_name[MAX_FIELD_INPUT];
-  WINDOW *win = CONTENT_WINDOW.win;
+  char atomic_data_name[FIELD_INPUT_LEN];
+  WINDOW *window = CONTENT_WINDOW.win;
 
   static int menu_index = 8;
   static int init_name = FALSE;
@@ -546,53 +546,53 @@ switch_atomic_data (void)
    * Continue to loop until valid atomic data has been loaded
    */
 
-  while (valid != TRUE)
+  while (valid_input != TRUE)
   {
     menu_index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
                               ARRAY_SIZE (ATOMIC_DATA_CHOICES), menu_index, CONTROL_MENU);
 
     if (menu_index == MENU_QUIT)
     {
-      add_to_atomic_summary ("No atomic data loaded");
       break;
     }
     else if (menu_index > MENU_QUIT)
     {
-      if (ATOMIC_DATA_CHOICES[menu_index].index == ATOMIC_TEST)
+      if (ATOMIC_DATA_CHOICES[menu_index].index == ATOMIC_TEST)  // Special hardcoded case
       {
         strcpy (atomic_data_name, "../data/standard80_test.dat");
         relative = TRUE;
       }
-      else if (ATOMIC_DATA_CHOICES[menu_index].index != INDX_OTHR)
+      else if (ATOMIC_DATA_CHOICES[menu_index].index != INDEX_OTHER)
       {
         strcpy (atomic_data_name, ATOMIC_DATA_CHOICES[menu_index].name);
         strcat (atomic_data_name, ".dat");
       }
       else
       {
+        relative = TRUE;
         init_single_question_form (atomic_data_query, "Master file : ", atomic_data_name);
         query_user (CONTENT_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file");
         strcpy (atomic_data_name, atomic_data_query[1].buffer);
-        relative = TRUE;
       }
     }
 
-    clean_up_atomic_summary ();
+    clean_up_display (&ATOMIC_BUFFER);
     atomic_data_error = get_atomic_data (atomic_data_name, relative);
 
     if (atomic_data_error)
     {
-      update_status_bar ("Problem reading atomic data %s : errno = %i", atomic_data_name, atomic_data_error);
+      error_atomix ("Problem reading atomic data %s : errno = %i", atomic_data_name, atomic_data_error);
     }
     else
     {
-      valid = TRUE;
+      valid_input = TRUE;
+      strcpy (AtomixConfiguration.atomic_data, atomic_data_name);
     }
 
-    wrefresh (win);
+    wrefresh (window);
   }
 
-  display_atomic_summary (CONTENT_WINDOW);
+  atomic_summary_show (SCROLL_DISBALE);
   logfile ("\n");
   log_flush ();
 }

@@ -12,17 +12,16 @@
 
 #include "atomix.h"
 
-
 static const
 int ndash = 103;  
 
 const
 MenuItem_t BOUND_MENU_CHOICES[] = {
-  {&get_all_bound_bound     , 0        , "All"                , "Print all of the possible transitions"},
-  {&get_bound_bound_wl_range, 1        , "By wavelength range", "Print the transitions over a given wavelength range"},
-  {&get_bound_bound_element , 2        , "By element"         , "Print all the transitions for a given element"},
-  {&get_bound_bound_ion     , 3        , "By ion number"      , "Print all the transitions for a given ion"},
-  {NULL                     , MENU_QUIT, "Return to main menu", ""}  
+  {&all_bound_bound             , 0        , "All"                , "Print all of the possible transitions"},
+  {&bound_bound_wavelength_range, 1        , "By wavelength range", "Print the transitions over a given wavelength range"},
+  {&bound_bound_element         , 2        , "By element"         , "Print all the transitions for a given element"},
+  {&bound_bound_ion             , 3        , "By ion number"      , "Print all the transitions for a given ion"},
+  {NULL                         , MENU_QUIT, "Return to main menu", ""}
 };
 
 /* ************************************************************************** */
@@ -61,13 +60,13 @@ bound_bound_main_menu (void)
  *
  * ************************************************************************** */
 
- void
- add_bound_bound_header_to_display (void)
- {
-    add_to_display (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s", 
-                    "Wavelength", "Element", "Z", "istate", "levu", "levl", "nion", "macro info");
-    add_separator_to_display (ndash);
- }
+void
+bound_bound_header (void)
+{
+ display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s",
+              "Wavelength", "Element", "Z", "istate", "levu", "levl", "nion", "macro info");
+ add_sep_display (ndash);
+}
 
 /* ************************************************************************** */
 /**
@@ -78,15 +77,18 @@ bound_bound_main_menu (void)
  * ************************************************************************** */
 
 void
-add_bound_line_to_display (int n, int hide)
+bound_bound_line (int n, int hide)
 {
   double wl;
   char element[LINELEN];
 
   get_element_name (lin_ptr[n]->z, element);
-  wl = const_C_SI / lin_ptr[n]->freq / ANGSTROM / 1e-2;
-  add_to_display (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z, 
-                  lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info);
+  wl = C_SI / lin_ptr[n]->freq / ANGSTROM / 1e-2;
+  display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z,
+               lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info);
+
+  if (hide)
+    return;
 }
 
 /* ************************************************************************** */
@@ -98,41 +100,25 @@ add_bound_line_to_display (int n, int hide)
  * ************************************************************************** */
 
 void
-add_number_of_entries_to_display (int count)
-{
-  add_separator_to_display (ndash);
-  add_to_display ("%i entries", count);
-  add_separator_to_display (ndash);
-}
-
-/* ************************************************************************** */
-/**
- * @brief 
- * 
- * @details
- *
- * ************************************************************************** */
-
-void
-get_all_bound_bound (void)
+all_bound_bound (void)
 {
   int i;
   double wmin, wmax;
 
-  wmin = const_C_SI / lin_ptr[nlines - 1]->freq / ANGSTROM / 1e-2;
-  wmax = const_C_SI / lin_ptr[0]->freq / ANGSTROM / 1e-2;
+  wmin = C_SI / lin_ptr[nlines - 1]->freq / ANGSTROM / 1e-2;
+  wmax = C_SI / lin_ptr[0]->freq / ANGSTROM / 1e-2;
 
-  add_to_display ("Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
-  add_separator_to_display (ndash);
+  display_add ("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  add_sep_display (ndash);
 
-  add_bound_bound_header_to_display ();
+  bound_bound_header ();
 
   for (i = 0; i < nlines; ++i)
-    add_bound_line_to_display (i, FALSE);
+    bound_bound_line (i, FALSE);
 
-  add_number_of_entries_to_display (nlines);
+  count (ndash, nlines);
 
-  display (CONTENT_WINDOW, SCROLL_OK);
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -148,7 +134,7 @@ get_all_bound_bound (void)
  * ************************************************************************** */
 
 void
-get_bound_bound_wl_range (void)
+bound_bound_wavelength_range (void)
 {
   int n, nline;
   double wmin, wmax;
@@ -159,16 +145,16 @@ get_bound_bound_wl_range (void)
   limit_lines (C / (wmax * ANGSTROM), C / (wmin * ANGSTROM));
   n = nline_max - nline_min - 1;
 
-  add_to_display ("Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
-  add_separator_to_display (ndash);
-  add_bound_bound_header_to_display ();
+  display_add ("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  add_sep_display (ndash);
+  bound_bound_header ();
 
   for (nline = nline_min + 1; nline < nline_max; ++nline)
-    add_bound_line_to_display (nline, FALSE);
+    bound_bound_line (nline, FALSE);
 
-  add_number_of_entries_to_display (n);
+  count (ndash, n);
 
-  display (CONTENT_WINDOW, SCROLL_OK);
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -180,7 +166,7 @@ get_bound_bound_wl_range (void)
  * ************************************************************************** */
 
 void
-get_bound_bound_element (void)
+bound_bound_element (void)
 {
 
 }
@@ -194,7 +180,7 @@ get_bound_bound_element (void)
  * ************************************************************************** */
 
 void
-get_bound_bound_ion (void)
+bound_bound_ion (void)
 {
 
 }

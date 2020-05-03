@@ -35,18 +35,17 @@
 void
 initialise_ncurses_stdscr (void)
 {
-  int lines, cols;
-
   initscr ();
-  getmaxyx (stdscr, lines, cols);  // Note that this is a macro
+  getmaxyx (stdscr, AtomixConfiguration.rows, AtomixConfiguration.cols);
 
-  noecho ();               // Most screens don't want echo
-  cbreak ();               // Disable line buffering or summat
-  keypad (stdscr, TRUE);   // Allow the screen to take input
+  noecho ();
+  cbreak ();
+  keypad (stdscr, FALSE);
   curs_set (0);
 
-  if (lines < 35 || cols < 130)
-    exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35 but current terminal size is %ix%i", cols, lines);
+  if (AtomixConfiguration.rows < MIN_ROWS || AtomixConfiguration.cols < MIN_COLS)
+    exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35 but current terminal size is %ix%i",
+                 AtomixConfiguration.cols, AtomixConfiguration.rows);
 }
 
 /* ************************************************************************** */
@@ -90,14 +89,15 @@ cleanup_ncurses_stdscr (void)
 void
 initialise_main_windows (void)
 {
-  int max_lines, max_cols;
+  int max_rows, max_cols;
 
-  getmaxyx (stdscr, max_lines, max_cols);
+  max_rows = AtomixConfiguration.rows;
+  max_cols = AtomixConfiguration.cols;
 
-    // The window containing the main menu and sub menus
-  MENU_WINDOW.rows = max_lines - TITLE_HEIGHT - STATUS_HEIGHT;
+  // The window containing the main menu and sub menus
+  MENU_WINDOW.rows = max_rows - TITLE_BAR_HEIGHT - STATUS_BAR_HEIGHT;
   MENU_WINDOW.cols = MENU_WIDTH;
-  MENU_WINDOW.y = TITLE_HEIGHT;
+  MENU_WINDOW.y = TITLE_BAR_HEIGHT;
   MENU_WINDOW.x = 0;
   MENU_WINDOW.win = newwin (MENU_WINDOW.rows, MENU_WINDOW.cols, MENU_WINDOW.y, MENU_WINDOW.x);
   if (MENU_WINDOW.win == NULL)
@@ -105,7 +105,7 @@ initialise_main_windows (void)
   keypad (MENU_WINDOW.win, TRUE);
 
   // The window containing the main title and
-  TITLE_WINDOW.rows = TITLE_HEIGHT;
+  TITLE_WINDOW.rows = TITLE_BAR_HEIGHT;
   TITLE_WINDOW.cols = max_cols;
   TITLE_WINDOW.y = 0;
   TITLE_WINDOW.x = 0;
@@ -114,18 +114,18 @@ initialise_main_windows (void)
     exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for TITLE_WINDOW");
 
   // The window for the status bar at the bottom
-  STATUS_WINDOW.rows = STATUS_HEIGHT;
+  STATUS_WINDOW.rows = STATUS_BAR_HEIGHT;
   STATUS_WINDOW.cols = max_cols;
-  STATUS_WINDOW.y = max_lines - STATUS_HEIGHT;
+  STATUS_WINDOW.y = max_rows - STATUS_BAR_HEIGHT;
   STATUS_WINDOW.x = 0;
   STATUS_WINDOW.win = newwin (STATUS_WINDOW.rows, STATUS_WINDOW.cols, STATUS_WINDOW.y, STATUS_WINDOW.x);
   if (STATUS_WINDOW.win == NULL)
     exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for STATUS_WINDOW");
 
   // The window for displaying content to the user
-  CONTENT_WINDOW.rows = max_lines - TITLE_HEIGHT - STATUS_HEIGHT;
+  CONTENT_WINDOW.rows = max_rows - TITLE_BAR_HEIGHT - STATUS_BAR_HEIGHT;
   CONTENT_WINDOW.cols = max_cols - MENU_WIDTH;
-  CONTENT_WINDOW.y = TITLE_HEIGHT;
+  CONTENT_WINDOW.y = TITLE_BAR_HEIGHT;
   CONTENT_WINDOW.x = MENU_WIDTH;
   CONTENT_WINDOW.win = newwin (CONTENT_WINDOW.rows, CONTENT_WINDOW.cols, CONTENT_WINDOW.y, CONTENT_WINDOW.x);
   if (CONTENT_WINDOW.win == NULL)
@@ -161,7 +161,7 @@ draw_window_boundaries (void)
   for (j = 0; j < TITLE_WINDOW.rows; ++j)
     for (i = 0; i < TITLE_WINDOW.cols; ++i)
       mvwprintw (TITLE_WINDOW.win, j, i, " ");
-	len = sprintf (title, "atomix : version %s", VERSION);
+	len = sprintf (title, "atomix : version %s", ATOMIX_VERSION_NUMBER);
   mvwprintw (TITLE_WINDOW.win, 0, (TITLE_WINDOW.cols - len) / 2, title);
 
   // This is for the bottom, status bar

@@ -17,11 +17,11 @@ int ndash = 43;
 
 const
 MenuItem_t IONS_MENU_CHOICES[] = {
-  {&get_all_ions   , 0        , "All ions"                   , "Print all the ions in the atomic data"},
-  {&get_ion_element, 1        , "Ions for an element"        , "Print all the ions for an element"},
-  {&get_ion_z      , 2        , "Single ion by atomic number", "Detailed output for a single ion by atomic number and ionisation state"},
-  {&get_ion_nion   , 3        , "Single ion by ion number"   , "Detailed output for a single ion by ion number"},
-  {NULL            , MENU_QUIT, "Return to main menu"        , ""},
+  {&all_ions           , 0        , "All ions"                   , "Print all the ions in the atomic data"},
+  {&ions_for_element   , 1        , "Ions for an element"        , "Print all the ions for an element"},
+  {&single_ion_atomic_z, 2        , "Single ion by atomic number", "Detailed output for a single ion by atomic number and ionisation state"},
+  {&single_ion_nion    , 3        , "Single ion by ion number"   , "Detailed output for a single ion by ion number"},
+  {NULL                , MENU_QUIT, "Return to main menu"        , ""},
 };
 
 /* ************************************************************************** */
@@ -61,11 +61,10 @@ ions_main_menu (void)
  * ************************************************************************** */
 
 void
-add_ion_to_display (int nion, int detailed, int basic)
+ion_line (int nion, int detailed, int basic)
 {
-  int i;
-  int count;
-  double wl;
+  int i, n;
+  double wavelength;
   char element[LINELEN];
   struct ions ion;
 
@@ -73,63 +72,85 @@ add_ion_to_display (int nion, int detailed, int basic)
   get_element_name (ion.z, element);
 
   if (basic)
-    add_to_display (" Element                     : %s", element);
-  add_separator_to_display (ndash);
+    display_add (" Element                     : %s", element);
+  add_sep_display (ndash);
   if (basic)
-    add_to_display (" Atomic number               : %i", ion.z);
-  add_to_display (" Ion number                  : %i", nion);
-  add_to_display (" Ionisation state            : %i", ion.istate);
-  add_to_display (" Photionization info         : %i", ion.phot_info);
-  add_to_display (" Ionisation potential        : %.2e eV", ion.ip / EV2ERGS);
+    display_add (" Atomic number               : %i", ion.z);
+  display_add (" Ion number                  : %i", nion);
+  display_add (" Ionisation state            : %i", ion.istate);
+  display_add (" Photionization info         : %i", ion.phot_info);
+  display_add (" Ionisation potential        : %.2e eV", ion.ip / EV2ERGS);
   if (basic)
   {
-    add_to_display (" Number of ions for element  : %i", ele[ion.nelem].nions);
-    add_separator_to_display (ndash);
+    display_add (" Number of ions for element  : %i", ele[ion.nelem].nions);
+    add_sep_display (ndash);
   }
 
   if (!detailed)
     return;
 
-  add_to_display (" Bound-bound transitions for this ion");
-  add_separator_to_display (ndash);
-  add_to_display (" %-12s %-12s %-12s", "Wavelength", "levu", "levl");
+  display_add (" Bound-bound transitions for this ion");
+  add_sep_display (ndash);
+  display_add (" %-12s %-12s %-12s", "Wavelength", "levu", "levl");
 
-  count = 0;
+  n = 0;
 
   for (i = 0; i < nlines; ++i)
   {
     if (lin_ptr[i]->z == ion.z && lin_ptr[i]->istate == ion.istate)
     {
-      count++;
-      wl = const_C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
-      add_to_display (" %-12.2f %-12i %-12i", wl, lin_ptr[i]->levu, lin_ptr[i]->levl);
+      n++;
+      wavelength = C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
+      display_add (" %-12.2f %-12i %-12i", wavelength, lin_ptr[i]->levu, lin_ptr[i]->levl);
     }
   }
 
-  add_separator_to_display (ndash);
-  add_to_display (" %i lines", count);
-  add_separator_to_display (ndash);
-  add_to_display (" Bound-free transitions for this ion: ");
-  add_separator_to_display (ndash);
-  add_to_display (" %-12s %-12s %-12s", "Wavelength", "n", "l");
+  add_sep_display (ndash);
+  display_add (" %i lines", n);
+  add_sep_display (ndash);
+  display_add (" Bound-free transitions for this ion: ");
+  add_sep_display (ndash);
+  display_add (" %-12s %-12s %-12s", "Wavelength", "n", "l");
 
-  count = 0;
+  n = 0;
 
   for (i = 0; i < nphot_total; ++i)
   {
     if (phot_top[i].z == ion.z && phot_top[i].istate == ion.istate)
     {
-      count++;
-      wl = const_C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
-      add_to_display (" %-12.2f %-12i %-12i", wl, phot_top[i].n, phot_top[i].l);
+      n++;
+      wavelength = C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
+      display_add (" %-12.2f %-12i %-12i", wavelength, phot_top[i].n, phot_top[i].l);
     }
   }
 
-  add_separator_to_display (ndash);
-  add_to_display (" %i edges", count);
-  add_separator_to_display (ndash);
+  add_sep_display (ndash);
+  display_add (" %i edges", n);
+  add_sep_display (ndash);
 }
 
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+all_ions (void)
+{
+  int nion;
+
+  add_sep_display (ndash);
+
+  for (nion = 0; nion < nions; ++nion)
+    ion_line (nion, FALSE, TRUE);
+
+  count (ndash, nions);
+
+  display_show (SCROLL_ENABLE);
+}
 
 /* ************************************************************************** */
 /**
@@ -140,7 +161,7 @@ add_ion_to_display (int nion, int detailed, int basic)
  * ************************************************************************** */
 
 void
-get_ion_z (void)
+single_ion_atomic_z (void)
 {
   int nion;
 	int z, istate;
@@ -164,9 +185,9 @@ get_ion_z (void)
     return;
   }
 
-  add_separator_to_display (ndash);
-  add_ion_to_display (nion, TRUE, TRUE);
-  display (CONTENT_WINDOW, SCROLL_OK);
+  add_sep_display (ndash);
+  ion_line (nion, TRUE, TRUE);
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -178,7 +199,7 @@ get_ion_z (void)
  * ************************************************************************** */
 
 void
-get_ion_nion (void)
+single_ion_nion (void)
 {
   int nion;
 
@@ -194,9 +215,9 @@ get_ion_nion (void)
     return;
   }
 
-  add_separator_to_display (ndash);
-  add_ion_to_display (nion, TRUE, TRUE);
-  display (CONTENT_WINDOW, SCROLL_OK);
+  add_sep_display (ndash);
+  ion_line (nion, TRUE, TRUE);
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -208,7 +229,7 @@ get_ion_nion (void)
  * ************************************************************************** */
 
 void
-get_ion_element (void)
+ions_for_element (void)
 {
   int i, nion;
   int z, firston, lastion;
@@ -234,34 +255,13 @@ get_ion_element (void)
     return;
   }
 
-  add_separator_to_display (ndash);
-  add_to_display (" There are %i ions for %s", lastion - firston, ele[i].name);
+  add_sep_display (ndash);
+  display_add (" There are %i ions for %s", lastion - firston, ele[i].name);
 
   for (nion = firston; nion < lastion; ++nion)
-    add_ion_to_display (nion, FALSE, FALSE);
+    ion_line (nion, FALSE, FALSE);
 
-  add_separator_to_display (ndash);
+  add_sep_display (ndash);
 
-  display (CONTENT_WINDOW, SCROLL_OK);
-}
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-get_all_ions (void)
-{
-  int nion;
-
-  add_separator_to_display (ndash);
-
-  for (nion = 0; nion < nions; ++nion)
-    add_ion_to_display (nion, FALSE, TRUE);
-
-  display (CONTENT_WINDOW, SCROLL_OK);
+  display_show (SCROLL_ENABLE);
 }

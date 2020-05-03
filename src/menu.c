@@ -158,7 +158,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
   for (i = 0; i < nitems; i++)
   {
     items[i] = new_item (menu_items[i].name, menu_items[i].desc);
-    set_item_userptr (items[i], menu_items[i].usrptr);
+    set_item_userptr (items[i], menu_items[i].func);
   }
 
   items[nitems] = NULL;
@@ -253,7 +253,7 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   for (i = 0; i < nitems; i++)
   {
     items[i] = new_item (menu_items[i].name, menu_items[i].desc);
-    set_item_userptr (items[i], menu_items[i].usrptr);
+    set_item_userptr (items[i], menu_items[i].func);
   }
 
   items[nitems] = NULL;

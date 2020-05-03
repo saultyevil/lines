@@ -10,64 +10,48 @@
  *
  * ************************************************************************** */
 
-// TODO: sort out includes ffs
-
 #include <form.h>
 #include <menu.h>
 #include <curses.h>
 
-/* ****************************************************************************
- *
- *                                  Macros
- *
- * ************************************************************************** */
+#define LINELEN 128
+#define ATOMIX_VERSION_NUMBER "4.0"
 
-#define ARRAY_SIZE(x) (sizeof x / sizeof x[0])
- 
-#define MAX(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
+typedef struct Config_t
+{
+  int rows, cols;
+  char atomic_data[LINELEN];
+} Config_t;
+
+Config_t AtomixConfiguration;
 
 /* ****************************************************************************
- *
- *                                Constants
- *
+ * Buffer
  * ************************************************************************** */
 
-// UI Constants
-#define VERSION "3.5"
+#define SCROLL_DISBALE 0
+#define SCROLL_ENABLE 1
 
-#define NO_SCROLL 0
-#define SCROLL_OK 1
+#define atomic_summary_add(fmt, ...) \
+{ \
+  add_display(&ATOMIC_BUFFER, fmt, ##__VA_ARGS__); \
+}
 
-#define MENU_QUIT -1
-#define MENU_NULL -2
-#define INDX_OTHR -3
-#define ATOMIC_TEST -4
-#define CONTROL_MENU TRUE
-#define REDRAW_MENU FALSE
+#define atomic_summary_show(scroll) \
+{ \
+  display_buffer(&ATOMIC_BUFFER, scroll); \
+}
 
-#define MAX_FIELD_INPUT 30
-#define FIELD_SKIP -1
-#define FORM_QUIT -1
-#define FORM_BREAK -2
-#define FORM_CONTINUE -3
-#define NO_BG 999
+#define display_add(fmt, ...) \
+{ \
+  add_display(&DISPLAY_BUFFER, fmt, ##__VA_ARGS__); \
+}
 
-#define MENU_WIDTH 24
-#define TITLE_HEIGHT 2
-#define STATUS_HEIGHT 1
-
-// Various other constants
-#define const_C_SI 299792458
-#define LINELEN 256
-
-/* ****************************************************************************
- *
- *                                  Types
- *
- * ************************************************************************** */
+#define display_show(scroll) \
+{\
+  display_buffer(&DISPLAY_BUFFER, scroll);\
+  clean_up_display(&DISPLAY_BUFFER); \
+}
 
 typedef struct Line_t
 {
@@ -81,13 +65,19 @@ typedef struct Display_t
   Line_t *lines;
 } Display_t;
 
-typedef struct MenuItem_t
-{
-  void *usrptr;
-  int index;
-  char *name;
-  char *desc;
-} MenuItem_t;
+Display_t ATOMIC_BUFFER;
+Display_t DISPLAY_BUFFER;
+
+/* ****************************************************************************
+ * Form
+ * ************************************************************************** */
+
+#define FORM_QUIT -1
+#define FORM_BREAK -2
+#define FORM_CONTINUE -3
+#define FIELD_INPUT_LEN 30
+#define FIELD_SKIP -1
+#define FIELD_NO_BKG 999
 
 typedef struct
 {
@@ -95,9 +85,38 @@ typedef struct
   Field_Options opts_on;
   Field_Options opts_off;
   chtype background;
-  char buffer[MAX_FIELD_INPUT];
+  char buffer[FIELD_INPUT_LEN];
   int buffer_number;
 } Query_t;
+
+/* ****************************************************************************
+ * Menu
+ * ************************************************************************** */
+
+#define MENU_QUIT -1
+#define MENU_NULL -2
+#define INDEX_OTHER -3
+#define ATOMIC_TEST -4
+#define CONTROL_MENU TRUE
+#define MENU_DRAW FALSE
+
+typedef struct MenuItem_t
+{
+  void *func;
+  int index;
+  char *name;
+  char *desc;
+} MenuItem_t;
+
+/* ****************************************************************************
+ * UI
+ * ************************************************************************** */
+
+#define MIN_ROWS 35
+#define MIN_COLS 130
+#define MENU_WIDTH 24
+#define TITLE_BAR_HEIGHT 2
+#define STATUS_BAR_HEIGHT 1
 
 typedef struct Window_t
 {
@@ -106,36 +125,22 @@ typedef struct Window_t
   WINDOW *win;
 } Window_t;
 
-/* ****************************************************************************
- *
- *                                  Includes
- *
- * ************************************************************************** */
-
-// TODO: sort out includes
-
-#include "atomic.h"
-#include "log.h"
-#include "functions.h"
-
-/* ****************************************************************************
- *
- *                                Globals
- *
- * ************************************************************************** */
-
 Window_t MENU_WINDOW;
 Window_t TITLE_WINDOW;
 Window_t STATUS_WINDOW;
 Window_t CONTENT_WINDOW;
 
 /* ****************************************************************************
- *
- *                                Configuration
- *
+ * Misc
  * ************************************************************************** */
 
-struct
-{
-  char *atomic_data;
-} AtomixConfiguration;
+#define ARRAY_SIZE(x) (sizeof x / sizeof x[0])
+ 
+#define MAX(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+
+#include "atomic.h"
+#include "log.h"
+#include "functions.h"

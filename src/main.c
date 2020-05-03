@@ -43,13 +43,19 @@ MenuItem_t MAIN_MENU_CHOICES[] = {
 int
 main (int argc, char *argv[])
 {
-  int menu_index = 0;
   int print_atomic;
+  int menu_index = 0;
 
   atexit (cleanup_ncurses_stdscr);
 
   if (getenv ("PYTHON") == NULL)
     exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
+
+  DISPLAY_BUFFER.nlines = 0;
+  DISPLAY_BUFFER.lines = NULL;
+
+  ATOMIC_BUFFER.nlines = 0;
+  ATOMIC_BUFFER.lines = NULL;
 
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
@@ -77,11 +83,11 @@ main (int argc, char *argv[])
    * to just display the menu.
    */
 
-  main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, REDRAW_MENU);
+  main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, MENU_DRAW);
 
   if (print_atomic)
   {
-    display_atomic_summary (CONTENT_WINDOW);
+    atomic_summary_show (SCROLL_DISBALE);
   }
   else
   {
@@ -95,7 +101,7 @@ main (int argc, char *argv[])
   while (TRUE)
   {
     menu_index = main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, CONTROL_MENU);
-    display_atomic_summary (CONTENT_WINDOW);
+    atomic_summary_show (SCROLL_DISBALE);
 
     if (menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT)  // Safety really
       break;

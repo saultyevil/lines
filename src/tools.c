@@ -111,6 +111,7 @@ check_command_line (int argc, char **argv)
       exit (EXIT_FAILURE);
     }
     provided = TRUE;
+    strcpy (AtomixConfiguration.atomic_data, atomic_data_name);
   }
   else if (argc > 2)
   {
@@ -244,6 +245,22 @@ trim_whitespaces(char *str)
   *(end + 1) = '\0';
 
   return str;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+count (int ndash, int count)
+{
+  add_sep_display (ndash);
+  display_add ("%i entries", count);
+  add_sep_display (ndash);
 }
 
 /* ************************************************************************** */

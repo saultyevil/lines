@@ -19,9 +19,9 @@ int ndash = 40;
 
 const
 MenuItem_t ELEMENTS_MENU_CHOICES[] = {
-  {&get_elements      , 0        , "All elements"       , "Query all elements in the atomic data"},
-  {&get_single_element, 1        , "Single element"     , "Query a single element"},
-  {NULL               , MENU_QUIT, "Return to main menu", ""},
+  {&all_elements  , 0        , "All elements"       , "Query all elements in the atomic data"},
+  {&single_element, 1        , "Single element"     , "Query a single element"},
+  {NULL           , MENU_QUIT, "Return to main menu", ""},
 };
 
 /* ************************************************************************** */
@@ -68,22 +68,47 @@ elements_main_menu (void)
  * ************************************************************************** */
 
 void
-add_element_to_display (struct elements e, int detailed)
+element_line (struct elements e, int detailed)
 {
-  add_to_display (" Element: %s", e.name);
-  add_separator_to_display (ndash);
-  add_to_display (" Z                        : %i", e.z);
-  add_to_display (" Abundance relative to H  : %3.2f", log10 (e.abun) + 12);
-  add_to_display (" Number of Ions           : %i", e.nions);
-  add_to_display (" First Ion Index          : %i", e.firstion);
-  add_to_display (" Last Ion Index           : %i", e.firstion + e.nions - 1);
-  add_to_display (" Highest Ionisation state : %i", e.istate_max);
-  add_separator_to_display (ndash);
+  display_add (" Element: %s", e.name);
+  add_sep_display (ndash);
+  display_add (" Z                        : %i", e.z);
+  display_add (" Abundance relative to H  : %3.2f", log10 (e.abun) + 12);
+  display_add (" Number of Ions           : %i", e.nions);
+  display_add (" First Ion Index          : %i", e.firstion);
+  display_add (" Last Ion Index           : %i", e.firstion + e.nions - 1);
+  display_add (" Highest Ionisation state : %i", e.istate_max);
+  add_sep_display (ndash);
 
   if (!detailed)
     return;
 
   // TODO: add all bb and bf transitions
+}
+
+/* ************************************************************************** */
+/**
+ * @brief Prints details of all the elements in the atomic data.
+ *
+ * @details
+ *
+ * Loops over the entire ele structre to and prints each one.
+ *
+ * ************************************************************************** */
+
+void
+all_elements (void)
+{
+  int i;
+
+  add_sep_display (ndash);
+
+  for (i = 0; i < nelements; ++i)
+    element_line (ele[i], FALSE);
+
+  count (ndash, nelements);
+
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -99,7 +124,7 @@ add_element_to_display (struct elements e, int detailed)
  * ************************************************************************** */
 
 void
-get_single_element (void)
+single_element (void)
 {
   int i;
   int atomic_z;
@@ -123,30 +148,7 @@ get_single_element (void)
     return;
   }
 
-  add_separator_to_display (ndash);
-  add_element_to_display (ele[i], TRUE);
-  display (CONTENT_WINDOW, SCROLL_OK);
+  add_sep_display (ndash);
+  element_line (ele[i], TRUE);
+  display_show (SCROLL_ENABLE);
 }
-
-/* ************************************************************************** */
-/**
- * @brief Prints details of all the elements in the atomic data.
- *
- * @details
- *
- * Loops over the entire ele structre to and prints each one.
- *
- * ************************************************************************** */
-
- void
- get_elements (void)
- {
-  int i;
-
-  add_separator_to_display (ndash);
-
-  for (i = 0; i < nelements; ++i)
-    add_element_to_display (ele[i], FALSE);
-
-   display (CONTENT_WINDOW, SCROLL_OK);
- }
