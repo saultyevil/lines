@@ -12,6 +12,18 @@
 
 #include "atomix.h"
 
+static const
+int ndash = 88;
+
+const
+MenuItem_t BOUND_FREE_MENU_CHOICES[] = {
+  {NULL                    , 0        , "All"                , "Print all of the possible transitions"},
+  {&get_bound_free_wl_range, 1        , "By wavelength range", "Print the transitions over a given wavelength range"},
+  {NULL                    , 2        , "By element"         , "Print all the transitions for a given element"},
+  {NULL                    , 3        , "By ion number"      , "Print all the transitions for a given ion"},
+  {NULL                    , MENU_QUIT, "Return to main menu", ""}  
+};
+
 /* ************************************************************************** */
 /**
  * @brief  The main menu for photoionization queries.
@@ -27,17 +39,34 @@
 void
 bound_free_main_menu (void)
 {
-  int query_return;
-  double wmin, wmax;
+  int menu_index = 0;
 
-  query_return = query_wavelength_range (&wmin, &wmax);
-  if (query_return == MENU_QUIT)
-    return;
+  while (TRUE)
+  {    
+    menu_index = create_menu (CONTENT_WINDOW, "Bound-free transitions", BOUND_FREE_MENU_CHOICES,
+                              ARRAY_SIZE (BOUND_FREE_MENU_CHOICES), menu_index, CONTROL_MENU);
+    if (BOUND_FREE_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+      return;
 
-  get_photoionization_cross_sections (wmin, wmax);
+  }
 
-  display (CONTENT_WINDOW, SCROLL_OK);
+
 }
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+add_bound_free_to_display (int nphot)
+{
+
+}
+
 
 /* ************************************************************************** */
 /**
@@ -62,14 +91,18 @@ bound_free_main_menu (void)
  * ************************************************************************** */
 
 void
-get_photoionization_cross_sections (double wmin, double wmax)
+get_bound_free_wl_range (void)
 { 
   int i;
   int count = 0;
   double wavelength;
   double fmin, fmax, fthreshold;
   char element[LINELEN];
-  const int ndash = 88;
+
+  double wmin, wmax;
+
+  if (query_wavelength_range (&wmin, &wmax) == FORM_QUIT)
+    return;
 
   fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
@@ -96,4 +129,6 @@ get_photoionization_cross_sections (double wmin, double wmax)
   add_separator_to_display (ndash);
   add_to_display (" %i entries", count);
   add_separator_to_display (ndash);
+
+  display (CONTENT_WINDOW, SCROLL_OK);
 }

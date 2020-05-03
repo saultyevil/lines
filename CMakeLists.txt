@@ -25,7 +25,8 @@ set(SOURCE_FILES
         src/elements.c
         src/ions.c
         src/levels.c
-        )
+        src/subtitle.c
+)
 
 # The curses library is stored in various places depending on system
 if(UNIX AND NOT APPLE)

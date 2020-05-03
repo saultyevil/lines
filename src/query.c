@@ -138,6 +138,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
 
   wclear (the_win);
   keypad (the_win, TRUE); // TODO: check if I need this
+  curs_set (1);
 
   bold_message (the_win, 1, 1, title_message);
 
@@ -210,6 +211,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
     strcpy (q[i].buffer, trim_whitespaces (field_buffer (fields[i], q[i].buffer_number)));
 
   clean_up_form (form, fields, nfields);
+  curs_set (0);
 
   return form_return;
 }
@@ -342,6 +344,8 @@ query_wavelength_range (double *wmin, double *wmax)
     if (form_return == FORM_QUIT)
       return form_return;
 
+    strcpy (string_wmin, wavelength_query[1].buffer);
+    strcpy (string_wmax, wavelength_query[3].buffer);
     *wmin = strtod (wavelength_query[1].buffer, NULL);
     *wmax = strtod (wavelength_query[3].buffer, NULL);
     if (*wmax > *wmin)
@@ -516,8 +520,7 @@ MenuItem_t ATOMIC_DATA_CHOICES[] = {
   {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
   {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
   {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
-  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
-  {NULL, MENU_NULL  , NULL                        , NULL}
+  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"}
 };
 
 void
@@ -550,8 +553,7 @@ switch_atomic_data (void)
 
     if (menu_index == MENU_QUIT)
     {
-      update_status_bar ("Loading atomic data aborted... :-(");
-      display (CONTENT_WINDOW, NO_SCROLL);
+      add_to_atomic_summary ("No atomic data loaded");
       break;
     }
     else if (menu_index > MENU_QUIT)
@@ -575,6 +577,7 @@ switch_atomic_data (void)
       }
     }
 
+    clean_up_atomic_summary ();
     atomic_data_error = get_atomic_data (atomic_data_name, relative);
 
     if (atomic_data_error)
@@ -589,7 +592,7 @@ switch_atomic_data (void)
     wrefresh (win);
   }
 
-  display (CONTENT_WINDOW, NO_SCROLL);
+  display_atomic_summary (CONTENT_WINDOW);
   logfile ("\n");
   log_flush ();
 }
