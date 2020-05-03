@@ -516,8 +516,7 @@ MenuItem_t ATOMIC_DATA_CHOICES[] = {
   {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
   {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
   {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
-  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"},
-  {NULL, MENU_NULL  , NULL                        , NULL}
+  {NULL, INDX_OTHR  , "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"}
 };
 
 void
@@ -550,8 +549,7 @@ switch_atomic_data (void)
 
     if (menu_index == MENU_QUIT)
     {
-      update_status_bar ("Loading atomic data aborted... :-(");
-      display (CONTENT_WINDOW, NO_SCROLL);
+      add_to_atomic_summary ("No atomic data loaded");
       break;
     }
     else if (menu_index > MENU_QUIT)
@@ -575,6 +573,7 @@ switch_atomic_data (void)
       }
     }
 
+    clean_up_atomic_summary ();
     atomic_data_error = get_atomic_data (atomic_data_name, relative);
 
     if (atomic_data_error)
@@ -589,7 +588,7 @@ switch_atomic_data (void)
     wrefresh (win);
   }
 
-  display (CONTENT_WINDOW, NO_SCROLL);
+  display_atomic_summary (CONTENT_WINDOW);
   logfile ("\n");
   log_flush ();
 }

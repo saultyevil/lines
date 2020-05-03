@@ -22,7 +22,6 @@ MenuItem_t MAIN_MENU_CHOICES[] = {
   {&levels_main_menu     , 4        , "Levels"            , "Query an atomic configuration"},
   {&switch_atomic_data   , 5        , "Switch Atomic Data", "Switch atomic data data sets"},
   {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit Atomix"},
-  {NULL                  , MENU_NULL, NULL                , NULL}
 };
 
 /* ************************************************************************* */
@@ -61,7 +60,7 @@ main (int argc, char *argv[])
   print_atomic = check_command_line (argc, argv);
 
   if (!print_atomic)
-    menu_index = ARRAY_SIZE (MAIN_MENU_CHOICES) - 3;  // Set the menu index to atomic data
+    menu_index = ARRAY_SIZE (MAIN_MENU_CHOICES) - 2;  // Set the menu index to atomic data
 
   /*
    * Initialise ncurses, the window panels and draw the window borders
@@ -82,7 +81,7 @@ main (int argc, char *argv[])
 
   if (print_atomic)
   {
-    display (CONTENT_WINDOW, NO_SCROLL);
+    display_atomic_summary (CONTENT_WINDOW);
   }
   else
   {
@@ -96,6 +95,8 @@ main (int argc, char *argv[])
   while (TRUE)
   {
     menu_index = main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, CONTROL_MENU);
+    display_atomic_summary (CONTENT_WINDOW);
+
     if (menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT)  // Safety really
       break;
   }

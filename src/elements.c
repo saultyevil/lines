@@ -19,9 +19,9 @@ int ndash = 40;
 
 const
 MenuItem_t ELEMENTS_MENU_CHOICES[] = {
-  {&get_elements      , 0        , "All elements"  , "Query all elements in the atomic data"},
-  {&get_single_element, 1        , "Single element", "Query a single element"},
-  {NULL               , MENU_NULL, NULL            , NULL}
+  {&get_elements      , 0        , "All elements"       , "Query all elements in the atomic data"},
+  {&get_single_element, 1        , "Single element"     , "Query a single element"},
+  {NULL               , MENU_QUIT, "Return to main menu", ""},
 };
 
 /* ************************************************************************** */
@@ -46,8 +46,13 @@ elements_main_menu (void)
     return;
   }
 
-  menu_index = create_menu (CONTENT_WINDOW, "Element Queries", ELEMENTS_MENU_CHOICES,
-                            ARRAY_SIZE (ELEMENTS_MENU_CHOICES), menu_index, CONTROL_MENU);
+  while (TRUE)
+  {
+    menu_index = create_menu (CONTENT_WINDOW, "Elements", ELEMENTS_MENU_CHOICES, ARRAY_SIZE (ELEMENTS_MENU_CHOICES), 
+                              menu_index, CONTROL_MENU);
+    if (ELEMENTS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+      return;
+  }
 }
 
 /* ************************************************************************** */
@@ -138,7 +143,7 @@ get_single_element (void)
  {
   int i;
 
-   add_separator_to_display (ndash);
+  add_separator_to_display (ndash);
 
   for (i = 0; i < nelements; ++i)
     add_element_to_display (ele[i], FALSE);

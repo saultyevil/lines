@@ -21,7 +21,7 @@ MenuItem_t IONS_MENU_CHOICES[] = {
   {&get_ion_element, 1        , "Ions for an element"        , "Print all the ions for an element"},
   {&get_ion_z      , 2        , "Single ion by atomic number", "Detailed output for a single ion by atomic number and ionisation state"},
   {&get_ion_nion   , 3        , "Single ion by ion number"   , "Detailed output for a single ion by ion number"},
-  {NULL            , MENU_NULL, NULL                         , NULL}
+  {NULL            , MENU_QUIT, "Return to main menu"        , ""},
 };
 
 /* ************************************************************************** */
@@ -43,8 +43,13 @@ ions_main_menu (void)
 		return;
 	}
 
-	menu_index = create_menu (CONTENT_WINDOW, "Ion Queries", IONS_MENU_CHOICES,
-		                      ARRAY_SIZE (IONS_MENU_CHOICES), menu_index, CONTROL_MENU);
+	while (TRUE)
+  {
+    menu_index = create_menu (CONTENT_WINDOW, "Ions", IONS_MENU_CHOICES, ARRAY_SIZE (IONS_MENU_CHOICES), menu_index, 
+                              CONTROL_MENU);
+    if (IONS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+      return;
+  }
 }
 
 /* ************************************************************************** */

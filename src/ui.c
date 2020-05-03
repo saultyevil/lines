@@ -45,7 +45,7 @@ initialise_ncurses_stdscr (void)
   keypad (stdscr, TRUE);   // Allow the screen to take input
 
   if (lines < 35 || cols < 130)
-    exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35. Current terminal size %ix%i", lines, cols);
+    exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35 but current terminal size is %ix%i", cols, lines);
 }
 
 /* ************************************************************************** */

@@ -1,11 +1,20 @@
 /* bound.c */
 void bound_bound_main_menu(void);
-void get_bound_bound_lines(double wmin, double wmax);
+void add_bound_bound_header_to_display(void);
+void add_bound_line_to_display(int n, int hide);
+void add_number_of_entries_to_display(int count);
+void get_all_bound_bound(void);
+void get_bound_bound_wl_range(void);
+void get_bound_bound_element(void);
+void get_bound_bound_ion(void);
 /* buffer.c */
 void clean_up_display(void);
+void clean_up_atomic_summary(void);
 void add_to_display(char *fmt, ...);
 void add_separator_to_display(const int len);
 void scroll_display(Window_t win);
+void add_to_atomic_summary(char *fmt, ...);
+void display_atomic_summary(Window_t win);
 void display(Window_t win, int scroll);
 /* main.c */
 int main(int argc, char *argv[]);
@@ -15,7 +24,6 @@ int control_menu(MENU *menu, int c);
 int main_menu(char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
 int create_menu(Window_t win, char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
 /* tools.c */
-char *get_random_subtitle(void);
 void get_element_name(int z, char *element);
 int check_command_line(int argc, char **argv);
 void error_atomix(char *fmt, ...);
@@ -32,7 +40,8 @@ void bold_message(WINDOW *win, int y, int x, char *fmt, ...);
 void update_status_bar(char *fmt, ...);
 /* photoionization.c */
 void bound_free_main_menu(void);
-void get_photoionization_cross_sections(double wmin, double wmax);
+void add_bound_free_to_display(int nphot);
+void get_bound_free_wl_range(void);
 /* read_atomic_data.c */
 int fraction(double value, double array[], int npts, int *ival, double *f, int mode);
 int linterp(double x, double xarray[], double yarray[], int xdim, double *y, int mode);
@@ -54,16 +63,20 @@ void init_two_question_form(Query_t *q, char *label1, char *label2, char *answer
 int query_wavelength_range(double *wmin, double *wmax);
 int query_atomic_number(int *z);
 int query_ion_input(int nion_or_z, int *z, int *istate, int *nion);
-void switch_atomic_data (void);
+void switch_atomic_data(void);
 /* elements.c */
 void elements_main_menu(void);
+void add_element_to_display(struct elements e, int detailed);
 void get_single_element(void);
 void get_elements(void);
 /* ions.c */
 void ions_main_menu(void);
+void add_ion_to_display(int nion, int detailed, int basic);
 void get_ion_z(void);
 void get_ion_nion(void);
 void get_ion_element(void);
 void get_all_ions(void);
 /* levels.c */
 void levels_main_menu(void);
+/* subtitle.c */
+char *get_random_subtitle(void);

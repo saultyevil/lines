@@ -16,6 +16,7 @@
 #include "atomix.h"
 
 Display_t DISPLAY = {0, NULL};
+Display_t ATOMIC = {0, NULL};
 
 /* ************************************************************************** */
 /**
@@ -36,8 +37,30 @@ clean_up_display (void)
   for (i = 0; i < DISPLAY.nlines; ++i)
     free (DISPLAY.lines[i].chars);
   free (DISPLAY.lines);
+
   DISPLAY.nlines = 0;
   DISPLAY.lines = NULL;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+clean_up_atomic_summary (void)
+{
+  int i;
+
+  for (i = 0; i < ATOMIC.nlines; ++i)
+    free (ATOMIC.lines[i].chars);
+  free (ATOMIC.lines);
+
+  ATOMIC.nlines = 0;
+  ATOMIC.lines = NULL;
 }
 
 /* ************************************************************************** */
@@ -89,8 +112,8 @@ add_to_display (char *fmt, ...)
 
   len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
   DISPLAY.lines[line_index].chars = malloc (len * sizeof (char) + 1);
-  len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
-  DISPLAY.lines[line_index].chars[len] = '\0';  // okay, so I don't trust vsprintf...
+  len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);
+  DISPLAY.lines[line_index].chars[len] = '\0';  // Redundant, but just in case
   DISPLAY.lines[line_index].len = len;
 
   logfile ("%s\n", DISPLAY.lines[line_index].chars);
@@ -144,6 +167,8 @@ scroll_display (Window_t win)
 
   line_start = 0;
 
+  update_status_bar ("Press q of F1 to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
+
   while ((ch = wgetch (the_win)))
   {
     if (ch == 'q' || ch == KEY_F(1))
@@ -160,15 +185,26 @@ scroll_display (Window_t win)
 
       switch (ch)
       {
-        case KEY_UP:line_start--;
+        case KEY_UP:
+          line_start--;
           break;
-        case KEY_DOWN:line_start++;
+        case KEY_DOWN:
+          line_start++;
           break;
-        case KEY_NPAGE:line_start += win.rows - 2;
+        case KEY_NPAGE:
+          line_start += win.rows - 2;
           break;
-        case KEY_PPAGE:line_start -= win.rows - 2;
+        case KEY_PPAGE:
+          line_start -= win.rows - 2;
           break;
-        default:break;
+        case KEY_HOME:
+          line_start = 0;
+          break;
+        case KEY_END:
+          line_start = DISPLAY.nlines - win.rows + 2;
+          break;
+        default:
+          break;
       }
 
       /*
@@ -185,6 +221,80 @@ scroll_display (Window_t win)
       for (i = line_start, current_row = 1; i < DISPLAY.nlines && current_row < win.rows - 1; ++i, ++current_row)
         mvwprintw (the_win, current_row, 1, "%s", DISPLAY.lines[i].chars);
     }
+
+    wrefresh (the_win);
+  }
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+add_to_atomic_summary (char *fmt, ...)
+{
+  int line_index;
+  int len;
+  va_list va, va_c;
+
+  ATOMIC.nlines++;
+  ATOMIC.lines = realloc (ATOMIC.lines, ATOMIC.nlines * sizeof (Line_t));
+  line_index = ATOMIC.nlines - 1;
+
+  if (ATOMIC.lines == NULL)
+    exit_atomix (EXIT_FAILURE, "Unable to add additional line to the atomic summary");
+
+  ATOMIC.lines[line_index].len = 0;
+  ATOMIC.lines[line_index].chars = NULL;
+
+  /*
+   * May be playing it extra safe here, but make a copy of va as va is not
+   * necessarily preserved after vsnprintf...
+   */
+
+  va_start (va, fmt);
+  va_copy (va_c, va);
+
+  len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
+  ATOMIC.lines[line_index].chars = malloc (len * sizeof (char) + 1);
+  len = vsprintf (ATOMIC.lines[line_index].chars, fmt, va_c);
+  ATOMIC.lines[line_index].chars[len] = '\0';  // Redundant, but just in case
+  ATOMIC.lines[line_index].len = len;
+
+  logfile ("%s\n", ATOMIC.lines[line_index].chars);
+
+  va_end (va);
+  va_end (va_c);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+display_atomic_summary (Window_t win)
+{
+  int i;
+  WINDOW *the_win = win.win;
+
+  wclear (the_win);
+
+  if (ATOMIC.nlines == 0 || ATOMIC.lines == NULL)
+  {
+    bold_message (the_win, 1, 1, "No text in display buffer to show.");
+  }
+  else
+  {
+    for (i = 0; i < ATOMIC.nlines && i < win.rows - 2; ++i)
+      mvwprintw (the_win, i + 1, 1, "%s", ATOMIC.lines[i].chars);
 
     wrefresh (the_win);
   }
@@ -218,13 +328,10 @@ display (Window_t win, int scroll)
 
   if (DISPLAY.nlines == 0 || DISPLAY.lines == NULL)
   {
-    bold_message (the_win, 1, 1,
-                  "No text buffer to display! Did someone forget to load atomic data, or program something important?");
+    bold_message (the_win, 1, 1, "No text in display buffer to show.");
   }
   else
   {
-    update_status_bar ("Press q of F1 to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
-
     for (i = 0; i < DISPLAY.nlines && i < win.rows - 2; ++i)
       mvwprintw (the_win, i + 1, 1, "%s", DISPLAY.lines[i].chars);
 
