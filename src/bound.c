@@ -157,13 +157,13 @@ get_bound_bound_wl_range (void)
     return;
 
   limit_lines (C / (wmax * ANGSTROM), C / (wmin * ANGSTROM));
-  n = nline_max - nline_min;
+  n = nline_max - nline_min - 1;
 
   add_to_display ("Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
   add_separator_to_display (ndash);
   add_bound_bound_header_to_display ();
 
-  for (nline = nline_min; nline < nline_max; ++nline)
+  for (nline = nline_min + 1; nline < nline_max; ++nline)
     add_bound_line_to_display (nline, FALSE);
 
   add_number_of_entries_to_display (n);
