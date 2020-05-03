@@ -43,6 +43,7 @@ initialise_ncurses_stdscr (void)
   noecho ();               // Most screens don't want echo
   cbreak ();               // Disable line buffering or summat
   keypad (stdscr, TRUE);   // Allow the screen to take input
+  curs_set (0);
 
   if (lines < 35 || cols < 130)
     exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35 but current terminal size is %ix%i", cols, lines);

@@ -138,6 +138,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
 
   wclear (the_win);
   keypad (the_win, TRUE); // TODO: check if I need this
+  curs_set (1);
 
   bold_message (the_win, 1, 1, title_message);
 
@@ -210,6 +211,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
     strcpy (q[i].buffer, trim_whitespaces (field_buffer (fields[i], q[i].buffer_number)));
 
   clean_up_form (form, fields, nfields);
+  curs_set (0);
 
   return form_return;
 }
@@ -342,6 +344,8 @@ query_wavelength_range (double *wmin, double *wmax)
     if (form_return == FORM_QUIT)
       return form_return;
 
+    strcpy (string_wmin, wavelength_query[1].buffer);
+    strcpy (string_wmax, wavelength_query[3].buffer);
     *wmin = strtod (wavelength_query[1].buffer, NULL);
     *wmax = strtod (wavelength_query[3].buffer, NULL);
     if (*wmax > *wmin)
