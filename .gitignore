@@ -1,5 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 .gitignore
+.idea/atomix.iml
 .idea/.gitignore
 .idea/.name
 .idea/deployment.xml
@@ -10,7 +11,8 @@
 .idea/modules.xml
 .idea/shelf/
 .idea/vcs.xml
-.idea/workspace (DESKTOP-QFGQ4HJ's conflicted copy 2020-04-28).xml
+.idea/workspace.xml
+.idea
 build/
 cmake-build-debug/
 osxbuild/

@@ -15,8 +15,6 @@
 
 #include "atomix.h"
 
-Display_t DISPLAY = {0, NULL};
-
 /* ************************************************************************** */
 /**
  * @brief  Clean up a text buffer, generally once it has been printed.
@@ -29,15 +27,16 @@ Display_t DISPLAY = {0, NULL};
  * ************************************************************************** */
 
 void
-clean_up_display (void)
+clean_up_display (Display_t *buffer)
 {
   int i;
 
-  for (i = 0; i < DISPLAY.nlines; ++i)
-    free (DISPLAY.lines[i].chars);
-  free (DISPLAY.lines);
-  DISPLAY.nlines = 0;
-  DISPLAY.lines = NULL;
+  for (i = 0; i < buffer->nlines; ++i)
+    free (buffer->lines[i].chars);
+  free (buffer->lines);
+
+  buffer->nlines = 0;
+  buffer->lines = NULL;
 }
 
 /* ************************************************************************** */
@@ -63,21 +62,21 @@ clean_up_display (void)
  * ************************************************************************** */
 
 void
-add_to_display (char *fmt, ...)
+add_display (Display_t *buffer, char *fmt, ...)
 {
   int line_index;
   int len;
   va_list va, va_c;
 
-  DISPLAY.nlines++;
-  DISPLAY.lines = realloc (DISPLAY.lines, DISPLAY.nlines * sizeof (Line_t));
-  line_index = DISPLAY.nlines - 1;
+  buffer->nlines++;
+  buffer->lines = realloc (buffer->lines, buffer->nlines * sizeof (Line_t));
+  line_index = buffer->nlines - 1;
 
-  if (DISPLAY.lines == NULL)
+   if (buffer->lines == NULL)
     exit_atomix (EXIT_FAILURE, "Unable to add additional line to the display buffer");
 
-  DISPLAY.lines[line_index].len = 0;
-  DISPLAY.lines[line_index].chars = NULL;
+  buffer->lines[line_index].len = 0;
+  buffer->lines[line_index].chars = NULL;
 
   /*
    * May be playing it extra safe here, but make a copy of va as va is not
@@ -88,12 +87,12 @@ add_to_display (char *fmt, ...)
   va_copy (va_c, va);
 
   len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
-  DISPLAY.lines[line_index].chars = malloc (len * sizeof (char) + 1);
-  len = vsprintf (DISPLAY.lines[line_index].chars, fmt, va_c);  // vsprintf NULL terminates the string
-  DISPLAY.lines[line_index].chars[len] = '\0';  // okay, so I don't trust vsprintf...
-  DISPLAY.lines[line_index].len = len;
+  buffer->lines[line_index].chars = malloc (len * sizeof (char) + 1);
+  len = vsprintf (buffer->lines[line_index].chars, fmt, va_c);
+  buffer->lines[line_index].chars[len] = '\0';  // Redundant, but just in case
+  buffer->lines[line_index].len = len;
 
-  logfile ("%s\n", DISPLAY.lines[line_index].chars);
+  logfile ("%s\n", buffer->lines[line_index].chars);
 
   va_end (va);
   va_end (va_c);
@@ -110,7 +109,7 @@ add_to_display (char *fmt, ...)
  * ************************************************************************** */
 
 void
-add_separator_to_display (const int len)
+add_sep_display (const int len)
 {
   int i;
   char tmp[len + 1];
@@ -119,7 +118,7 @@ add_separator_to_display (const int len)
     tmp[i] = '-';
   tmp[len] = '\0';
 
-  add_to_display (tmp);
+  display_add (tmp);
 }
 
 /* ************************************************************************** */
@@ -140,53 +139,55 @@ scroll_display (Window_t win)
   int ch;
   int line_start;
   int current_row;
-  WINDOW *the_win = win.win;
+  WINDOW *window = win.win;
 
   line_start = 0;
 
-  while ((ch = wgetch (the_win)))
+  update_status_bar ("Press q of F1 to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
+
+  while ((ch = wgetch (window)))
   {
     if (ch == 'q' || ch == KEY_F(1))
       break;
 
-    if (DISPLAY.nlines > win.rows - 2)
+    if (DISPLAY_BUFFER.nlines > win.rows - 2)
     {
-      wclear (the_win);
-
-      /*
-       * Control which line is printed first in the buffer. One can use the
-       * UP or DOWN arrow keys as well as PAGE UP and PAGE DOWN
-       */
+      wclear (window);
 
       switch (ch)
       {
-        case KEY_UP:line_start--;
+        case KEY_UP:
+          line_start--;
           break;
-        case KEY_DOWN:line_start++;
+        case KEY_DOWN:
+          line_start++;
           break;
-        case KEY_NPAGE:line_start += win.rows - 2;
+        case KEY_NPAGE:
+          line_start += win.rows - 2;
           break;
-        case KEY_PPAGE:line_start -= win.rows - 2;
+        case KEY_PPAGE:
+          line_start -= win.rows - 2;
           break;
-        default:break;
+        case KEY_HOME:
+          line_start = 0;
+          break;
+        case KEY_END:
+          line_start = DISPLAY_BUFFER.nlines - win.rows + 2;
+          break;
+        default:
+          break;
       }
-
-      /*
-       * These are the boundaries for how big, or small, line_start can be. This
-       * should prevent being able to scroll off the buffer and always keeping
-       * the screen full.
-       */
 
       if (line_start < 0)
         line_start = 0;
-      if (line_start + win.rows - 2 > DISPLAY.nlines)
-        line_start = DISPLAY.nlines - win.rows + 2;
+      if (line_start + win.rows - 2 > DISPLAY_BUFFER.nlines)
+        line_start = DISPLAY_BUFFER.nlines - win.rows + 2;
 
-      for (i = line_start, current_row = 1; i < DISPLAY.nlines && current_row < win.rows - 1; ++i, ++current_row)
-        mvwprintw (the_win, current_row, 1, "%s", DISPLAY.lines[i].chars);
+      for (i = line_start, current_row = 1; i < DISPLAY_BUFFER.nlines && current_row < win.rows - 1; ++i, ++current_row)
+        mvwprintw (window, current_row, 1, "%s", DISPLAY_BUFFER.lines[i].chars);
     }
 
-    wrefresh (the_win);
+    wrefresh (window);
   }
 }
 
@@ -194,9 +195,8 @@ scroll_display (Window_t win)
 /**
  * @brief  Print the DISPLAY buffer in the provided window.
  *
- * @param[in]  the_win      The window to print the buffer in
- * @param[in]  start_y  The starting row to print from
- * @param[in]  start_x  The column to print from
+ * @param[in]  *buffer
+ * @param[in]  scroll
  *
  * @details
  *
@@ -209,30 +209,26 @@ scroll_display (Window_t win)
  * ************************************************************************** */
 
 void
-display (Window_t win, int scroll)
+display_buffer (Display_t *buffer, int scroll)
 {
   int i;
-  WINDOW *the_win = win.win;
+  WINDOW *window = CONTENT_WINDOW.win;
 
-  wclear (the_win);
+   wclear (window);
 
-  if (DISPLAY.nlines == 0 || DISPLAY.lines == NULL)
+  if (buffer->nlines == 0 || buffer->lines == NULL)
   {
-    bold_message (the_win, 1, 1,
-                  "No text buffer to display! Did someone forget to load atomic data, or program something important?");
+    bold_message (window, 1, 1, "No text in display buffer to show.");
+    wrefresh (window);
   }
   else
   {
-    update_status_bar ("Press q of F1 to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
+    for (i = 0; i < buffer->nlines && i < CONTENT_WINDOW.rows - 2; ++i)
+      mvwprintw (window, i + 1, 1, "%s", buffer->lines[i].chars);
 
-    for (i = 0; i < DISPLAY.nlines && i < win.rows - 2; ++i)
-      mvwprintw (the_win, i + 1, 1, "%s", DISPLAY.lines[i].chars);
+    wrefresh (window);
 
-    wrefresh (the_win);
-
-    if (scroll == SCROLL_OK)
-      scroll_display (win);
+    if (scroll == SCROLL_ENABLE)
+      scroll_display (CONTENT_WINDOW);
   }
-
-  clean_up_display ();
 }

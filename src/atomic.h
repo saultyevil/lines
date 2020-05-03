@@ -23,6 +23,7 @@ enum ERRORS
 #define HEV				4.13620e-15     /* Planck's constant in eV */
 #define HRYD				3.04005e-16     /* NSH 1204 Planck's constant in Rydberg */
 #define C   				2.997925e10
+#define C_SI        2.997925e8
 #define G				6.670e-8
 #define BOLTZMANN 			1.38062e-16
 #define WIEN				5.879e10        /* NSH 1208 Wien Disp Const in frequency units */

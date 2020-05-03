@@ -14,56 +14,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <time.h>
 
 #include "atomix.h"
-
-/* ************************************************************************** */
-/**
- * @brief   Get a random subtitle
- *
- * @return  A random subtitle
- *
- * @details
- *
- * ************************************************************************** */
-
-char *
-get_random_subtitle (void)
-{
-  char *sub;
-  char *subtitles[] = {
-    "To boldly probe atomic data where others simply don't dare or want to",
-    "Digging too deep since september 2020",
-    "Not as confusingly named as Python",
-    "Attempting to demystify mysterious data",
-    "Not for Stuart to play with",
-    "This subtitle is random",
-    "Good luck!",
-    "Helping you plumb new depths of atomic misery :-(",
-    "https://github.com/saultyevil/atomix",
-    "As simple as 4D Chess",
-    "I have put you on a permanent ignore, public and private",
-    "From this Ghastly Eyrie I can see to the ends of the world, and I declare with utter certainty, that this one is in the bag!",
-    "People say nothing is impossible, but I do nothing every day",
-    "The difference between stupidity and genius is that a genius uses Atomix",
-    "I don't believe in astrology; I'm a Sagittarius and skeptical",
-    "Good enough for government work",
-    "I have just been to see Her Majesty the Queen, and I will now form a government",
-    "Metal Gear?",
-    "Liquid!",
-    "Snake, did you like my sunglasses?",
-    "Is Nintendo real?",
-    "Dame da ne, dame yo dame na no yo, anta ga suki de suki sugite",
-    "INVALID MIT_MAGIC_COOKIE-1",
-    "Some stuff about special relativity"
-  };
-
-  srand ( time (NULL));
-  sub = subtitles[rand() % ARRAY_SIZE(subtitles)];
-
-  return sub;
-}
 
 /* ************************************************************************** */
 /**
@@ -159,6 +111,7 @@ check_command_line (int argc, char **argv)
       exit (EXIT_FAILURE);
     }
     provided = TRUE;
+    strcpy (AtomixConfiguration.atomic_data, atomic_data_name);
   }
   else if (argc > 2)
   {
@@ -181,6 +134,7 @@ check_command_line (int argc, char **argv)
 void
 error_atomix (char *fmt, ...)
 {
+  int ch;
   int len;
   char *str;
   va_list va, va_c;
@@ -198,7 +152,14 @@ error_atomix (char *fmt, ...)
 
   wclear (CONTENT_WINDOW.win);
   bold_message (CONTENT_WINDOW.win, 1, 1, str);
+  update_status_bar ("Press q or F1 to continue");
   wrefresh (CONTENT_WINDOW.win);
+
+  while ((ch = wgetch (CONTENT_WINDOW.win)))
+  {
+    if (ch == 'q' || ch == KEY_F(1))
+      break;
+  }
 
   free (str);
 }
@@ -284,6 +245,22 @@ trim_whitespaces(char *str)
   *(end + 1) = '\0';
 
   return str;
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+count (int ndash, int count)
+{
+  add_sep_display (ndash);
+  display_add ("%i entries", count);
+  add_sep_display (ndash);
 }
 
 /* ************************************************************************** */

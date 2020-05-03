@@ -22,7 +22,6 @@ MenuItem_t MAIN_MENU_CHOICES[] = {
   {&levels_main_menu     , 4        , "Levels"            , "Query an atomic configuration"},
   {&switch_atomic_data   , 5        , "Switch Atomic Data", "Switch atomic data data sets"},
   {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit Atomix"},
-  {NULL                  , MENU_NULL, NULL                , NULL}
 };
 
 /* ************************************************************************* */
@@ -44,13 +43,19 @@ MenuItem_t MAIN_MENU_CHOICES[] = {
 int
 main (int argc, char *argv[])
 {
-  int menu_index = 0;
   int print_atomic;
+  int menu_index = 0;
 
   atexit (cleanup_ncurses_stdscr);
 
   if (getenv ("PYTHON") == NULL)
     exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
+
+  DISPLAY_BUFFER.nlines = 0;
+  DISPLAY_BUFFER.lines = NULL;
+
+  ATOMIC_BUFFER.nlines = 0;
+  ATOMIC_BUFFER.lines = NULL;
 
   /*
    * Initialise the log file, this should put AT LEAST the atomic data
@@ -61,7 +66,7 @@ main (int argc, char *argv[])
   print_atomic = check_command_line (argc, argv);
 
   if (!print_atomic)
-    menu_index = ARRAY_SIZE (MAIN_MENU_CHOICES) - 3;  // Set the menu index to atomic data
+    menu_index = ARRAY_SIZE (MAIN_MENU_CHOICES) - 2;  // Set the menu index to atomic data
 
   /*
    * Initialise ncurses, the window panels and draw the window borders
@@ -78,11 +83,11 @@ main (int argc, char *argv[])
    * to just display the menu.
    */
 
-  main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, REDRAW_MENU);
+  main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, MENU_DRAW);
 
   if (print_atomic)
   {
-    display (CONTENT_WINDOW, NO_SCROLL);
+    atomic_summary_show (SCROLL_DISBALE);
   }
   else
   {
@@ -96,6 +101,8 @@ main (int argc, char *argv[])
   while (TRUE)
   {
     menu_index = main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, CONTROL_MENU);
+    atomic_summary_show (SCROLL_DISBALE);
+
     if (menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT)  // Safety really
       break;
   }

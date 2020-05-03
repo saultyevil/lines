@@ -1315,7 +1315,7 @@ structure does not have this property! */
     return ATOMIC_FILE_IO_ERROR;
   }
 
-  add_to_display ("Reading atomic data from %s", atomic_data_file_path);
+  atomic_summary_add ("Reading atomic data from %s", atomic_data_file_path);
 
 /* Open and read each line in the masterfile in turn */
 
@@ -3478,37 +3478,37 @@ SCUPS    1.132e-01   2.708e-01   5.017e-01   8.519e-01   1.478e+00
       inner_no_e_yield++;
   }
 
-  add_to_display ("Data of %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
-                  nelements, nions, nlevels, nlines, ntop_phot);
-  add_to_display ("Macro   %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
-                  nelements, nions_macro, nlevels_macro, nlines_macro, ntop_phot_macro);
-  add_to_display ("Simple  %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
-                  nelements, nions_simple, nlevels_simple, nlines_simple, ntop_phot_simple);
-  add_to_display ("We have read in %3d photoionization cross sections", nphot_total);
-  add_to_display ("                %3d are topbase ", ntop_phot);
-  add_to_display ("                %3d are VFKY ", nxphot);
-  add_to_display ("We have read in %5d   Chiantic collision strengths", n_coll_stren);
-  add_to_display ("We have read in %3d Inner shell photoionization cross sections", n_inner_tot);
-  add_to_display ("                %3d have matching electron yield data", n_elec_yield_tot);
-  add_to_display ("We have read in %3d Dielectronic recombination coefficients", ndrecomb);
-  add_to_display ("We have read in %3d Badnell totl Radiative rate coefficients", n_total_rr);
-  add_to_display ("We have read in %3d Badnell GS   Radiative rate coefficients", n_bad_gs_rr);
-  add_to_display ("We have read in %3d Scaled electron temperature frequency averaged gaunt factors", gaunt_n_gsqrd);
-  add_to_display ("The minimum frequency for photoionization is %8.2e", phot_freq_min);
-  add_to_display ("The minimum frequency for inner shell ionization is %8.2e", inner_freq_min);
+  atomic_summary_add ("Data of %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
+                      nelements, nions, nlevels, nlines, ntop_phot);
+  atomic_summary_add ("Macro   %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
+                      nelements, nions_macro, nlevels_macro, nlines_macro, ntop_phot_macro);
+  atomic_summary_add ("Simple  %3d elements, %3d ions, %5d levels, %5d lines, and %5d topbase records",
+                      nelements, nions_simple, nlevels_simple, nlines_simple, ntop_phot_simple);
+  atomic_summary_add ("We have read in %3d photoionization cross sections", nphot_total);
+  atomic_summary_add ("                %3d are topbase ", ntop_phot);
+  atomic_summary_add ("                %3d are VFKY ", nxphot);
+  atomic_summary_add ("We have read in %5d   Chiantic collision strengths", n_coll_stren);
+  atomic_summary_add ("We have read in %3d Inner shell photoionization cross sections", n_inner_tot);
+  atomic_summary_add ("                %3d have matching electron yield data", n_elec_yield_tot);
+  atomic_summary_add ("We have read in %3d Dielectronic recombination coefficients", ndrecomb);
+  atomic_summary_add ("We have read in %3d Badnell totl Radiative rate coefficients", n_total_rr);
+  atomic_summary_add ("We have read in %3d Badnell GS   Radiative rate coefficients", n_bad_gs_rr);
+  atomic_summary_add ("We have read in %3d Scaled electron temperature frequency averaged gaunt factors", gaunt_n_gsqrd);
+  atomic_summary_add ("The minimum frequency for photoionization is %8.2e", phot_freq_min);
+  atomic_summary_add ("The minimum frequency for inner shell ionization is %8.2e", inner_freq_min);
 
   /* report ignored simple lines for macro-ions */
   for (n = 0; n < NIONS; n++)
   {
     if (simple_line_ignore[n] > 0)
-      add_to_display ("Ignored %d simple lines for macro-ion %d", simple_line_ignore[n], n);
+      atomic_summary_add ("Ignored %d simple lines for macro-ion %d", simple_line_ignore[n], n);
   }
 
   /* report ignored collision strengths */
   if (cstren_no_line > 0)
-    add_to_display ("Ignored %d collision strengths with no matching line transition", cstren_no_line);
+    atomic_summary_add ("Ignored %d collision strengths with no matching line transition", cstren_no_line);
   if (inner_no_e_yield > 0)
-    add_to_display ("Ignored %d inner shell cross sections because no matching yields", inner_no_e_yield);
+    atomic_summary_add ("Ignored %d inner shell cross sections because no matching yields", inner_no_e_yield);
 
 
 
@@ -3642,12 +3642,12 @@ or zero so that simple checks of true and false can be used for them */
 
 /* Finally evaluate how close we are to limits set in the structures */
 
-  add_to_display ("get_atomic_data: Evaluation:  There are %6d elements     while %6d are currently allowed", nelements, NELEMENTS);
-  add_to_display ("get_atomic_data: Evaluation:  There are %6d ions         while %6d are currently allowed", nions, NIONS);
-  add_to_display ("get_atomic_data: Evaluation:  There are %6d levels       while %6d are currently allowed", nlevels, NLEVELS);
-  add_to_display ("get_atomic_data: Evaluation:  There are %6d lines        while %6d are currently allowed", nlines, NLINES);
-  add_to_display ("get_atomic_data: Evaluation:  There are %6d macro levels while %6d are currently allowed", nlevels_macro,
-                  NLEVELS_MACRO);
+  atomic_summary_add ("get_atomic_data: Evaluation:  There are %6d elements     while %6d are currently allowed", nelements, NELEMENTS);
+  atomic_summary_add ("get_atomic_data: Evaluation:  There are %6d ions         while %6d are currently allowed", nions, NIONS);
+  atomic_summary_add ("get_atomic_data: Evaluation:  There are %6d levels       while %6d are currently allowed", nlevels, NLEVELS);
+  atomic_summary_add ("get_atomic_data: Evaluation:  There are %6d lines        while %6d are currently allowed", nlines, NLINES);
+  atomic_summary_add ("get_atomic_data: Evaluation:  There are %6d macro levels while %6d are currently allowed", nlevels_macro,
+                      NLEVELS_MACRO);
 
   bb_max = 0;
   bf_max = 0;
@@ -3664,10 +3664,10 @@ or zero so that simple checks of true and false can be used for them */
       bf_max = config[i].n_bfd_jump;
   }
 
-  add_to_display ("get_atomic_data: Evaluation:  The maximum value bb jumps is %d while %d are currently allowed", bb_max,
-                  NBBJUMPS);
-  add_to_display ("get_atomic_data: Evaluation:  The maximum value bf jumps is %d while %d are currently allowed", bb_max,
-                  NBBJUMPS);
+  atomic_summary_add ("get_atomic_data: Evaluation:  The maximum value bb jumps is %d while %d are currently allowed", bb_max,
+                      NBBJUMPS);
+  atomic_summary_add ("get_atomic_data: Evaluation:  The maximum value bf jumps is %d while %d are currently allowed", bb_max,
+                      NBBJUMPS);
 
 /* Now, write the data to a file so you can check it later if you wish */
 /* this is controlled by one of the -d flag modes, defined in atomic.h */

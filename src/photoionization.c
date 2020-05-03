@@ -12,6 +12,18 @@
 
 #include "atomix.h"
 
+static const
+int ndash = 88;
+
+const
+MenuItem_t BOUND_FREE_MENU_CHOICES[] = {
+  {&all_bound_free             , 0        , "All"                , "Print all of the possible transitions"},
+  {&bound_free_wavelength_range, 1        , "By wavelength range", "Print the transitions over a given wavelength range"},
+  {&bound_free_element         , 2        , "By element"         , "Print all the transitions for a given element"},
+  {&bound_free_ion             , 3        , "By ion number"      , "Print all the transitions for a given ion"},
+  {NULL                        , MENU_QUIT, "Return to main menu", ""}
+};
+
 /* ************************************************************************** */
 /**
  * @brief  The main menu for photoionization queries.
@@ -27,16 +39,87 @@
 void
 bound_free_main_menu (void)
 {
-  int query_return;
+  int menu_index = 0;
+
+  while (TRUE)
+  {    
+    menu_index = create_menu (CONTENT_WINDOW, "Bound-free transitions", BOUND_FREE_MENU_CHOICES,
+                              ARRAY_SIZE (BOUND_FREE_MENU_CHOICES), menu_index, CONTROL_MENU);
+    if (BOUND_FREE_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+      return;
+  }
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+bound_free_header (void)
+{
+  display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "n", "l",
+               "PhotInfo");
+  add_sep_display (ndash);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+bound_free_line (int nphot)
+{
+  double wavelength;
+  char element[LINELEN];
+
+  get_element_name (phot_top_ptr[nphot]->z, element);
+  wavelength = C_SI / phot_top_ptr[nphot]->freq[0] / ANGSTROM / 1e-2;
+  display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i", wavelength, element, phot_top_ptr[nphot]->z,
+               phot_top_ptr[nphot]->istate, phot_top_ptr[nphot]->n, phot_top_ptr[nphot]->l,
+               ions[phot_top_ptr[nphot]->nion].phot_info);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+all_bound_free (void)
+{
+  int n, nphot;
   double wmin, wmax;
 
-  query_return = query_wavelength_range (&wmin, &wmax);
-  if (query_return == MENU_QUIT)
-    return;
+  wmin = C_SI / phot_top_ptr[0]->freq[0];
+  wmax = C_SI / phot_top_ptr[nphot_total - 1]->freq[0];
 
-  get_photoionization_cross_sections (wmin, wmax);
+  display_add ("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  add_sep_display (ndash);
 
-  display (CONTENT_WINDOW, SCROLL_OK);
+  bound_free_header ();
+
+  n = 0;
+
+  for (nphot = 0; nphot < nphot_total; ++nphot)
+  {
+    n++;
+    bound_free_line (nphot);
+  }
+
+  count (ndash, n);
+
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -57,43 +140,66 @@ bound_free_main_menu (void)
  *
  *  Wavelength, Element, Z, istat and PhotInfo
  *
- *  TODO: add innershell
- *
  * ************************************************************************** */
 
 void
-get_photoionization_cross_sections (double wmin, double wmax)
+bound_free_wavelength_range (void)
 { 
-  int i;
-  int count = 0;
-  double wavelength;
+  int n, nphot;
   double fmin, fmax, fthreshold;
-  char element[LINELEN];
-  const int ndash = 88;
+  double wmin, wmax;
+
+  if (query_wavelength_range (&wmin, &wmax) == FORM_QUIT)
+    return;
 
   fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
-  add_to_display ("Photoionization Edges: Wavelength range %.2f - %.2f Angstroms", wmin, wmax);
-  add_separator_to_display (ndash);
-  add_to_display (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "n", "l",
-                  "PhotInfo");
-  add_separator_to_display (ndash);
+  display_add(" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  add_sep_display (ndash);
+  bound_free_header ();
 
-  for (i = 0; i < nphot_total; ++i)
+  n = 0;
+
+  for (nphot = 0; nphot < nphot_total; ++nphot)
   {
-    fthreshold = phot_top[i].freq[0];
+    fthreshold = phot_top_ptr[nphot]->freq[0];
     if (fthreshold > fmin && fthreshold < fmax)
     {
-      count++;
-      get_element_name (phot_top[i].z, element);
-      wavelength = const_C_SI / phot_top[i].freq[0] / ANGSTROM / 1e-2;
-      add_to_display (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i", wavelength, element, phot_top[i].z, phot_top[i].istate,
-                      phot_top[i].n, phot_top[i].l, ions[phot_top[i].nion].phot_info);
+      bound_free_line (nphot);
+      n++;
     }
   }
 
-  add_separator_to_display (ndash);
-  add_to_display (" %i entries", count);
-  add_separator_to_display (ndash);
+  count (ndash, n);
+
+  display_show (SCROLL_ENABLE);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+bound_free_element (void)
+{
+
+}
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+bound_free_ion (void)
+{
+
 }

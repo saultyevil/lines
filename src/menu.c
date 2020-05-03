@@ -139,11 +139,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
 
   wclear (MENU_WINDOW.win);
 
-  if (menu_items[nitems - 1].name != NULL)
-    exit_atomix (EXIT_FAILURE,
-                 "create_menu : programming error - final element of menu_items is not NULL.");
-
-  items = calloc (nitems, sizeof (ITEM *));
+  items = calloc (nitems + 1, sizeof (ITEM *));
   if (items == NULL)
     exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
@@ -162,8 +158,10 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
   for (i = 0; i < nitems; i++)
   {
     items[i] = new_item (menu_items[i].name, menu_items[i].desc);
-    set_item_userptr (items[i], menu_items[i].usrptr);
+    set_item_userptr (items[i], menu_items[i].func);
   }
+
+  items[nitems] = NULL;
 
   menu = new_menu (items);
   menu_opts_off (menu, O_SHOWDESC);  // Don't want to show desc in small menu window
@@ -200,8 +198,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
       }
 
       index = control_menu (menu, c);
-      wrefresh (MENU_WINDOW.win);
-
+      
       if (index != MENU_NULL)
         break;
     }
@@ -249,19 +246,17 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   wclear (the_win);
   keypad (the_win, TRUE);
 
-  if (menu_items[nitems - 1].name != NULL)
-    exit_atomix (EXIT_FAILURE,
-                 "create_menu : programming error - final element of menu_items is not NULL.");
-
-  items = calloc (nitems, sizeof (ITEM *));
+  items = calloc (nitems + 1, sizeof (ITEM *));
   if (items == NULL)
     exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
   for (i = 0; i < nitems; i++)
   {
     items[i] = new_item (menu_items[i].name, menu_items[i].desc);
-    set_item_userptr (items[i], menu_items[i].usrptr);
+    set_item_userptr (items[i], menu_items[i].func);
   }
+
+  items[nitems] = NULL;
 
   menu = new_menu (items);
   menu_opts_on (menu, O_SHOWDESC);
