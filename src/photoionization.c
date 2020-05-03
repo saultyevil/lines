@@ -187,7 +187,7 @@ bound_free_wavelength_range (void)
 void
 bound_free_element (void)
 {
-
+  error_atomix ("NOT IMPLEMENTED YET");
 }
 
 /* ************************************************************************** */
@@ -201,5 +201,5 @@ bound_free_element (void)
 void
 bound_free_ion (void)
 {
-
+  error_atomix ("NOT IMPLEMENTED YET");
 }
