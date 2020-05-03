@@ -19,6 +19,9 @@
  *
  * @details
  *
+ * Uses rand() to get a random subtitle. A new seed is initialised each time
+ * this is called, but this function should only be called once or twice.
+ *
  * ************************************************************************** */
 
 char *

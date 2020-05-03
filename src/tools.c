@@ -38,7 +38,7 @@ get_element_name (int z, char *element)
 {
   int i;
 
-  // Probably not the best thing to do
+  // TODO probably not the best
   if (element == NULL)
     return;
   if (ele == NULL)
@@ -125,9 +125,15 @@ check_command_line (int argc, char **argv)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print an error message to the content window.
+ *
+ * @param[in]  fmt  The formatted error string
+ * @param[in]  ...  The arguments for the string
  *
  * @details
+ *
+ * When an error message is printed, atomix will wait for the user to press q
+ * or F1 to continue.
  *
  * ************************************************************************** */
 
@@ -249,7 +255,10 @@ trim_whitespaces(char *str)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print a number with a separator up and below.
+ *
+ * @param[in]  ndash  The number of dashes for the separator
+ * @param[in]  count  The number of items
  *
  * @details
  *

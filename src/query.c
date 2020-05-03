@@ -355,9 +355,15 @@ query_wavelength_range (double *wmin, double *wmax)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Query an atomic number from the user.
+ *
+ * @param[out]  z  The atomic number
  *
  * @details
+ *
+ * Continues to loop until valid input is received or until a user quits. strtol
+ * will take care of any conversion errors and will return 0 if the input is not
+ * an integer.
  *
  * ************************************************************************** */
 
@@ -365,8 +371,8 @@ int
 query_atomic_number (int *z)
 {
   int form_return;
-  int valid = FALSE;
-  WINDOW *win = CONTENT_WINDOW.win;
+  int valid_input = FALSE;
+  WINDOW *window = CONTENT_WINDOW.win;
 
   static int init_query = FALSE;
   static char default_element[FIELD_INPUT_LEN];
@@ -378,9 +384,9 @@ query_atomic_number (int *z)
     init_query = TRUE;
   }
 
-  while (valid != TRUE)
+  while (valid_input != TRUE)
   {
-    wclear (win);
+    wclear (window);
     init_single_question_form (element_query, "Atomic number : ", default_element);
     form_return = query_user (CONTENT_WINDOW, element_query, 2, "Please input the atomic number of the element");
 
@@ -388,9 +394,13 @@ query_atomic_number (int *z)
       return form_return;
 
     *z = (int) strtol (element_query[1].buffer, NULL, 10);
+
+    if (*z < 0)
+      *z *= -1;
+
     if (*z > 0 && *z < 118)  // TODO: make constants in atomic.h
     {
-      valid = TRUE;
+      valid_input = TRUE;
       strcpy (default_element, element_query[1].buffer);
     }
     else
@@ -404,9 +414,18 @@ query_atomic_number (int *z)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Query the user for atomic number and ionisation state or an ion
+ *         number.
+ *
+ * @param[in]   nion_or_z  If TRUE, query the ion number
+ * @param[out]  z          The atomic number to return
+ * @param[out]  istate     The ionisation state to return
+ * @param[out]  nion       The ion number to return
  *
  * @details
+ *
+ * Will continue until valid input is received or until the user quits. strtol
+ * should deal with any conversion problems.
  *
  * ************************************************************************** */
 
@@ -415,8 +434,8 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
 {
   int nfields;
   int form_return;
-  int valid = FALSE;
-  WINDOW *win = CONTENT_WINDOW.win;
+  int valid_input = FALSE;
+  WINDOW *window = CONTENT_WINDOW.win;
   Query_t *q;
 
   static int init_name = FALSE;
@@ -434,10 +453,10 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
     init_name = TRUE;
   }
 
-  while (valid != TRUE)
+  while (valid_input != TRUE)
   {
 
-    wclear (win);
+    wclear (window);
 
     if (nion_or_z)
     {
@@ -461,8 +480,8 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
     {
       *nion = (int) strtol (q[1].buffer, NULL, 10);
       if (*nion >= 0 && *nion < nions)
-      { 
-        valid = TRUE;
+      {
+        valid_input = TRUE;
       }
       else
       {
@@ -473,9 +492,15 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
     {
       *z = (int) strtol (q[1].buffer, NULL, 10);
       *istate = (int) strtol (q[3].buffer, NULL, 10);
+
+      if (*z < 0)
+        *z *= -1;
+      if (*istate < 0)
+        *istate *= -1;
+
       if (*z > 0 && *istate > 0)
       {
-        valid = TRUE;
+        valid_input = TRUE;
       }
       else
       {
