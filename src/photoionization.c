@@ -101,8 +101,8 @@ all_bound_free (void)
   int n, nphot;
   double wmin, wmax;
 
-  wmin = C_SI / phot_top_ptr[0]->freq[0];
-  wmax = C_SI / phot_top_ptr[nphot_total - 1]->freq[0];
+  wmin = C_SI / phot_top_ptr[0]->freq[0] / ANGSTROM / 1e-2;
+  wmax = C_SI / phot_top_ptr[nphot_total - 1]->freq[0] / ANGSTROM / 1e-2;
 
   display_add ("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
   add_sep_display (ndash);
