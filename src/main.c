@@ -62,7 +62,7 @@ main (int argc, char *argv[])
    * diagnostics into the logfile
    */
 
-  log_init ("atomix.log.txt");
+  logfile_init("atomix.log.txt");
   print_atomic = check_command_line (argc, argv);
 
   if (!print_atomic)
@@ -100,7 +100,7 @@ main (int argc, char *argv[])
 
   while (TRUE)
   {
-    menu_index = main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, CONTROL_MENU);
+    menu_index = main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, MENU_CONTROL);
     atomic_summary_show (SCROLL_DISBALE);
 
     if (menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT)  // Safety really

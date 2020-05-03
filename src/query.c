@@ -67,7 +67,7 @@ control_form (FORM *form, int ch, int exit_index)
 
   switch (ch)
   {
-    case '\t':
+    case '\t':  // This catches the tab key
     case KEY_DOWN:
       form_driver (form, REQ_NEXT_FIELD);
       form_driver (form, REQ_END_LINE);
@@ -89,7 +89,7 @@ control_form (FORM *form, int ch, int exit_index)
     case KEY_DC:
       form_driver (form, REQ_DEL_CHAR);
       break;
-    case 10:
+    case 10:  // This catches the enter/return key
       current_index = field_index (current_field (form));
       if (current_index != exit_index)
       {
@@ -117,12 +117,13 @@ control_form (FORM *form, int ch, int exit_index)
  * @param[in,out]  q              The Query_t containing the form
  * @param[in]      nfields        The number of fields
  * @param[in]      title_message  A title message to prompt the user
- * @param[in]      default_field  The default field to place the cursor
+ *
+ * @return         The return from the form, either FORM_CONTINUE or FORM_QUIT
  *
  * @details
  *
- * NOTE: we always assume the last input field is the exit field for when
- * enter is pressed.
+ * It is assumed that the last input field is the exit field for when enter is
+ * pressed.
  *
  * ************************************************************************** */
 
@@ -137,23 +138,14 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
   FIELD **fields;
 
   wclear (the_win);
-  keypad (the_win, TRUE); // TODO: check if I need this
+  keypad (the_win, TRUE);
   curs_set (1);
 
-  bold_message (the_win, 1, 1, title_message);
-
-  /*
-   * Allocate memory for the fields array, which will be  pointers to the fields
-   * in the Query_t structure
-   */
+  bold_message (CONTENT_WINDOW, 1, 1, title_message);
 
   fields = calloc (nfields + 1, sizeof (FIELD *));
   if (fields == NULL)
     exit_atomix (EXIT_FAILURE, "query_user_for_input : unable to allocate memory for fields");
-
-  /*
-   * Initialise the fields with their respective values
-   */
 
   fields[nfields] = NULL;
 
@@ -549,7 +541,7 @@ switch_atomic_data (void)
   while (valid_input != TRUE)
   {
     menu_index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
-                              ARRAY_SIZE (ATOMIC_DATA_CHOICES), menu_index, CONTROL_MENU);
+                              ARRAY_SIZE (ATOMIC_DATA_CHOICES), menu_index, MENU_CONTROL);
 
     if (menu_index == MENU_QUIT)
     {
@@ -594,5 +586,5 @@ switch_atomic_data (void)
 
   atomic_summary_show (SCROLL_DISBALE);
   logfile ("\n");
-  log_flush ();
+  logfile_flush();
 }

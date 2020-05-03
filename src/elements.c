@@ -48,8 +48,8 @@ elements_main_menu (void)
 
   while (TRUE)
   {
-    menu_index = create_menu (CONTENT_WINDOW, "Elements", ELEMENTS_MENU_CHOICES, ARRAY_SIZE (ELEMENTS_MENU_CHOICES), 
-                              menu_index, CONTROL_MENU);
+    menu_index = create_menu (CONTENT_WINDOW, "Elements", ELEMENTS_MENU_CHOICES, ARRAY_SIZE (ELEMENTS_MENU_CHOICES),
+                              menu_index, MENU_CONTROL);
     if (ELEMENTS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }

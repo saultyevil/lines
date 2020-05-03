@@ -36,7 +36,7 @@ int init_log = 0;
  **********************************************************/
 
 int
-log_init (filename)
+logfile_init (filename)
      char *filename;
 {
   if ((diagptr = fopen (filename, "w")) == NULL)
@@ -63,7 +63,7 @@ log_init (filename)
  **********************************************************/
 
 int
-log_close ()
+logfile_close ()
 {
   fclose (diagptr);
   init_log = 0;           // Release the error summary structure
@@ -93,7 +93,7 @@ logfile (char *format, ...)
   int result;
 
   if (init_log == 0)
-    log_init ("logfile");
+    logfile_init("logfile");
 
   va_start (ap, format);
   va_copy (ap2, ap);            /* ap is not necessarily preserved by vprintf */
@@ -120,18 +120,16 @@ logfile (char *format, ...)
  *
  * Writing to the screen can be suppressed depending on the level of verbosity
  *
- * TODO: seperate error log file
- *
  **********************************************************/
 
 int
-add_error_to_log (char *format, ...)
+logfile_error (char *format, ...)
 {
   va_list ap, ap2;
   int result = 0;
 
   if (init_log == 0)
-    log_init ("logfile");
+    logfile_init("logfile");
 
   va_start (ap, format);
   va_copy (ap2, ap);
@@ -159,10 +157,10 @@ add_error_to_log (char *format, ...)
  **********************************************************/
 
 int
-log_flush ()
+logfile_flush ()
 {
   if (init_log == 0)
-    log_init ("logfile");
+    logfile_init("logfile");
 
   fflush (diagptr);
   return (0);

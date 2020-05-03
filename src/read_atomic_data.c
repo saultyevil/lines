@@ -509,12 +509,13 @@ check_xsections ()
   {
     nion = phot_top[n].nion;
     if (ions[nion].phot_info == 1)
-      add_error_to_log
+      logfile_error
         ("Topbase Ion %i Z %i istate %i nground %i ilv %i ntop %i f0 %8.4e IP %8.4e\n",
-         nion, ions[nion].z, ions[nion].istate, ions[nion].ntop_ground, phot_top[n].nlev, ions[nion].ntop, phot_top[n].freq[0], ions[nion].ip);
+         nion, ions[nion].z, ions[nion].istate, ions[nion].ntop_ground, phot_top[n].nlev, ions[nion].ntop,
+         phot_top[n].freq[0], ions[nion].ip);
     else if (ions[nion].phot_info == 0)
-      add_error_to_log ("Vfky Ion %i Z %i istate %i nground %i f0 %8.4e IP %8.4e\n",
-                        nion, ions[nion].z, ions[nion].istate, ions[nion].nxphot, phot_top[n].freq[0], ions[nion].ip);
+      logfile_error("Vfky Ion %i Z %i istate %i nground %i f0 %8.4e IP %8.4e\n",
+                    nion, ions[nion].z, ions[nion].istate, ions[nion].nxphot, phot_top[n].freq[0], ions[nion].ip);
 
     /* some simple checks -- could be made more robust */
     if (ions[nion].n_lte_max == 0 && ions[nion].phot_info == 1)
@@ -1482,7 +1483,7 @@ structure does not have this property! */
             if (n == nelements)
             {
 
-              add_error_to_log ("get_atomic_data: file %s line %d has ion for unknown element with z %d\n", file, lineno, z);
+              logfile_error("get_atomic_data: file %s line %d has ion for unknown element with z %d\n", file, lineno, z);
               break;
             }
 
@@ -1689,7 +1690,7 @@ the program working in both cases, and certainly mixed cases  04apr ksl  */
             if (n == nions)
             {
 
-              add_error_to_log ("get_atomic_data: file %s line %d has level for unknown ion \n", file, lineno);
+              logfile_error("get_atomic_data: file %s line %d has level for unknown ion \n", file, lineno);
               break;
             }
 
@@ -1870,7 +1871,7 @@ is already incremented
             if (n == nions)
             {
 
-              add_error_to_log ("get_atomic_data: file %s line %d has level for unknown ion \n", file, lineno);
+              logfile_error("get_atomic_data: file %s line %d has level for unknown ion \n", file, lineno);
               break;
 
             }
@@ -1913,7 +1914,8 @@ described as macro-levels. */
             if (ions[n].nmax == ions[n].nlevels)
             {
 
-              add_error_to_log ("get_atomic_data: file %s line %d has level exceeding the number allowed for ion[%d]\n", file, lineno, n);
+              logfile_error("get_atomic_data: file %s line %d has level exceeding the number allowed for ion[%d]\n",
+                            file, lineno, n);
 
               break;
             }
@@ -2062,7 +2064,8 @@ described as macro-levels. */
                 n++;
               if (n == nlevels)
               {
-                add_error_to_log ("get_atomic_data: No configuration found to match upper state for phot. line %d\n", lineno);
+                logfile_error("get_atomic_data: No configuration found to match upper state for phot. line %d\n",
+                              lineno);
                 break;            //Need to match the configuration for macro atoms - break if not found.
               }
 
@@ -2074,7 +2077,8 @@ described as macro-levels. */
                 m++;
               if (m == nlevels)
               {
-                add_error_to_log ("get_atomic_data: No configuration found to match lower state for phot. line %d\n", lineno);
+                logfile_error("get_atomic_data: No configuration found to match lower state for phot. line %d\n",
+                              lineno);
                 break;            //Need to match the configuration for macro atoms - break if not found.
               }
 
@@ -2183,7 +2187,8 @@ described as macro-levels. */
               if (n == nlevels)
               {
 
-                add_error_to_log ("No level found to match PhotTop data in file %s on line %d. Data ignored.\n", file, lineno);
+                logfile_error("No level found to match PhotTop data in file %s on line %d. Data ignored.\n", file,
+                              lineno);
                 break;            // There was no pre-existing ion
               }
               if (ions[config[n].nion].macro_info == 0)    //this is not a macro atom level (SS)
@@ -2321,7 +2326,7 @@ described as macro-levels. */
                     }
                     if (phot_freq_min > phot_top[ions[nion].ntop_ground].freq[0])
                       phot_freq_min = phot_top[ions[nion].ntop_ground].freq[0];
-                    add_error_to_log
+                    logfile_error
                       ("Get_atomic_data: file %s  Replacing ground state topbase photoionization for ion %d with VFKY photoionization\n",
                        file, nion);
                   }
@@ -2616,7 +2621,7 @@ described as macro-levels. */
                 n++;
               if (n == nlevels)
               {
-                add_error_to_log ("Get_atomic_data: No configuration found to match lower level of line %d\n", lineno);
+                logfile_error("Get_atomic_data: No configuration found to match lower level of line %d\n", lineno);
                 break;
               }
 
@@ -2626,7 +2631,7 @@ described as macro-levels. */
                 m++;
               if (m == nlevels)
               {
-                add_error_to_log ("Get_atomic_data: No configuration found to match upper level of line %d\n", lineno);
+                logfile_error("Get_atomic_data: No configuration found to match upper level of line %d\n", lineno);
                 break;
               }
 
@@ -2700,7 +2705,7 @@ described as macro-levels. */
               {                   /* Then there is a match */
                 if (freq == 0 || f <= 0 || gl == 0 || gu == 0)
                 {
-                  add_error_to_log ("getatomic_data: line input incomplete: %s\n", aline);
+                  logfile_error("getatomic_data: line input incomplete: %s\n", aline);
                   break;
                 }
                 //

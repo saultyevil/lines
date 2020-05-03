@@ -1,6 +1,6 @@
 /* log.c */
-int log_init(char *filename);
-int log_close(void);
+int logfile_init(char *filename);
+int logfile_close(void);
 int logfile(char *format, ...);
-int add_error_to_log(char *format, ...);
-int log_flush(void);
+int logfile_error(char *format, ...);
+int logfile_flush(void);

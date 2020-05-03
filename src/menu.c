@@ -25,7 +25,6 @@
  * @param[in]  menu      The menu to be cleaned up
  * @param[in]  items     The items to be cleaned up
  * @param[in]  nitems    The number of items to clean up
- * @param[in]  win_menu  The window for the menu to be cleaned up
  *
  * @details
  *
@@ -65,7 +64,7 @@ clean_up_menu (MENU *menu, ITEM **items, int nitems)
 int
 control_menu (MENU *menu, int c)
 {
-  int current_index = MENU_NULL;
+  int current_index = MENU_CONTINUE;
   void (*item_usrptr) (void);
   ITEM *item;
 
@@ -90,7 +89,6 @@ control_menu (MENU *menu, int c)
       menu_driver (menu, REQ_SCR_UPAGE);
       break;
     case 10:  // Enter has been pressed - not sure what the constant for this is
-              // it isn't KEY_ENTER???
       item = current_item (menu);
       current_index = item_index (item);
       item_usrptr = item_userptr (item);
@@ -109,13 +107,12 @@ control_menu (MENU *menu, int c)
 /**
  * @brief  Displays and controls the main menu.
  *
- * @param[in]  menu_message       A message to display for the menu
- * @param[in]  menu_items         The name of the menu items
- * @param[in]  nitems             The number of items in the menu
- * @param[in]  current_index      The index referring to the previously chosen
- *                                menu entry
+ * @param[in]  menu_message       The menu display message at the top
+ * @param[in]  menu_items         The items for the menu
+ * @param[in]  nitems             The number of items
+ * @param[in]  current_index      The default menu index when drawn
  * @param[in]  control_this_menu  If TRUE, allow the user to control the menu
- *                                otherwise just the menu is printed
+ *                                otherwise the menu is only drawn
  *
  * @return     index             An integer referring to the chosen menu item
  *
@@ -133,7 +130,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
 {
   int i, j, c;
   int len;
-  int index = MENU_NULL;
+  int index = MENU_CONTINUE;
   MENU *menu = NULL;
   ITEM **items = NULL;
 
@@ -144,7 +141,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
     exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
   /*
-   * This creates a 1 column "boundary" between the menu and content window
+   * Create a 1 column boundary between the menu and content windows
    */
 
   wattron (MENU_WINDOW.win, A_REVERSE);
@@ -165,12 +162,6 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
 
   menu = new_menu (items);
   menu_opts_off (menu, O_SHOWDESC);  // Don't want to show desc in small menu window
-
-  /*
-   * Set the menu formatting. Note that this is hard coded at the moment, though
-   * I do not think it will ever need to be done more dynamically.
-   */
-
   set_menu_win (menu, MENU_WINDOW.win);
   set_menu_sub (menu, derwin (MENU_WINDOW.win, MENU_WINDOW.rows - 3, MENU_WINDOW.cols, 3, 0));
   set_menu_format (menu, MENU_WINDOW.rows - 2, 1);
@@ -182,12 +173,11 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
-  update_status_bar ("Press q or F1 to exit atomix");
+  update_status_bar ("Press q or F1 to exit Atomix");
   post_menu (menu);
-
   wrefresh (MENU_WINDOW.win);
 
-  if (control_this_menu)
+  if (control_this_menu == MENU_CONTROL)
   {
     while ((c = wgetch (MENU_WINDOW.win)))
     {
@@ -199,7 +189,7 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
 
       index = control_menu (menu, c);
       
-      if (index != MENU_NULL)
+      if (index != MENU_CONTINUE)
         break;
     }
   }
@@ -213,22 +203,21 @@ main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int cur
 /**
  * @brief  Displays an control a genric menu for the given Window_t window.
  *
- * @param[in]  win
- * @param[in]  menu_message       A message to display for the menu
- * @param[in]  menu_items         The name of the menu items
- * @param[in]  nitems             The number of items in the menu
- * @param[in]  current_index      The index referring to the previously chosen
- *                                menu entry
+ * @param[in]  win                The Window_t to contain the menu
+ * @param[in]  menu_message       The menu display message at the top
+ * @param[in]  menu_items         The items for the menu
+ * @param[in]  nitems             The number of items
+ * @param[in]  current_index      The default menu index when drawn
  * @param[in]  control_this_menu  If TRUE, allow the user to control the menu
- *                                otherwise just the menu is printed
+ *                                otherwise the menu is only drawn
  *
  * @return     index             An integer referring to the chosen menu item
  *
  * @details
  *
- * Should be a reasonable way to make a generic menu.
+ * This can be used to create a generic menu, with the same formatting as
+ * other menus. This should create a consistent menu system.
  *
- * TODO: consistent method to exit menu selection without a choice
  * TODO: configuration struct in case finer control is required.
  *
  * ************************************************************************** */
@@ -238,13 +227,13 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
              int control_this_menu)
 {
   int i, c;
-  int index = MENU_NULL;
+  int index = MENU_CONTINUE;
   MENU *menu = NULL;
   ITEM **items = NULL;
-  WINDOW *the_win = win.win;
+  WINDOW *window = win.win;
 
-  wclear (the_win);
-  keypad (the_win, TRUE);
+  wclear (window);
+  keypad (window, TRUE);
 
   items = calloc (nitems + 1, sizeof (ITEM *));
   if (items == NULL)
@@ -261,14 +250,8 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   menu = new_menu (items);
   menu_opts_on (menu, O_SHOWDESC);
   set_menu_spacing (menu, 3, 0, 0);
-
-  /*
-   * Set the menu formatting. Note that this is hard coded at the moment, though
-   * I do not think it will ever need to be done more dynamically.
-   */
-
-  set_menu_win (menu, the_win);
-  set_menu_sub (menu, derwin (the_win, win.rows - 6, win.cols - 2, 3, 1));
+  set_menu_win (menu, window);
+  set_menu_sub (menu, derwin (window, win.rows - 6, win.cols - 2, 3, 1));  // TODO better constants
   set_menu_format (menu, win.rows - 6, 1);
   set_menu_mark (menu, "* ");
 
@@ -278,14 +261,13 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
-  bold_message (the_win, 1, 1, menu_message);
+  bold_message (CONTENT_WINDOW, 1, 1, menu_message);
   post_menu (menu);
-
-  wrefresh (the_win);
+  wrefresh (window);
 
   if (control_this_menu)
   {
-    while ((c = wgetch (the_win)))
+    while ((c = wgetch (window)))
     {
       if (c == 'q' || c == (KEY_F(1)))
       {
@@ -294,15 +276,15 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
       }
 
       index = control_menu (menu, c);
-      wrefresh (the_win);
+      wrefresh (window);
 
-      if (index != MENU_NULL)
+      if (index != MENU_CONTINUE)
         break;
     }
   }
 
   clean_up_menu (menu, items, nitems);
-  keypad (the_win, FALSE);
+  keypad (window, FALSE);
 
   return index;
 }

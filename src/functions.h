@@ -1,7 +1,7 @@
 /* bound.c */
 void bound_bound_main_menu(void);
 void bound_bound_header(void);
-void bound_bound_line(int n, int hide);
+void bound_bound_line(int n);
 void all_bound_bound(void);
 void bound_bound_wavelength_range(void);
 void bound_bound_element(void);
@@ -33,7 +33,7 @@ void initialise_ncurses_stdscr(void);
 void cleanup_ncurses_stdscr(void);
 void initialise_main_windows(void);
 void draw_window_boundaries(void);
-void bold_message(WINDOW *win, int y, int x, char *fmt, ...);
+void bold_message(Window_t win, int y, int x, char *fmt, ...);
 void update_status_bar(char *fmt, ...);
 /* photoionization.c */
 void bound_free_main_menu(void);
@@ -68,15 +68,15 @@ void switch_atomic_data(void);
 /* elements.c */
 void elements_main_menu(void);
 void element_line(struct elements e, int detailed);
-void single_element(void);
 void all_elements(void);
+void single_element(void);
 /* ions.c */
 void ions_main_menu(void);
 void ion_line(int nion, int detailed, int basic);
+void all_ions(void);
 void single_ion_atomic_z(void);
 void single_ion_nion(void);
 void ions_for_element(void);
-void all_ions(void);
 /* levels.c */
 void levels_main_menu(void);
 /* subtitle.c */

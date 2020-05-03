@@ -106,7 +106,7 @@ check_command_line (int argc, char **argv)
 
     if (atomic_data_error)
     {
-      log_close ();
+      logfile_close();
       printf ("Fatal error: error when reading atomic data : errno = %i\n", atomic_data_error);
       exit (EXIT_FAILURE);
     }
@@ -151,7 +151,7 @@ error_atomix (char *fmt, ...)
   va_end (va_c);
 
   wclear (CONTENT_WINDOW.win);
-  bold_message (CONTENT_WINDOW.win, 1, 1, str);
+  bold_message (CONTENT_WINDOW, 1, 1, str);
   update_status_bar ("Press q or F1 to continue");
   wrefresh (CONTENT_WINDOW.win);
 
@@ -185,7 +185,7 @@ exit_atomix (int errno, char *fmt, ...)
 {
   va_list va;
 
-  log_flush ();
+  logfile_flush();
   cleanup_ncurses_stdscr ();
 
   printf (":-(\n");
@@ -212,7 +212,7 @@ exit_atomix (int errno, char *fmt, ...)
 void
 menu_exit_atomix (void)
 {
-  log_flush ();
+  logfile_flush();
   exit (EXIT_SUCCESS);
 }
 

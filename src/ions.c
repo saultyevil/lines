@@ -26,27 +26,29 @@ MenuItem_t IONS_MENU_CHOICES[] = {
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  The main menu for ion queries.
  *
  * @details
+ *
+ * The previous menu index is remembered.
  *
  * ************************************************************************** */
 
 void
 ions_main_menu (void)
 {
-	static int menu_index;
+    static int menu_index;
 
-	if (nions == 0)
-	{
-		error_atomix ("No ions have been read in. Unable to query!");
-		return;
-	}
+  if (nions == 0)
+  {
+      error_atomix ("No ions have been read in. Unable to query!");
+      return;
+  }
 
 	while (TRUE)
   {
-    menu_index = create_menu (CONTENT_WINDOW, "Ions", IONS_MENU_CHOICES, ARRAY_SIZE (IONS_MENU_CHOICES), menu_index, 
-                              CONTROL_MENU);
+    menu_index = create_menu (CONTENT_WINDOW, "Ions", IONS_MENU_CHOICES, ARRAY_SIZE (IONS_MENU_CHOICES), menu_index,
+                              MENU_CONTROL);
     if (IONS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
@@ -54,9 +56,16 @@ ions_main_menu (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Standard layout for printing information about an ion.
+ *
+ * @param[in]  nion      The ion number
+ * @param[in]  detailed  If TRUE, the BB and BF information will be printed
+ * @param[in]  basic     If TRUE, the element information will be printed
  *
  * @details
+ *
+ * Has a few more arguments than really required to allow the re-use of this
+ * function for different sub-routines.
  *
  * ************************************************************************** */
 
@@ -131,7 +140,7 @@ ion_line (int nion, int detailed, int basic)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print all of the ions in the atomic data.
  *
  * @details
  *
@@ -157,6 +166,8 @@ all_ions (void)
  * @brief  Print detailed information about a single ion.
  *
  * @details
+ *
+ * The atomic number Z and ionization state are queried.
  *
  * ************************************************************************** */
 
@@ -192,9 +203,11 @@ single_ion_atomic_z (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print detailed information about a single ion.
  *
  * @details
+ *
+ * The ion number of the ion is queried.
  *
  * ************************************************************************** */
 
@@ -222,7 +235,7 @@ single_ion_nion (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print all the ions for a given element.
  *
  * @details
  *

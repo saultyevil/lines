@@ -32,8 +32,6 @@ MenuItem_t BOUND_FREE_MENU_CHOICES[] = {
  *
  * The main menu for photoionization queries is controlled by this function.
  *
- * TODO: add additional options and a menu :^)
- *
  * ************************************************************************** */
 
 void
@@ -44,7 +42,7 @@ bound_free_main_menu (void)
   while (TRUE)
   {    
     menu_index = create_menu (CONTENT_WINDOW, "Bound-free transitions", BOUND_FREE_MENU_CHOICES,
-                              ARRAY_SIZE (BOUND_FREE_MENU_CHOICES), menu_index, CONTROL_MENU);
+                              ARRAY_SIZE (BOUND_FREE_MENU_CHOICES), menu_index, MENU_CONTROL);
     if (BOUND_FREE_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
@@ -52,7 +50,7 @@ bound_free_main_menu (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Add a header for the bound free table.
  *
  * @details
  *
@@ -68,9 +66,12 @@ bound_free_header (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Standard line for a bound free line.
  *
  * @details
+ *
+ * The function bound_free_header will create an approprate header for these
+ * lines.
  *
  * ************************************************************************** */
 
@@ -89,7 +90,7 @@ bound_free_line (int nphot)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print all the bound free edges in the atomic data.
  *
  * @details
  *
@@ -127,18 +128,13 @@ all_bound_free (void)
  * @brief  Retrieve all of the photoionization edges over a given wavelength
  *         range.
  *
- * @param[in]  wmin  The smallest wavelength to consider
- * @param[in]  wmax  The largest wavelength to consider
- *
  * @details
  *
- * This function simply loops over the phot_top pointer (Topbase) and writes
- * to the DISPLAY buffer whenever a threshold frequency for an edge falls
+ * This function simply loops over the phot_top_prt (Topbase) and writes
+ * to the screen whenever a threshold frequency for an edge falls
  * within the provided wavelength range.
  *
- * Added to the display buffer for each edge is,
- *
- *  Wavelength, Element, Z, istat and PhotInfo
+ * The wavelength range is queried within the function.
  *
  * ************************************************************************** */
 
@@ -178,7 +174,7 @@ bound_free_wavelength_range (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print all the bound free edges for an element.
  *
  * @details
  *
@@ -192,7 +188,7 @@ bound_free_element (void)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Print all the bound free edges for an ion.
  *
  * @details
  *

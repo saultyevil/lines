@@ -64,7 +64,7 @@ initialise_ncurses_stdscr (void)
 void
 cleanup_ncurses_stdscr (void)
 {
-  log_close ();
+  logfile_close();
   endwin ();
 }
 
@@ -94,43 +94,54 @@ initialise_main_windows (void)
   max_rows = AtomixConfiguration.rows;
   max_cols = AtomixConfiguration.cols;
 
-  // The window containing the main menu and sub menus
+  /*
+   * Main menu: vertical bar on the left
+   */
+
   MENU_WINDOW.rows = max_rows - TITLE_BAR_HEIGHT - STATUS_BAR_HEIGHT;
   MENU_WINDOW.cols = MENU_WIDTH;
   MENU_WINDOW.y = TITLE_BAR_HEIGHT;
   MENU_WINDOW.x = 0;
   MENU_WINDOW.win = newwin (MENU_WINDOW.rows, MENU_WINDOW.cols, MENU_WINDOW.y, MENU_WINDOW.x);
   if (MENU_WINDOW.win == NULL)
-    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for MENU_WINDOW");
+    exit_atomix (EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for MENU_WINDOW");
   keypad (MENU_WINDOW.win, TRUE);
 
-  // The window containing the main title and
+  /*
+   * Title and subtitle: horizontal bar across the top
+   */
+
   TITLE_WINDOW.rows = TITLE_BAR_HEIGHT;
   TITLE_WINDOW.cols = max_cols;
   TITLE_WINDOW.y = 0;
   TITLE_WINDOW.x = 0;
   TITLE_WINDOW.win = newwin (TITLE_WINDOW.rows, TITLE_WINDOW.cols, TITLE_WINDOW.y, TITLE_WINDOW.x);
   if (TITLE_WINDOW.win == NULL)
-    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for TITLE_WINDOW");
+    exit_atomix (EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for TITLE_WINDOW");
 
-  // The window for the status bar at the bottom
+  /*
+   * Status bar for messages: horizontal bar across the bottom
+   */
+
   STATUS_WINDOW.rows = STATUS_BAR_HEIGHT;
   STATUS_WINDOW.cols = max_cols;
   STATUS_WINDOW.y = max_rows - STATUS_BAR_HEIGHT;
   STATUS_WINDOW.x = 0;
   STATUS_WINDOW.win = newwin (STATUS_WINDOW.rows, STATUS_WINDOW.cols, STATUS_WINDOW.y, STATUS_WINDOW.x);
   if (STATUS_WINDOW.win == NULL)
-    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for STATUS_WINDOW");
+    exit_atomix (EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for STATUS_WINDOW");
 
-  // The window for displaying content to the user
+  /*
+   * The content window: the workhorse where everything is displayed
+   */
+
   CONTENT_WINDOW.rows = max_rows - TITLE_BAR_HEIGHT - STATUS_BAR_HEIGHT;
   CONTENT_WINDOW.cols = max_cols - MENU_WIDTH;
   CONTENT_WINDOW.y = TITLE_BAR_HEIGHT;
   CONTENT_WINDOW.x = MENU_WIDTH;
   CONTENT_WINDOW.win = newwin (CONTENT_WINDOW.rows, CONTENT_WINDOW.cols, CONTENT_WINDOW.y, CONTENT_WINDOW.x);
   if (CONTENT_WINDOW.win == NULL)
-    exit_atomix (EXIT_FAILURE, "initialise_main_window s: unable to allocate memory for CONTENT_WINDOW");
-  keypad (CONTENT_WINDOW.win, TRUE);
+    exit_atomix (EXIT_FAILURE, "initialise_main_windows: unable to allocate memory for CONTENT_WINDOW");
 }
 
 /* ************************************************************************** */
@@ -157,33 +168,43 @@ draw_window_boundaries (void)
   wattron (STATUS_WINDOW.win, A_REVERSE);
   wattron (MENU_WINDOW.win, A_REVERSE);
 
-  // This is for the top, title window
+  /*
+   * Background for title window and subtitle
+   */
+
   for (j = 0; j < TITLE_WINDOW.rows; ++j)
     for (i = 0; i < TITLE_WINDOW.cols; ++i)
       mvwprintw (TITLE_WINDOW.win, j, i, " ");
 	len = sprintf (title, "atomix : version %s", ATOMIX_VERSION_NUMBER);
   mvwprintw (TITLE_WINDOW.win, 0, (TITLE_WINDOW.cols - len) / 2, title);
 
-  // This is for the bottom, status bar
+  wattroff (TITLE_WINDOW.win, A_BOLD);
+  wattron (TITLE_WINDOW.win, A_ITALIC);
+  subtitle = get_random_subtitle();
+  len = strlen (subtitle);
+  mvwprintw (TITLE_WINDOW.win, 1, (TITLE_WINDOW.cols - len) / 2, subtitle);
+  wattroff (TITLE_WINDOW.win, A_ITALIC);
+  wattron (TITLE_WINDOW.win, A_BOLD);
+
+  /*
+   * Background and default status bar message
+   */
+
   for (j = 0; j < STATUS_WINDOW.rows; ++j)
     for (i = 0; i < STATUS_WINDOW.cols; ++i)
       mvwprintw (STATUS_WINDOW.win, j, i, " ");
-  update_status_bar ("Press q to quit when in the main menu");
+  update_status_bar ("Press q or F1 to quit Atomix");
 
-  // This creates a 1 column boundary between the menu and content window
+  /*
+   * Draw a 1 column boundary between the menu and content windows
+   */
+
   for (j = 0; j < MENU_WINDOW.rows; ++j)
     mvwprintw (MENU_WINDOW.win, j, MENU_WINDOW.cols - 1, " ");
 
   wattroff (STATUS_WINDOW.win, A_REVERSE);
   wattroff (TITLE_WINDOW.win, A_REVERSE | A_BOLD);
   wattroff (MENU_WINDOW.win, A_REVERSE);
-
-	// This is for the subtitle
-	wattron (TITLE_WINDOW.win, A_REVERSE | A_ITALIC);
-	subtitle = get_random_subtitle();
-	len = strlen (subtitle);
-	mvwprintw (TITLE_WINDOW.win, 1, (TITLE_WINDOW.cols - len) / 2, subtitle);
-	wattroff (TITLE_WINDOW.win, A_REVERSE | A_ITALIC);
 
   wrefresh (TITLE_WINDOW.win);
   wrefresh (STATUS_WINDOW.win);
@@ -208,13 +229,13 @@ draw_window_boundaries (void)
  *
  * ************************************************************************** */
 
-
 void
-bold_message (WINDOW *win, int y, int x, char *fmt, ...)
+bold_message (Window_t win, int y, int x, char *fmt, ...)
 {
   int len;
   char *msg;
   va_list va, va_c;
+  WINDOW *window = win.win;
 
   va_start (va, fmt);
   va_copy (va_c, va);
@@ -223,9 +244,9 @@ bold_message (WINDOW *win, int y, int x, char *fmt, ...)
   msg = malloc (len * sizeof (char));
   len = vsprintf (msg, fmt, va_c);
 
-  wattron (win, A_BOLD | A_UNDERLINE);
-  mvwprintw (win, y, x, "%s", msg);
-  wattroff (win, A_BOLD | A_UNDERLINE);
+  wattron (window, A_BOLD | A_UNDERLINE);
+  mvwprintw (window, y, x, "%s", msg);
+  wattroff (window, A_BOLD | A_UNDERLINE);
 
   va_end (va);
   va_end (va_c);

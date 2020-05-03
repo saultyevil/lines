@@ -94,10 +94,10 @@ typedef struct
  * ************************************************************************** */
 
 #define MENU_QUIT -1
-#define MENU_NULL -2
+#define MENU_CONTINUE -2
 #define INDEX_OTHER -3
 #define ATOMIC_TEST -4
-#define CONTROL_MENU TRUE
+#define MENU_CONTROL TRUE
 #define MENU_DRAW FALSE
 
 typedef struct MenuItem_t

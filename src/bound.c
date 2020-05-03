@@ -30,6 +30,8 @@ MenuItem_t BOUND_MENU_CHOICES[] = {
  * 
  * @details
  *
+ * The previous menu index is remembered.
+ *
  * ************************************************************************** */
 
 void
@@ -39,14 +41,14 @@ bound_bound_main_menu (void)
 
   if (nlines == 0)
   {
-    error_atomix ("No bound-bound transitions were read in. Unable to query!");
+    error_atomix ("No bound-bound transitions were read in");
     return;
   }
 
   while (TRUE)
   {
     menu_index = create_menu (CONTENT_WINDOW, "Bound-bound transitions", BOUND_MENU_CHOICES,
-                              ARRAY_SIZE (BOUND_MENU_CHOICES), menu_index, CONTROL_MENU);
+                              ARRAY_SIZE (BOUND_MENU_CHOICES), menu_index, MENU_CONTROL);
     if (BOUND_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
@@ -54,7 +56,7 @@ bound_bound_main_menu (void)
 
 /* ************************************************************************** */
 /**
- * @brief 
+ * @brief  Add a header for a bound_bound_line table.
  * 
  * @details
  *
@@ -70,14 +72,17 @@ bound_bound_header (void)
 
 /* ************************************************************************** */
 /**
- * @brief 
+ * @brief  Standard layout for a bound bound transition line.
  * 
  * @details
+ *
+ * The function bound_bound_header will create an appropriate header for one
+ * of these lines.
  *
  * ************************************************************************** */
 
 void
-bound_bound_line (int n, int hide)
+bound_bound_line (int n)
 {
   double wl;
   char element[LINELEN];
@@ -86,16 +91,16 @@ bound_bound_line (int n, int hide)
   wl = C_SI / lin_ptr[n]->freq / ANGSTROM / 1e-2;
   display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z,
                lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info);
-
-  if (hide)
-    return;
 }
 
 /* ************************************************************************** */
 /**
- * @brief 
+ * @brief  Print all the bound-bound transitions in the data set.
  * 
  * @details
+ *
+ * Iterates over the lin_ptr array, which is ordered by frequency. For atomic
+ * data sets, there can be some lines with very large wavelengths.
  *
  * ************************************************************************** */
 
@@ -114,7 +119,7 @@ all_bound_bound (void)
   bound_bound_header ();
 
   for (i = 0; i < nlines; ++i)
-    bound_bound_line (i, FALSE);
+    bound_bound_line (i);
 
   count (ndash, nlines);
 
@@ -129,7 +134,8 @@ all_bound_bound (void)
  * @details
  *
  * This function simply loops over the lin_ptr struct between the limits
- * nline_min and nline_max set by the limit_lines() function.
+ * nline_min and nline_max set by the limit_lines() function. The wavelength
+ * limits are queried within the function.
  * 
  * ************************************************************************** */
 
@@ -150,7 +156,7 @@ bound_bound_wavelength_range (void)
   bound_bound_header ();
 
   for (nline = nline_min + 1; nline < nline_max; ++nline)
-    bound_bound_line (nline, FALSE);
+    bound_bound_line (nline);
 
   count (ndash, n);
 
@@ -159,7 +165,7 @@ bound_bound_wavelength_range (void)
 
 /* ************************************************************************** */
 /**
- * @brief 
+ * @brief  Print all bound bound transitions for a given element.
  * 
  * @details
  *
@@ -173,9 +179,13 @@ bound_bound_element (void)
 
 /* ************************************************************************** */
 /**
- * @brief 
+ * @brief  Print all bound bound transitions for a given ion.
  * 
  * @details
+ *
+ * The ion is specified by the ion number. It would be possibleto add a small
+ * menu to select to select an ion by ion number or atomic number and ionisation
+ * state with the exeisting machinery.
  *
  * ************************************************************************** */
 

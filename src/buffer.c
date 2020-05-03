@@ -218,7 +218,7 @@ display_buffer (Display_t *buffer, int scroll)
 
   if (buffer->nlines == 0 || buffer->lines == NULL)
   {
-    bold_message (window, 1, 1, "No text in display buffer to show.");
+    bold_message (CONTENT_WINDOW, 1, 1, "No text in display buffer to show.");
     wrefresh (window);
   }
   else
