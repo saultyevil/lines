@@ -18,8 +18,8 @@
  *
  * ************************************************************************** */
 
- void
- levels_main_menu (void)
- {
- 
- }
+void
+levels_main_menu (void)
+{
+  error_atomix ("NOT IMPLEMENTED YET: 3 May 2020");
+}
