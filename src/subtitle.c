@@ -30,7 +30,7 @@ get_random_subtitle (void)
   char *sub;
   char *subtitles[] = {
     "To boldly probe atomic data where others simply don't dare or want to",
-    "Digging too deep since september 2020",
+    "Digging too deep since september 2019",
     "Not as confusingly named as Python",
     "Attempting to demystify mysterious data",
     "Not for Stuart to play with",

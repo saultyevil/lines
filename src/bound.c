@@ -15,45 +15,6 @@
 static const
 int ndash = 103;  
 
-const
-MenuItem_t BOUND_MENU_CHOICES[] = {
-  {&all_bound_bound             , 0        , "All"                , "Print all of the possible transitions"},
-  {&bound_bound_wavelength_range, 1        , "By wavelength range", "Print the transitions over a given wavelength range"},
-  {&bound_bound_element         , 2        , "By element"         , "Print all the transitions for a given element"},
-  {&bound_bound_ion             , 3        , "By ion number"      , "Print all the transitions for a given ion"},
-  {NULL                         , MENU_QUIT, "Return to main menu", ""}
-};
-
-/* ************************************************************************** */
-/**
- * @brief  The main menu for bound bound transition queries.
- * 
- * @details
- *
- * The previous menu index is remembered.
- *
- * ************************************************************************** */
-
-void
-bound_bound_main_menu (void)
-{
-  static int menu_index = 0;
-
-  if (nlines == 0)
-  {
-    error_atomix ("No bound-bound transitions were read in");
-    return;
-  }
-
-  while (TRUE)
-  {
-    menu_index = create_menu (CONTENT_WINDOW, "Bound-bound transitions", BOUND_MENU_CHOICES,
-                              ARRAY_SIZE (BOUND_MENU_CHOICES), menu_index, MENU_CONTROL);
-    if (BOUND_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
-      return;
-  }
-}
-
 /* ************************************************************************** */
 /**
  * @brief  Add a header for a bound_bound_line table.

@@ -10,19 +10,9 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "atomix.h"
-
-const
-MenuItem_t MAIN_MENU_CHOICES[] = {
-  {&elements_main_menu   , 0        , "Elements"          , "Query the elements in the atomic data"},
-  {&ions_main_menu       , 1        , "Ions"              , "Query the ions in the atomic data"},
-  {&bound_bound_main_menu, 2        , "Bound-Bound"       , "Query possible bound-bound transitions"},
-  {&bound_free_main_menu , 3        , "Bound-Free"        , "Query the photionization edges"},
-  {&levels_main_menu     , 4        , "Levels"            , "Query an atomic configuration"},
-  {&switch_atomic_data   , 5        , "Switch Atomic Data", "Switch atomic data data sets"},
-  {&menu_exit_atomix     , MENU_QUIT, "Exit"              , "Exit Atomix"},
-};
 
 /* ************************************************************************* */
 /**
@@ -43,30 +33,34 @@ MenuItem_t MAIN_MENU_CHOICES[] = {
 int
 main (int argc, char *argv[])
 {
-  int print_atomic;
-  int menu_index = 0;
-
-  atexit (cleanup_ncurses_stdscr);
+  /*
+   * Start by checking everything is as it should be, and initialise the global
+   * variables, logfile and check the command lines for input
+   */
 
   if (getenv ("PYTHON") == NULL)
     exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
 
+  atexit (cleanup_ncurses_stdscr);
+  // signal (SIGWINCH, redraw_screen);
+
+  AtomixConfiguration.rows = AtomixConfiguration.cols = 0;
+  AtomixConfiguration.current_line = AtomixConfiguration.current_col = 0;
+  AtomixConfiguration.atomic_data_loaded = FALSE;
+  AtomixConfiguration.atomic_data[0] = '\0';
+
   DISPLAY_BUFFER.nlines = 0;
+  DISPLAY_BUFFER.maxlen = 0;
   DISPLAY_BUFFER.lines = NULL;
+  strcpy (DISPLAY_BUFFER.name, "display");
 
   ATOMIC_BUFFER.nlines = 0;
+  ATOMIC_BUFFER.maxlen = 0;
   ATOMIC_BUFFER.lines = NULL;
+  strcpy (ATOMIC_BUFFER.name, "atomic");
 
-  /*
-   * Initialise the log file, this should put AT LEAST the atomic data
-   * diagnostics into the logfile
-   */
-
-  logfile_init("atomix.log.txt");
-  print_atomic = check_command_line (argc, argv);
-
-  if (!print_atomic)
-    menu_index = ARRAY_SIZE (MAIN_MENU_CHOICES) - 2;  // Set the menu index to atomic data
+  logfile_init ("atomix.log.txt");
+  check_command_line (argc, argv);
 
   /*
    * Initialise ncurses, the window panels and draw the window borders
@@ -79,13 +73,13 @@ main (int argc, char *argv[])
   /*
    * Query the user for the atomic data file name, and read in that atomic
    * data. If there is an error with reading the atomic data, then the error
-   * is handle in this function. The update_menu_window() call here is used
-   * to just display the menu.
+   * is handle in this function. The main_menu (MENU_DRAW) is used here to draw
+   * the main menu to complete the look of the UI
    */
 
-  main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, MENU_DRAW);
+  main_menu (MENU_DRAW);
 
-  if (print_atomic)
+  if (AtomixConfiguration.atomic_data_loaded)
   {
     atomic_summary_show (SCROLL_DISBALE);
   }
@@ -94,18 +88,7 @@ main (int argc, char *argv[])
     switch_atomic_data ();
   }
 
-  /*
-   * Loops over the main menu until it's time to quit :^)
-   */
-
-  while (TRUE)
-  {
-    menu_index = main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index, MENU_CONTROL);
-    atomic_summary_show (SCROLL_DISBALE);
-
-    if (menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT)  // Safety really
-      break;
-  }
+  main_menu (MENU_CONTROL);
 
   return EXIT_SUCCESS;  // Don't need to clean up at exit due to atexit()
 }

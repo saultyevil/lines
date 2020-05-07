@@ -15,39 +15,6 @@
 static const
 int ndash = 88;
 
-const
-MenuItem_t BOUND_FREE_MENU_CHOICES[] = {
-  {&all_bound_free             , 0        , "All"                , "Print all of the possible transitions"},
-  {&bound_free_wavelength_range, 1        , "By wavelength range", "Print the transitions over a given wavelength range"},
-  {&bound_free_element         , 2        , "By element"         , "Print all the transitions for a given element"},
-  {&bound_free_ion             , 3        , "By ion number"      , "Print all the transitions for a given ion"},
-  {NULL                        , MENU_QUIT, "Return to main menu", ""}
-};
-
-/* ************************************************************************** */
-/**
- * @brief  The main menu for photoionization queries.
- *
- * @details
- *
- * The main menu for photoionization queries is controlled by this function.
- *
- * ************************************************************************** */
-
-void
-bound_free_main_menu (void)
-{
-  int menu_index = 0;
-
-  while (TRUE)
-  {    
-    menu_index = create_menu (CONTENT_WINDOW, "Bound-free transitions", BOUND_FREE_MENU_CHOICES,
-                              ARRAY_SIZE (BOUND_FREE_MENU_CHOICES), menu_index, MENU_CONTROL);
-    if (BOUND_FREE_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
-      return;
-  }
-}
-
 /* ************************************************************************** */
 /**
  * @brief  Add a header for the bound free table.

@@ -17,44 +17,6 @@
 static const
 int ndash = 40;
 
-const
-MenuItem_t ELEMENTS_MENU_CHOICES[] = {
-  {&all_elements  , 0        , "All elements"       , "Query all elements in the atomic data"},
-  {&single_element, 1        , "Single element"     , "Query a single element"},
-  {NULL           , MENU_QUIT, "Return to main menu", ""},
-};
-
-/* ************************************************************************** */
-/**
- * @brief The main menu for element queries.
- *
- * @details
- *
- * This function is basically a wrapper around create_menu to allow a user to
- * choose the different querying options.
- *
- * ************************************************************************** */
-
-void
-elements_main_menu (void)
-{
-  static int menu_index = 0;
-
-  if (ele == NULL)
-  {
-    error_atomix ("No elements have been read in. Unable to query!");
-    return;
-  }
-
-  while (TRUE)
-  {
-    menu_index = create_menu (CONTENT_WINDOW, "Elements", ELEMENTS_MENU_CHOICES, ARRAY_SIZE (ELEMENTS_MENU_CHOICES),
-                              menu_index, MENU_CONTROL);
-    if (ELEMENTS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
-      return;
-  }
-}
-
 /* ************************************************************************** */
 /**
  * @brief  Print standard information about an element to screen.

@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "atomix.h"
 
@@ -42,10 +43,6 @@ initialise_ncurses_stdscr (void)
   cbreak ();
   keypad (stdscr, FALSE);
   curs_set (0);
-
-  if (AtomixConfiguration.rows < MIN_ROWS || AtomixConfiguration.cols < MIN_COLS)
-    exit_atomix (EXIT_FAILURE, "Minimum terminal size of 130x35 but current terminal size is %ix%i",
-                 AtomixConfiguration.cols, AtomixConfiguration.rows);
 }
 
 /* ************************************************************************** */
@@ -209,6 +206,34 @@ draw_window_boundaries (void)
   wrefresh (TITLE_WINDOW.win);
   wrefresh (STATUS_WINDOW.win);
   wrefresh (MENU_WINDOW.win);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief    
+ *
+ * @return   void
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+redraw_screen (int sig)
+{
+  (void) sig;  // Suppress unused variable warning
+
+  clean_up_display (&DISPLAY_BUFFER);
+
+  endwin ();
+  delwin (MENU_WINDOW.win);
+  delwin (TITLE_WINDOW.win);
+  delwin (STATUS_WINDOW.win);
+  delwin (CONTENT_WINDOW.win);
+
+  initialise_ncurses_stdscr ();
+  initialise_main_windows ();
+  draw_window_boundaries ();
 }
 
 /* ************************************************************************** */

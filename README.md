@@ -12,6 +12,7 @@ disc winds in Tidal Disruption Events.
 
 ## Features
 
+* Scrolling windows (!!!)
 * Change the atomic data files on the fly
 * Look at the bound-bound transitions over a provided wavelength range
 * Find all the photoionization edges over a provided wavelength range

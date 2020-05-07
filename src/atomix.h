@@ -20,6 +20,8 @@
 typedef struct Config_t
 {
   int rows, cols;
+  int current_line, current_col;
+  int atomic_data_loaded;
   char atomic_data[LINELEN];
 } Config_t;
 
@@ -61,7 +63,9 @@ typedef struct Line_t
 
 typedef struct Display_t
 {
+  char name[LINELEN];
   int nlines;
+  int maxlen;
   Line_t *lines;
 } Display_t;
 

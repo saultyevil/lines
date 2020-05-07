@@ -35,7 +35,7 @@ clean_up_display (Display_t *buffer)
     free (buffer->lines[i].chars);
   free (buffer->lines);
 
-  buffer->nlines = 0;
+  buffer->nlines = buffer->maxlen = 0;
   buffer->lines = NULL;
 }
 
@@ -92,6 +92,9 @@ add_display (Display_t *buffer, char *fmt, ...)
   buffer->lines[line_index].chars[len] = '\0';  // Redundant, but just in case
   buffer->lines[line_index].len = len;
 
+  if (buffer->maxlen < len)
+    buffer->maxlen = len + 1;
+
   logfile ("%s\n", buffer->lines[line_index].chars);
 
   va_end (va);
@@ -129,19 +132,18 @@ add_sep_display (const int len)
  *
  * @details
  *
- *
  * ************************************************************************** */
 
 void
-scroll_display (Window_t win)
+scroll_display (Display_t *buffer, Window_t win)
 {
-  int i;
+  int i, j;
   int ch;
-  int line_start;
-  int current_row;
+  int line_start, col_start;
+  int current_row, current_col;
   WINDOW *window = win.win;
 
-  line_start = 0;
+  line_start = col_start = 0;
 
   update_status_bar ("Press q of F1 to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
 
@@ -150,7 +152,7 @@ scroll_display (Window_t win)
     if (ch == 'q' || ch == KEY_F(1))
       break;
 
-    if (DISPLAY_BUFFER.nlines > win.rows - 2)
+    if (buffer->nlines > win.rows - 2)
     {
       wclear (window);
 
@@ -162,6 +164,12 @@ scroll_display (Window_t win)
         case KEY_DOWN:
           line_start++;
           break;
+        case KEY_RIGHT:
+          col_start++;
+          break;
+        case KEY_LEFT:
+          col_start--;
+          break;
         case KEY_NPAGE:
           line_start += win.rows - 2;
           break;
@@ -172,7 +180,7 @@ scroll_display (Window_t win)
           line_start = 0;
           break;
         case KEY_END:
-          line_start = DISPLAY_BUFFER.nlines - win.rows + 2;
+          line_start = buffer->nlines - win.rows + 2;
           break;
         default:
           break;
@@ -180,11 +188,24 @@ scroll_display (Window_t win)
 
       if (line_start < 0)
         line_start = 0;
-      if (line_start + win.rows - 2 > DISPLAY_BUFFER.nlines)
-        line_start = DISPLAY_BUFFER.nlines - win.rows + 2;
+      if (line_start + win.rows - 2 > buffer->nlines)
+        line_start = buffer->nlines - win.rows + 2;
 
-      for (i = line_start, current_row = 1; i < DISPLAY_BUFFER.nlines && current_row < win.rows - 1; ++i, ++current_row)
-        mvwprintw (window, current_row, 1, "%s", DISPLAY_BUFFER.lines[i].chars);
+      if (col_start < 0)
+        col_start = 0;
+      if (col_start + win.cols - 2 > buffer->maxlen)
+        col_start = AtomixConfiguration.current_col;
+
+      AtomixConfiguration.current_line = line_start;
+      AtomixConfiguration.current_col = col_start;
+
+      for (i = line_start, current_row = 1; i < buffer->nlines && current_row < win.rows - 1; ++i, ++current_row)
+      {
+        for (j = col_start, current_col = 1; j < buffer->lines[i].len && current_col < win.cols - 1; ++j, ++current_col)
+        {
+          mvwprintw (window, current_row, current_col, "%c", buffer->lines[i].chars[j]);
+        }
+      }
     }
 
     wrefresh (window);
@@ -204,31 +225,36 @@ scroll_display (Window_t win)
  * refreshing the screen. If DISPLAY.nlines is zero, or if the lines pointer in
  * DISPLAY is NULL, an error message is displayed instead.
  * 
- * TODO: center the output
- *
  * ************************************************************************** */
 
 void
 display_buffer (Display_t *buffer, int scroll)
 {
-  int i;
+  int i, j;
+  int line_index;
   WINDOW *window = CONTENT_WINDOW.win;
 
-   wclear (window);
+  wclear (window);
 
   if (buffer->nlines == 0 || buffer->lines == NULL)
   {
-    bold_message (CONTENT_WINDOW, 1, 1, "No text in display buffer to show.");
+    bold_message (CONTENT_WINDOW, 1, 1, "No text in %s buffer to show", buffer->name);
     wrefresh (window);
   }
   else
   {
     for (i = 0; i < buffer->nlines && i < CONTENT_WINDOW.rows - 2; ++i)
-      mvwprintw (window, i + 1, 1, "%s", buffer->lines[i].chars);
+    { 
+      line_index = i;
+      for (j = 0; j < buffer->lines[line_index].len && j < CONTENT_WINDOW.cols - 2; ++j)
+      {
+        mvwprintw (window, i + 1, j + 1, "%c", buffer->lines[line_index].chars[j]);
+      }
+    }
 
     wrefresh (window);
 
     if (scroll == SCROLL_ENABLE)
-      scroll_display (CONTENT_WINDOW);
+      scroll_display (buffer, CONTENT_WINDOW);
   }
 }

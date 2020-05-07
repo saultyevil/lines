@@ -15,45 +15,6 @@
 static const
 int ndash = 43;
 
-const
-MenuItem_t IONS_MENU_CHOICES[] = {
-  {&all_ions           , 0        , "All ions"                   , "Print all the ions in the atomic data"},
-  {&ions_for_element   , 1        , "Ions for an element"        , "Print all the ions for an element"},
-  {&single_ion_atomic_z, 2        , "Single ion by atomic number", "Detailed output for a single ion by atomic number and ionisation state"},
-  {&single_ion_nion    , 3        , "Single ion by ion number"   , "Detailed output for a single ion by ion number"},
-  {NULL                , MENU_QUIT, "Return to main menu"        , ""},
-};
-
-/* ************************************************************************** */
-/**
- * @brief  The main menu for ion queries.
- *
- * @details
- *
- * The previous menu index is remembered.
- *
- * ************************************************************************** */
-
-void
-ions_main_menu (void)
-{
-    static int menu_index;
-
-  if (nions == 0)
-  {
-      error_atomix ("No ions have been read in. Unable to query!");
-      return;
-  }
-
-	while (TRUE)
-  {
-    menu_index = create_menu (CONTENT_WINDOW, "Ions", IONS_MENU_CHOICES, ARRAY_SIZE (IONS_MENU_CHOICES), menu_index,
-                              MENU_CONTROL);
-    if (IONS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
-      return;
-  }
-}
-
 /* ************************************************************************** */
 /**
  * @brief  Standard layout for printing information about an ion.

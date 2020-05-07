@@ -20,6 +20,20 @@
 
 #define LINELENGTH 400
 
+/* ************************************************************************** */
+/** 
+ * @brief Look at the atomic summary in scrolling mode
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+view_atomic_summary (void)
+{
+  atomic_summary_show (SCROLL_ENABLE);
+}
+
 /**********************************************************/
 /**
  * @brief Perform linear/logarithmic interpolation of an array
@@ -961,6 +975,8 @@ get_atomic_data (char *masterfile, int use_relative)
 
   /* define which files to read as data files */
 
+
+  AtomixConfiguration.atomic_data_loaded = FALSE;
 
 /* Allocate structures for storage of data */
 
@@ -3760,6 +3776,8 @@ or zero so that simple checks of true and false can be used for them */
 
   free (sub_atomic_data_file_path);
   free (atomic_data_file_path);
+
+  AtomixConfiguration.atomic_data_loaded = TRUE;
 
   return (0);
 }

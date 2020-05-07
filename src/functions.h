@@ -1,5 +1,4 @@
 /* bound.c */
-void bound_bound_main_menu(void);
 void bound_bound_header(void);
 void bound_bound_line(int n);
 void all_bound_bound(void);
@@ -10,15 +9,20 @@ void bound_bound_ion(void);
 void clean_up_display(Display_t *buffer);
 void add_display(Display_t *buffer, char *fmt, ...);
 void add_sep_display(const int len);
-void scroll_display(Window_t win);
+void scroll_display(Display_t *buffer, Window_t win);
 void display_buffer(Display_t *buffer, int scroll);
 /* main.c */
 int main(int argc, char *argv[]);
 /* menu.c */
 void clean_up_menu(MENU *menu, ITEM **items, int nitems);
 int control_menu(MENU *menu, int c);
-int main_menu(char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
+int create_main_menu(char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
 int create_menu(Window_t win, char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
+void main_menu(int control);
+void bound_bound_main_menu(void);
+void bound_free_main_menu(void);
+void elements_main_menu(void);
+void ions_main_menu(void);
 /* tools.c */
 void get_element_name(int z, char *element);
 int check_command_line(int argc, char **argv);
@@ -33,17 +37,18 @@ void initialise_ncurses_stdscr(void);
 void cleanup_ncurses_stdscr(void);
 void initialise_main_windows(void);
 void draw_window_boundaries(void);
+void redraw_screen(int sig);
 void bold_message(Window_t win, int y, int x, char *fmt, ...);
 void update_status_bar(char *fmt, ...);
 /* photoionization.c */
-void bound_free_main_menu(void);
 void bound_free_header(void);
 void bound_free_line(int nphot);
 void all_bound_free(void);
 void bound_free_wavelength_range(void);
 void bound_free_element(void);
 void bound_free_ion(void);
-/* read_atomic_data.c */
+/* atomic_data.c */
+void view_atomic_summary(void);
 int fraction(double value, double array[], int npts, int *ival, double *f, int mode);
 int linterp(double x, double xarray[], double yarray[], int xdim, double *y, int mode);
 int index_phot_top(void);
@@ -66,12 +71,10 @@ int query_atomic_number(int *z);
 int query_ion_input(int nion_or_z, int *z, int *istate, int *nion);
 void switch_atomic_data(void);
 /* elements.c */
-void elements_main_menu(void);
 void element_line(struct elements e, int detailed);
 void all_elements(void);
 void single_element(void);
 /* ions.c */
-void ions_main_menu(void);
 void ion_line(int nion, int detailed, int basic);
 void all_ions(void);
 void single_ion_atomic_z(void);

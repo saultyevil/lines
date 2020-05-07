@@ -14,7 +14,7 @@ add_compile_options(-Wall -Wextra)
 set(SOURCE_FILES
         src/log.c
         src/main.c
-        src/read_atomic_data.c
+        src/atomic_data.c
         src/bound.c
         src/photoionization.c
         src/tools.c
