@@ -135,7 +135,34 @@ bound_bound_wavelength_range (void)
 void
 bound_bound_element (void)
 {
-  error_atomix ("NOT IMPLEMENTED YET");
+  int n, z;
+  int nline;
+  char element[LINELEN];
+
+  if (query_atomic_number (&z) == FORM_QUIT)
+    return;
+
+  if (find_element (z) == ELEMENT_NO_FOUND)
+    return;
+
+  get_element_name (z, element);
+  display_add ("Bound-bound transitions for %s", element);
+  add_sep_display (ndash);
+  bound_bound_header ();
+
+  n = 0;
+  for (nline = 0; nline < nlines; ++nline)
+  {
+    if (lin_ptr[nline]->z == z)
+    {
+      bound_bound_line (nline);
+      n++;
+    }
+  }
+
+  count (ndash, n);
+
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -153,5 +180,41 @@ bound_bound_element (void)
 void
 bound_bound_ion (void)
 {
-  error_atomix ("NOT IMPLEMENTED YET");
+  int z, istate;
+  int n, nion, nline;
+  char element[LINELEN];
+
+  if (query_ion_input (TRUE, NULL, NULL, &nion) == FORM_QUIT)
+    return;
+
+  if (nion < 0)
+    nion *= -1;
+
+  if (nion > nions -1)
+  {
+    error_atomix ("Invaild ion number %i > nions %i", nion, nions);
+    return;
+  }
+
+  z = ions[nion].z;
+  istate = ions[nion].istate;
+  get_element_name (z, element);
+
+  display_add ("Bound-bound transitions for %s %i", element, istate);
+  add_sep_display (ndash);
+  bound_bound_header ();
+
+  n = 0;
+  for (nline = 0; nline < nlines; ++nline)
+  {
+    if (lin_ptr[nline]->z == z && lin_ptr[nline]->istate == istate)
+    {
+      bound_bound_line (nline);
+      n++;
+    }
+  }
+
+  count (ndash, n);
+
+  display_show (SCROLL_ENABLE);
 }

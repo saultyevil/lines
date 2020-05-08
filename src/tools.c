@@ -56,6 +56,42 @@ get_element_name (int z, char *element)
 
 /* ************************************************************************** */
 /**
+ * @brief
+ *
+ * @param[in]
+ * 
+ * @return
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+int
+find_element (int z)
+{
+  int i;
+  int found = FALSE;
+
+  for (i = 0; i < nelements; ++i)
+  {
+    if (ele[i].z == z)
+    {
+      found = TRUE;
+      break;
+    }
+  }
+
+  if (!found)
+  {
+    error_atomix ("Element Z = %i is not in the atomic data", z);
+    return ELEMENT_NO_FOUND;
+  }
+
+  return i;
+}
+
+/* ************************************************************************** */
+/**
  * @brief  Check the command line arguments to see if atomic data has been
  *         provided.
  *

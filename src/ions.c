@@ -142,18 +142,21 @@ single_ion_atomic_z (void)
   if (query_ion_input (FALSE, &z, &istate, NULL) == FORM_QUIT)
     return;
 
+  if (find_element (z) == ELEMENT_NO_FOUND)
+    return;
+
   for (nion = 0; nion < nions; ++nion)
   {
     if (ions[nion].z == z && ions[nion].istate == istate)
-    {
-      found = TRUE;
+    { 
+      found = TRUE; 
       break;
     }
   }
 
   if (!found)
   {
-    error_atomix ("Unable to find configuration Z = %i : Ionisation State = %i", z, istate);
+    error_atomix ("Unknown ion configuration");
     return;
   }
 
@@ -205,34 +208,22 @@ single_ion_nion (void)
 void
 ions_for_element (void)
 {
-  int i, nion;
-  int z, firston, lastion;
-  int found = FALSE;
+  int nion, n;
+  int z, firstion, lastion;
 
   if (query_atomic_number (&z) == FORM_QUIT)
     return;
 
-  for (i = 0; i < nelements; ++i)
-  {
-    if (ele[i].z == z)
-    {
-      found = TRUE;
-      firston = ele[i].firstion;
-      lastion = firston + ele[i].nions - 1;
-      break;
-    }
-  }
-
-  if (!found)
-  {
-    error_atomix ("Element Z = %i is not in the atomic data", z);
+  if ((n = find_element (z)) == ELEMENT_NO_FOUND)
     return;
-  }
+
+  firstion = ele[n].firstion;
+  lastion = ele[n].firstion + ele[n].nions - 1;
 
   add_sep_display (ndash);
-  display_add (" There are %i ions for %s", lastion - firston, ele[i].name);
+  display_add (" There are %i ions for %s", lastion - firstion, ele[n].name);
 
-  for (nion = firston; nion < lastion; ++nion)
+  for (nion = firstion; nion < lastion; ++nion)
     ion_line (nion, FALSE, FALSE);
 
   add_sep_display (ndash);

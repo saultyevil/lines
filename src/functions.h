@@ -25,6 +25,7 @@ void elements_main_menu(void);
 void ions_main_menu(void);
 /* tools.c */
 void get_element_name(int z, char *element);
+int find_element(int z);
 int check_command_line(int argc, char **argv);
 void error_atomix(char *fmt, ...);
 void exit_atomix(int errno, char *fmt, ...);
