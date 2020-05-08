@@ -190,7 +190,7 @@ bound_bound_ion (void)
   if (nion < 0)
     nion *= -1;
 
-  if (nion > nions -1)
+  if (nion > nions - 1)
   {
     error_atomix ("Invaild ion number %i > nions %i", nion, nions);
     return;

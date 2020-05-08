@@ -150,7 +150,34 @@ bound_free_wavelength_range (void)
 void
 bound_free_element (void)
 {
-  error_atomix ("NOT IMPLEMENTED YET");
+  int n, z;
+  int nphot;
+  char element[LINELEN];
+
+  if (query_atomic_number (&z) == FORM_QUIT)
+    return;
+
+  if (find_element (z) == ELEMENT_NO_FOUND)
+    return;
+
+  get_element_name (z, element);
+  display_add ("Bound-free edges for %s", element);
+  add_sep_display (ndash);
+  bound_free_header ();
+
+  n = 0;
+  for (nphot = 0; nphot < nphot_total; ++nphot)
+  {
+    if (phot_top_ptr[nphot]->z == z)
+    {
+      bound_free_line (nphot);
+      n++;
+    }
+  }
+
+  count (ndash, n);
+
+  display_show (SCROLL_ENABLE);
 }
 
 /* ************************************************************************** */
@@ -164,5 +191,42 @@ bound_free_element (void)
 void
 bound_free_ion (void)
 {
-  error_atomix ("NOT IMPLEMENTED YET");
+  int z, istate;
+  int n, nion, nphot;
+  char element[LINELEN];
+
+  if (query_ion_input (TRUE, NULL, NULL, &nion) == FORM_QUIT)
+    return;
+
+  if (nion < 0)
+    nion *= -1;
+
+  if (nion > nions - 1)
+  {
+    error_atomix ("Invaild ion number %i > nions %i", nion, nions);
+    return;
+  }
+
+  z = ions[nion].z;
+  istate = ions[nion].istate;
+  get_element_name (z, element);
+
+  display_add ("Bound-free transitions for %s %i", element, istate);
+  add_sep_display (ndash);
+  bound_free_header ();
+
+  n = 0;
+  for (nphot = 0; nphot < nphot_total; ++nphot)
+  {
+    if (phot_top_ptr[nphot]->z == z && phot_top_ptr[nphot]->istate == istate)
+    {
+      bound_free_line (nphot);
+      n++;
+    }
+  }
+
+  count (ndash, n);
+
+  display_show (SCROLL_ENABLE);
+
 }
