@@ -19,7 +19,7 @@ MenuItem_t MAIN_MENU_CHOICES[] = {
   {&bound_bound_main_menu, 2        , "Bound-Bound"        , "Query possible bound-bound transitions"},
   {&bound_free_main_menu , 3        , "Bound-Free"         , "Query the photionization edges"},
   {&levels_main_menu     , 4        , "Levels"             , "Query an atomic configuration"},
-  // {&view_atomic_summary  , 5        , "View Atomic Summary", "View the atomic summary output"},
+  {&view_atomic_summary  , 5        , "Atomic Summary"     , "View the atomic summary output"},
   {&switch_atomic_data   , 6        , "Switch Atomic Data" , "Switch atomic data data sets"},
   {&menu_exit_atomix     , MENU_QUIT, "Exit"               , "Exit Atomix"},
 };

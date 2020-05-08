@@ -139,6 +139,7 @@ initialise_main_windows (void)
   CONTENT_WINDOW.win = newwin (CONTENT_WINDOW.rows, CONTENT_WINDOW.cols, CONTENT_WINDOW.y, CONTENT_WINDOW.x);
   if (CONTENT_WINDOW.win == NULL)
     exit_atomix (EXIT_FAILURE, "initialise_main_windows: unable to allocate memory for CONTENT_WINDOW");
+  keypad (CONTENT_WINDOW.win, TRUE);
 }
 
 /* ************************************************************************** */

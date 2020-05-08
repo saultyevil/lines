@@ -21,5 +21,5 @@
 void
 levels_main_menu (void)
 {
-  error_atomix ("NOT IMPLEMENTED YET: 3 May 2020");
+  error_atomix ("Not implemented yet, soz!");
 }

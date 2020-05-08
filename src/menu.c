@@ -234,7 +234,6 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   WINDOW *window = win.win;
 
   wclear (window);
-  keypad (window, TRUE);
 
   items = calloc (nitems + 1, sizeof (ITEM *));
   if (items == NULL)
@@ -262,6 +261,7 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
+  update_status_bar ("Press q or F1 to exit Atomix");
   bold_message (CONTENT_WINDOW, 1, 1, menu_message);
   post_menu (menu);
   wrefresh (window);
@@ -285,7 +285,6 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   }
 
   clean_up_menu (menu, items, nitems);
-  keypad (window, FALSE);
 
   return index;
 }

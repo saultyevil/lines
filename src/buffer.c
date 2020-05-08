@@ -101,29 +101,6 @@ add_display (Display_t *buffer, char *fmt, ...)
   va_end (va_c);
 }
 
-/* ************************************************************************* */
-/**
- * @brief  Add a line of dashes to the DISPLAY buffer.
- *
- * @param[in]  len  The number of dashes to draw.
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-add_sep_display (const int len)
-{
-  int i;
-  char tmp[len + 1];
-
-  for (i = 0; i < len; ++i)
-    tmp[i] = '-';
-  tmp[len] = '\0';
-
-  display_add (tmp);
-}
-
 /* ************************************************************************** */
 /**
  * @brief  Scroll the text buffer up and down.
@@ -210,6 +187,29 @@ scroll_display (Display_t *buffer, Window_t win)
 
     wrefresh (window);
   }
+}
+
+/* ************************************************************************* */
+/**
+ * @brief  Add a line of dashes to the DISPLAY buffer.
+ *
+ * @param[in]  len  The number of dashes to draw.
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+void
+add_sep_display (const int len)
+{
+  int i;
+  char tmp[len + 1];
+
+  for (i = 0; i < len; ++i)
+    tmp[i] = '-';
+  tmp[len] = '\0';
+
+  display_add (tmp);
 }
 
 /* ************************************************************************** */
