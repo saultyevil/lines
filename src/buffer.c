@@ -61,6 +61,8 @@ clean_up_display (Display_t *buffer)
  *
  * PLS PLS PLS DO NOT HAVE A \n NEWLINE CHARACTER IN *fmt
  *
+ * TODO check for \n or \r\n etc.
+ *
  * ************************************************************************** */
 
 void
@@ -117,20 +119,30 @@ void
 add_sep_display (const int len)
 {
   int i;
-  char tmp[len + 1];
+  char line[len + 1];
 
   for (i = 0; i < len; ++i)
-    tmp[i] = '-';
-  tmp[len] = '\0';
+    line[i] = '-';
+  line[len] = '\0';
 
-  display_add (tmp);
+  display_add (line);
 }
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Add a message to display the current line of the buffer being viewed.
+ *
+ * @param[in]  win           The Window_t containing the buffer being displayed
+ * @param[in]  current_line  The current line of the buffer at the top of the
+ *                           window
+ * @param[in]  total_lines   The total number of lines in the buffer
  *
  * @details
+ *
+ * When the maximum window scroll has been reached, END will be displayed
+ * instead of the line number.
+ *
+ * TODO variable END line
  *
  * ************************************************************************** */
 
@@ -157,11 +169,25 @@ update_current_line_progress (Window_t win, int current_line, int total_lines)
 /**
  * @brief  Scroll the text buffer up and down.
  *
- * @param[in]  win  The Window_t containing the buffer to be scrolled
+ * @param[in]  buffer             The buffer to scroll through
+ * @param[in]  win                The Window_t which the buffer is being
+ *                                displayed to
+ * @param[in]  persistent_header  If true, a header will be stuck at the top
+ *                                of win
+ * @param[in]  header_row         The number of rows in the buffer to be
+ *                                persistent
  *
  * @details
  *
- * TODO add header bar if given
+ * The main purpose of this function is to allow the text buffer to be scrolled
+ * both horizontally and vertically. The screen is only updated if a key has
+ * been pressed which will scroll to avoid screen flicker.
+ *
+ * The persistent header functionality of this function allows the first
+ * header_row lines in the buffer to become frozen at the top of the window. The
+ * purpose of this it to act as a persistent header to make scrolling less
+ * confusing when has scrolled very far and no longer has the original header
+ * for reference.
  *
  * ************************************************************************** */
 
@@ -171,16 +197,28 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
   int i, j;
   int ch;
   int srow_origin, scol_origin;
-  int bline_start, bcold_start;
+  int bline_start, bcol_start;
   int srow, scol;
   bool screen_position_moved;
   WINDOW *window = win.window;
 
-  bline_start = bcold_start = 0;
+  bline_start = bcol_start = 0;
   srow_origin = scol_origin = 1;
+  screen_position_moved = false;
+
+  /*
+   * If there is no header, then for safety we set the number of rows to
+   * 0
+   */
 
   if (!persistent_header)
     header_rows = 0;
+
+  /*
+   * The buffer and row origin have to be incremented otherwise the persistent
+   * header will be shown twice or will be overwritten by some other text in
+   * the buffer
+   */
 
   if (persistent_header)
   {
@@ -188,14 +226,17 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
     srow_origin += header_rows;
   }
 
-  screen_position_moved = false;
-
   update_status_bar ("press q or F1 to exit text view or use the ARROW KEYS to navigate");
 
   while ((ch = wgetch (window)))
   {
     if (ch == 'q' || ch == KEY_F(1))
       break;
+
+    /*
+     * Only allow key control when the buffer is large enough to scroll off
+     * the screen
+     */
 
     if (buffer->nlines > win.nrows - 2)
     {
@@ -214,11 +255,11 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
           screen_position_moved = true;
           break;
         case KEY_RIGHT:
-          bcold_start++;
+          bcol_start++;
           screen_position_moved = true;
           break;
         case KEY_LEFT:
-          bcold_start--;
+          bcol_start--;
           screen_position_moved = true;
           break;
         case KEY_NPAGE:
@@ -250,23 +291,23 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
         if (bline_start + win.nrows - 2 > buffer->nlines)
           bline_start = buffer->nlines - win.nrows + 2;
 
-        if (bcold_start < 0)
-          bcold_start = 0;
-        if (bcold_start + win.ncols - 2 > buffer->maxlen)
-          bcold_start = AtomixConfiguration.current_col;
+        if (bcol_start < 0)
+          bcol_start = 0;
+        if (bcol_start + win.ncols - 2 > buffer->maxlen)
+          bcol_start = AtomixConfiguration.current_col;
 
         AtomixConfiguration.current_line = bline_start;
-        AtomixConfiguration.current_col = bcold_start;
+        AtomixConfiguration.current_col = bcol_start;
 
         /*
-         * Draw a persistent header as the user scrolls
+         * Draw a persistent header as the user scrolls if enabled
          */
 
         if (persistent_header)
         {
           for (i = 0, srow = 1; i < header_rows && srow < win.nrows - 1; ++i, ++srow)
           {
-            for (j = 0, scol = scol_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
+            for (j = bcol_start, scol = scol_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
             {
               mvwprintw (window, srow, scol, "%c", buffer->lines[i].chars[j]);
             }
@@ -279,7 +320,7 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
 
         for (i = bline_start, srow = srow_origin; i < buffer->nlines && srow < win.nrows - 1; ++i, ++srow)
         {
-          for (j = bcold_start, scol = scol_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
+          for (j = bcol_start, scol = scol_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
           {
             mvwprintw (window, srow, scol, "%c", buffer->lines[i].chars[j]);
           }
@@ -296,16 +337,27 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
 
 /* ************************************************************************** */
 /**
- * @brief  Print the DISPLAY buffer in the provided window.
+ * @brief  Print a buffer into CONTENT_WINDOW window.
  *
- * @param[in]  *buffer
- * @param[in]  scroll
+ * @param[in]  *buffer            The buffer to be displayed to screen.
+ * @param[in]  scroll             Allows the buffer to be scrolled, allowed
+ *                                values are SCROLL_ENABLE or SCROLL_DISABLE
+ * @param[in]  persistent_header  If true, a header will be stuck at the top
+ *                                of win
+ * @param[in]  header_row         The number of rows in the buffer to be
+ *                                persistent
  *
  * @details
  *
  * Simply iterates through all of the lines and prints them one by one before
  * refreshing the screen. If DISPLAY.nlines is zero, or if the lines pointer in
  * DISPLAY is NULL, an error message is displayed instead.
+ *
+ * The persistent header functionality of this function allows the first
+ * header_row lines in the buffer to become frozen at the top of the window. The
+ * purpose of this it to act as a persistent header to make scrolling less
+ * confusing when has scrolled very far and no longer has the original header
+ * for reference.
  *
  * ************************************************************************** */
 

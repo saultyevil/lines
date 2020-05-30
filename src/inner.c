@@ -39,7 +39,7 @@ inner_shell_header (void)
  *
  * @details
  *
- * The function inner_shell_header will create an approprate header for these
+ * The function inner_shell_header will create an appropriate header for these
  * lines.
  *
  * ************************************************************************** */

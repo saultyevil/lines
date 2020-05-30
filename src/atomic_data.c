@@ -21,8 +21,8 @@
 #define LINELENGTH 400
 
 /* ************************************************************************** */
-/** 
- * @brief Look at the atomic summary in scrolling mode
+/**
+ * @brief  Display the atomic summary in text view mode
  *
  * @details
  *
@@ -407,7 +407,7 @@ indexx (n, arrin, indx)
  * @brief      uses freqmin and freqmax to set limits on which lines in the
  * frequency ordered list of lines need to be
  * considered when, for example,  calculating which lines have Sobolev surfaces
- * along a path. 
+ * along a path.
  *
  *
  * @param [in] double  freqmin   The minimum frequency we are interested in

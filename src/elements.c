@@ -56,7 +56,7 @@ element_line (struct elements e, int detailed)
  *
  * @details
  *
- * Loops over the entire ele structre to and prints each one.
+ * Loops over the entire ele structure to and prints each one.
  *
  * ************************************************************************** */
 

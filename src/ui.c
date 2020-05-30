@@ -22,8 +22,6 @@
 /**
  * @brief    Initialise ncurses and the standard screen
  *
- * @return   void
- *
  * @details
  *
  * This function is a wrapper to initialise ncurses. Currently, this
@@ -50,8 +48,6 @@ initialise_ncurses_stdscr (void)
 /* ************************************************************************** */
 /**
  * @brief    Cleans up the ncurses screen
- *
- * @return   void
  *
  * @details
  *
@@ -169,7 +165,7 @@ draw_window_boundaries (void)
  *
  * @details
  *
- * TODO make this work -> currently the menu isn't redrawn for some reason
+ * TODO make this work, currently the menu isn't redrawn for some reason
  *
  * ************************************************************************** */
 
@@ -258,6 +254,8 @@ bold_message (Window_t win, int y, int x, char *fmt, ...)
  *
  * @details
  *
+ * The message is placed between |'s, so don't include them in *fmt
+ *
  * ************************************************************************** */
 
 void
@@ -294,7 +292,7 @@ update_status_bar (char *fmt, ...)
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  Draw a generic home screen when scrolling through the main menu.
  *
  * @details
  *
@@ -323,14 +321,10 @@ home_screen (void)
     mvwprintw (window, crow++, (CONTENT_VIEW_WINDOW.ncols - strlen (logo[i])) / 2, logo[i]);
 
   crow++;
-
   bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Version %s", ATOMIX_VERSION_NUMBER);
   bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Author: Edward J. Parkinson");
   bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Contact: e.j.parkinson@soton.ac.uk");
-
   crow += 2;
-
   bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "A summary of the atomic data is in 'Atomic Summary'");
-
   wrefresh (window);
 }

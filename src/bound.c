@@ -15,12 +15,12 @@
 #include "atomix.h"
 
 static const
-int ndash = 110;  
+int ndash = 110;
 
 /* ************************************************************************** */
 /**
  * @brief  Add a header for a bound_bound_line table.
- * 
+ *
  * @details
  *
  * ************************************************************************** */
@@ -36,7 +36,7 @@ bound_bound_header (void)
 /* ************************************************************************** */
 /**
  * @brief  Standard layout for a bound bound transition line.
- * 
+ *
  * @details
  *
  * The function bound_bound_header will create an appropriate header for one
@@ -53,14 +53,13 @@ bound_bound_line (int n)
   get_element_name (lin_ptr[n]->z, element);
   wl = C_SI / lin_ptr[n]->freq / ANGSTROM / 1e-2;
   display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z,
-               lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info,
-               n);
+               lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info, n);
 }
 
 /* ************************************************************************** */
 /**
  * @brief  Print all the bound-bound transitions in the data set.
- * 
+ *
  * @details
  *
  * Iterates over the lin_ptr array, which is ordered by frequency. For atomic
@@ -100,7 +99,7 @@ all_bound_bound (void)
  * This function simply loops over the lin_ptr struct between the limits
  * nline_min and nline_max set by the limit_lines() function. The wavelength
  * limits are queried within the function.
- * 
+ *
  * ************************************************************************** */
 
 void
@@ -130,7 +129,7 @@ bound_bound_wavelength_range (void)
 /* ************************************************************************** */
 /**
  * @brief  Print all bound bound transitions for a given element.
- * 
+ *
  * @details
  *
  * ************************************************************************** */
@@ -171,7 +170,7 @@ bound_bound_element (void)
 /* ************************************************************************** */
 /**
  * @brief  Print all bound bound transitions for a given ion.
- * 
+ *
  * @details
  *
  * The ion is specified by the ion number. It would be possibleto add a small
