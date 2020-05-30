@@ -8,7 +8,7 @@ project(atomix)
 cmake_minimum_required(VERSION 3.0)
 set(CMAKE_C_STANDARD 99)
 
-add_compile_options(-Wall -Wextra)
+add_compile_options(-Wall -Wextra -g)
 
 # Add main.cpp file of project root directory as source file
 set(SOURCE_FILES
@@ -25,7 +25,7 @@ set(SOURCE_FILES
         src/elements.c
         src/ions.c
         src/levels.c
-        src/subtitle.c
+        src/inner.c
 )
 
 # The curses library is stored in various places depending on system

@@ -1,11 +1,11 @@
 # atomix
 
 The purpose of `atomix` is to allow a user to query the atomic data used in the
-Monte Carlo Radiative Transfer and Ionization code 
+Monte Carlo Radiative Transfer and Ionization code
 [Python](https://github.com/agnwinds/python/).
 
 It was made originally to try and decipher some of the mysterious spectral lines
-and edges in the synthetic spectra created by Python for models of accretion 
+and edges in the synthetic spectra created by Python for models of accretion
 disc winds in Tidal Disruption Events.
 
 ![Atomix](atomix_interface.png)
@@ -23,7 +23,7 @@ disc winds in Tidal Disruption Events.
 
 `atomix` uses the [ncurses](https://en.wikipedia.org/wiki/Ncurses) library to
 create a basic UI which is navigated using the keyboard. Python is required
-to be installed and correctly configured, i.e. the `$PYTHON` environment 
+to be installed and correctly configured, i.e. the `$PYTHON` environment
 variable is set, for `atomix` to work.
 
 As of current `atomix` will, or should, work on both linux and macOS. For Linux,
@@ -36,7 +36,7 @@ You can use CMake to build this program, usually as follows:
 ```bash
 $ mkdir build
 $ cd build
-$ cmake ..
+$ cmake -DCMAKE_BUILD_TYPE=Release ..
 $ make
 ```
 
@@ -48,7 +48,7 @@ see `atomix -h` for more information.
 Here are some of the current plans for future development:
 
 * Improved and consistent UI design*
-* Being able to resize the window without the background UI breaking 
+* Being able to resize the window without the background UI breaking
 * Other atomic features to search, i.e. levels
 
 *If we are lucky ;-)

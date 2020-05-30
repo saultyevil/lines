@@ -1,4 +1,4 @@
-/** ************************************************************************* */
+/* ************************************************************************** */
 /**
  * @file     menu.c
  * @author   Edward Parkinson
@@ -13,8 +13,8 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <curses.h>
-#include <menu.h>
+#include <signal.h>
+#include <stdbool.h>
 
 #include "menu.h"
 
@@ -70,6 +70,9 @@ control_menu (MENU *menu, int c)
 
   switch (c)
   {
+    case KEY_RESIZE:
+      redraw_screen (SIGWINCH);
+      break;
     case KEY_DOWN:
       menu_driver (menu, REQ_DOWN_ITEM);
       break;
@@ -111,7 +114,7 @@ control_menu (MENU *menu, int c)
  * @param[in]  menu_items         The items for the menu
  * @param[in]  nitems             The number of items
  * @param[in]  current_index      The default menu index when drawn
- * @param[in]  control_this_menu  If TRUE, allow the user to control the menu
+ * @param[in]  control_this_menu  If true, allow the user to control the menu
  *                                otherwise the menu is only drawn
  *
  * @return     index             An integer referring to the chosen menu item
@@ -126,32 +129,24 @@ control_menu (MENU *menu, int c)
  * ************************************************************************** */
 
 int
-create_main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index,
+create_main_menu (char *menu_message, MenuItem_t *menu_items, int nitems, int current_index,
                   int control_this_menu)
 {
-  int i, j, c;
+  int i, c;
   int len;
   int index = MENU_CONTINUE;
   MENU *menu = NULL;
   ITEM **items = NULL;
 
-  wclear (MENU_WINDOW.win);
+  AtomixConfiguration.current_screen = sc_main_menu;
+  wclear (MAIN_MENU_WINDOW.window);
 
   items = calloc (nitems + 1, sizeof (ITEM *));
   if (items == NULL)
     exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
-  /*
-   * Create a 1 column boundary between the menu and content windows
-   */
-
-  wattron (MENU_WINDOW.win, A_REVERSE);
-  for (j = 0; j < MENU_WINDOW.rows; ++j)
-    mvwprintw (MENU_WINDOW.win, j, MENU_WINDOW.cols - 1, " ");
-  wattroff (MENU_WINDOW.win, A_REVERSE);
-
   len = (int) strlen (menu_message);
-  mvwprintw (MENU_WINDOW.win, 1, (MENU_WINDOW.cols - len) / 2 - 1, menu_message);
+  bold_message (MAIN_MENU_WINDOW, 1, (MAIN_MENU_WINDOW.ncols - len) / 2 - 1, menu_message);
 
   for (i = 0; i < nitems; i++)
   {
@@ -163,9 +158,9 @@ create_main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, 
 
   menu = new_menu (items);
   menu_opts_off (menu, O_SHOWDESC);  // Don't want to show desc in small menu window
-  set_menu_win (menu, MENU_WINDOW.win);
-  set_menu_sub (menu, derwin (MENU_WINDOW.win, MENU_WINDOW.rows - 3, MENU_WINDOW.cols, 3, 0));
-  set_menu_format (menu, MENU_WINDOW.rows - 2, 1);
+  set_menu_win (menu, MAIN_MENU_WINDOW.window);
+  set_menu_sub (menu, derwin (MAIN_MENU_WINDOW.window, MAIN_MENU_WINDOW.nrows - 3, MAIN_MENU_WINDOW.ncols, 3, 0));
+  set_menu_format (menu, MAIN_MENU_WINDOW.nrows - 2, 1);
   set_menu_mark (menu, "* ");
 
   if (current_index < 0)
@@ -174,13 +169,15 @@ create_main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, 
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
-  update_status_bar ("Press q or F1 to exit Atomix");
   post_menu (menu);
-  wrefresh (MENU_WINDOW.win);
+  wrefresh (MAIN_MENU_WINDOW.window);
+
+  AtomixConfiguration.current_menu = menu;
 
   if (control_this_menu == MENU_CONTROL)
   {
-    while ((c = wgetch (MENU_WINDOW.win)))
+    update_status_bar ("press q or F1 to exit atomix");
+    while ((c = wgetch (MAIN_MENU_WINDOW.window)))
     {
       if (c == 'q' || c == KEY_F(1))
       {
@@ -189,7 +186,8 @@ create_main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, 
       }
 
       index = control_menu (menu, c);
-      
+      wrefresh (MAIN_MENU_WINDOW.window);
+
       if (index != MENU_CONTINUE)
         break;
     }
@@ -202,14 +200,14 @@ create_main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, 
 
 /* ************************************************************************** */
 /**
- * @brief  Displays an control a genric menu for the given Window_t window.
+ * @brief  Displays an control a generic menu for the given Window_t window.
  *
  * @param[in]  win                The Window_t to contain the menu
  * @param[in]  menu_message       The menu display message at the top
  * @param[in]  menu_items         The items for the menu
  * @param[in]  nitems             The number of items
  * @param[in]  current_index      The default menu index when drawn
- * @param[in]  control_this_menu  If TRUE, allow the user to control the menu
+ * @param[in]  control_this_menu  If true, allow the user to control the menu
  *                                otherwise the menu is only drawn
  *
  * @return     index             An integer referring to the chosen menu item
@@ -224,15 +222,16 @@ create_main_menu (char *menu_message, const MenuItem_t *menu_items, int nitems, 
  * ************************************************************************** */
 
 int
-create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index,
+create_menu (Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems, int current_index,
              int control_this_menu)
 {
   int i, c;
   int index = MENU_CONTINUE;
   MENU *menu = NULL;
   ITEM **items = NULL;
-  WINDOW *window = win.win;
+  WINDOW *window = win.window;
 
+  AtomixConfiguration.current_screen = sc_menu;
   wclear (window);
 
   items = calloc (nitems + 1, sizeof (ITEM *));
@@ -251,8 +250,8 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
   menu_opts_on (menu, O_SHOWDESC);
   set_menu_spacing (menu, 3, 0, 0);
   set_menu_win (menu, window);
-  set_menu_sub (menu, derwin (window, win.rows - 6, win.cols - 2, 3, 1));  // TODO better constants
-  set_menu_format (menu, win.rows - 6, 1);
+  set_menu_sub (menu, derwin (window, win.nrows - 6, win.ncols - 2, 3, 1));  // TODO better constants
+  set_menu_format (menu, win.nrows - 6, 1);
   set_menu_mark (menu, "* ");
 
   if (current_index < 0)
@@ -261,12 +260,14 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
     current_index = nitems - 1;
 
   set_current_item (menu, items[current_index]);
-  update_status_bar ("Press q or F1 to exit Atomix");
-  bold_message (CONTENT_WINDOW, 1, 1, menu_message);
+  update_status_bar ("press q or F1 to exit the menu or use the ARROW KEYS to navigate");
+  bold_message (CONTENT_VIEW_WINDOW, 1, 1, menu_message);
   post_menu (menu);
   wrefresh (window);
 
-  if (control_this_menu)
+  AtomixConfiguration.current_menu = menu;
+
+  if (control_this_menu == MENU_CONTROL)
   {
     while ((c = wgetch (window)))
     {
@@ -291,7 +292,7 @@ create_menu (Window_t win, char *menu_message, const MenuItem_t *menu_items, int
 
 /* ************************************************************************** */
 /**
- * @brief
+ * @brief  The main menu for the program.
  *
  * @details
  *
@@ -309,9 +310,9 @@ main_menu (int control)
   }
   else
   {
-    while (TRUE)
+    while (true)
     {
-      atomic_summary_show (SCROLL_DISBALE);
+      home_screen ();
       menu_index = create_main_menu ("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE (MAIN_MENU_CHOICES), menu_index,
                                      MENU_CONTROL);
 
@@ -342,9 +343,9 @@ bound_bound_main_menu (void)
     return;
   }
 
-  while (TRUE)
+  while (true)
   {
-    menu_index = create_menu (CONTENT_WINDOW, "Bound-bound transitions", BOUND_MENU_CHOICES,
+    menu_index = create_menu (CONTENT_VIEW_WINDOW, "Bound-bound transitions", BOUND_MENU_CHOICES,
                               ARRAY_SIZE (BOUND_MENU_CHOICES), menu_index, MENU_CONTROL);
     if (BOUND_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
@@ -366,9 +367,9 @@ bound_free_main_menu (void)
 {
   int menu_index = 0;
 
-  while (TRUE)
+  while (true)
   {
-    menu_index = create_menu (CONTENT_WINDOW, "Bound-free transitions", BOUND_FREE_MENU_CHOICES,
+    menu_index = create_menu (CONTENT_VIEW_WINDOW, "Bound-free transitions", BOUND_FREE_MENU_CHOICES,
                               ARRAY_SIZE (BOUND_FREE_MENU_CHOICES), menu_index, MENU_CONTROL);
     if (BOUND_FREE_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
@@ -397,9 +398,9 @@ elements_main_menu (void)
     return;
   }
 
-  while (TRUE)
+  while (true)
   {
-    menu_index = create_menu (CONTENT_WINDOW, "Elements", ELEMENTS_MENU_CHOICES, ARRAY_SIZE (ELEMENTS_MENU_CHOICES),
+    menu_index = create_menu (CONTENT_VIEW_WINDOW, "Elements", ELEMENTS_MENU_CHOICES, ARRAY_SIZE (ELEMENTS_MENU_CHOICES),
                               menu_index, MENU_CONTROL);
     if (ELEMENTS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
@@ -419,7 +420,7 @@ elements_main_menu (void)
 void
 ions_main_menu (void)
 {
-  static int menu_index;
+  static int menu_index = 0;
 
   if (nions == 0)
   {
@@ -427,11 +428,58 @@ ions_main_menu (void)
     return;
   }
 
-  while (TRUE)
+  while (true)
   {
-    menu_index = create_menu (CONTENT_WINDOW, "Ions", IONS_MENU_CHOICES, ARRAY_SIZE (IONS_MENU_CHOICES), menu_index,
+    menu_index = create_menu (CONTENT_VIEW_WINDOW, "Ions", IONS_MENU_CHOICES, ARRAY_SIZE (IONS_MENU_CHOICES), menu_index,
                               MENU_CONTROL);
     if (IONS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
 }
+
+/* ************************************************************************** */
+/**
+ * @brief  The main menu for inner shell queries.
+ *
+ * @details
+ *
+ * The previous menu index is remembered.
+ *
+ * ************************************************************************** */
+
+void
+inner_shell_main_menu (void)
+{
+  static int menu_index = 0;
+
+  if (n_inner_tot == 0)
+  {
+    error_atomix ("No inner shell ionization data has been read in");
+    return;
+  }
+
+  while (true)
+  {
+    menu_index = create_menu (CONTENT_VIEW_WINDOW, "Inner Shell", INNER_SHELL_MENU_CHOICES,
+                              ARRAY_SIZE (INNER_SHELL_MENU_CHOICES), menu_index, MENU_CONTROL);
+    if (INNER_SHELL_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+      return;
+  }
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  The main menu for atomic configuration queries.
+ *
+ * @details
+ *
+ * The previous menu index is remembered.
+ *
+ * ************************************************************************** */
+
+void
+levels_main_menu (void)
+{
+  error_atomix ("Not implemented yet, soz!");
+}
+
