@@ -10,6 +10,8 @@
  *
  * ************************************************************************** */
 
+#include <stdbool.h>
+
 #include <math.h>
 
 #include "atomix.h"
@@ -70,7 +72,7 @@ all_elements (void)
 
   count (ndash, nelements);
 
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, false, 0);
 }
 
 /* ************************************************************************** */
@@ -112,5 +114,5 @@ single_element (void)
 
   add_sep_display (ndash);
   element_line (ele[i], TRUE);
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, false, 0);
 }

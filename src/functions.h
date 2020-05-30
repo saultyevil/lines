@@ -8,9 +8,9 @@ void bound_bound_ion(void);
 /* buffer.c */
 void clean_up_display(Display_t *buffer);
 void add_display(Display_t *buffer, char *fmt, ...);
-void scroll_display(Display_t *buffer, Window_t win);
+void scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int header_rows);
 void add_sep_display(const int len);
-void display_buffer(Display_t *buffer, int scroll);
+void display_buffer (Display_t *buffer, int scroll, bool persisent_header, int header_rows);
 /* main.c */
 int main(int argc, char *argv[]);
 /* menu.c */

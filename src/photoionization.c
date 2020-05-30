@@ -10,6 +10,8 @@
  *
  * ************************************************************************** */
 
+#include <stdbool.h>
+
 #include "atomix.h"
 
 static const
@@ -87,7 +89,7 @@ all_bound_free (void)
 
   count (ndash, n);
 
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -136,7 +138,7 @@ bound_free_wavelength_range (void)
 
   count (ndash, n);
 
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -177,7 +179,7 @@ bound_free_element (void)
 
   count (ndash, n);
 
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -227,6 +229,6 @@ bound_free_ion (void)
 
   count (ndash, n);
 
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, true, 4);
 
 }

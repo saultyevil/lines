@@ -135,7 +135,7 @@ typedef struct QueryDump_t
 #define atomic_summary_show(scroll) \
 { \
   AtomixConfiguration.current_screen = sc_atomic_view; \
-  display_buffer(&ATOMIC_BUFFER, scroll); \
+  display_buffer(&ATOMIC_BUFFER, scroll, false, 0); \
 }
 
 #define display_add(fmt, ...) \
@@ -143,10 +143,10 @@ typedef struct QueryDump_t
   add_display(&DISPLAY_BUFFER, fmt, ##__VA_ARGS__); \
 }
 
-#define display_show(scroll) \
+#define display_show(scroll, persistent_header, header_rows) \
 {\
   AtomixConfiguration.current_screen = sc_text_view; \
-  display_buffer(&DISPLAY_BUFFER, scroll); \
+  display_buffer(&DISPLAY_BUFFER, scroll, persistent_header, header_rows); \
   clean_up_display(&DISPLAY_BUFFER); \
 }
 

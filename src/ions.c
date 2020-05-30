@@ -10,6 +10,8 @@
  *
  * ************************************************************************** */
 
+#include <stdbool.h>
+
 #include "atomix.h"
 
 static const
@@ -119,7 +121,7 @@ all_ions (void)
 
   count (ndash, nions);
 
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, false, 0);
 }
 
 /* ************************************************************************** */
@@ -162,7 +164,7 @@ single_ion_atomic_z (void)
 
   add_sep_display (ndash);
   ion_line (nion, TRUE, TRUE);
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, false, 0);
 }
 
 /* ************************************************************************** */
@@ -194,7 +196,7 @@ single_ion_nion (void)
 
   add_sep_display (ndash);
   ion_line (nion, TRUE, TRUE);
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, false, 0);
 }
 
 /* ************************************************************************** */
@@ -228,5 +230,5 @@ ions_for_element (void)
 
   add_sep_display (ndash);
 
-  display_show (SCROLL_ENABLE);
+  display_show (SCROLL_ENABLE, false, 0);
 }
