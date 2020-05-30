@@ -6,20 +6,8 @@
  *
  * @brief
  *
+ * Functions for querying the atomic configuration levels data.
+ * 
  * ************************************************************************** */
 
 #include "atomix.h"
-
-/* ************************************************************************** */
-/**
- * @brief
- *
- * @details
- *
- * ************************************************************************** */
-
-void
-levels_main_menu (void)
-{
-  error_atomix ("Not implemented yet, soz!");
-}

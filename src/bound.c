@@ -13,7 +13,7 @@
 #include "atomix.h"
 
 static const
-int ndash = 103;  
+int ndash = 110;  
 
 /* ************************************************************************** */
 /**
@@ -26,8 +26,8 @@ int ndash = 103;
 void
 bound_bound_header (void)
 {
- display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s",
-              "Wavelength", "Element", "Z", "istate", "levu", "levl", "nion", "macro info");
+ display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s",
+              "Wavelength", "Element", "Z", "istate", "levu", "levl", "nion", "macro info", "nres");
  add_sep_display (ndash);
 }
 
@@ -50,8 +50,9 @@ bound_bound_line (int n)
 
   get_element_name (lin_ptr[n]->z, element);
   wl = C_SI / lin_ptr[n]->freq / ANGSTROM / 1e-2;
-  display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z,
-               lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info);
+  display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z,
+               lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info,
+               n);
 }
 
 /* ************************************************************************** */
@@ -74,7 +75,7 @@ all_bound_bound (void)
   wmin = C_SI / lin_ptr[nlines - 1]->freq / ANGSTROM / 1e-2;
   wmax = C_SI / lin_ptr[0]->freq / ANGSTROM / 1e-2;
 
-  display_add ("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  display_add (" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
   add_sep_display (ndash);
 
   bound_bound_header ();
@@ -112,7 +113,7 @@ bound_bound_wavelength_range (void)
   limit_lines (C / (wmax * ANGSTROM), C / (wmin * ANGSTROM));
   n = nline_max - nline_min - 1;
 
-  display_add ("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  display_add (" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
   add_sep_display (ndash);
   bound_bound_header ();
 

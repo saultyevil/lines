@@ -1,4 +1,4 @@
-/** ************************************************************************* */
+/* ************************************************************************** */
 /**
  * @file     tools.c
  * @author   Edward Parkinson
@@ -192,12 +192,12 @@ error_atomix (char *fmt, ...)
   va_end (va);
   va_end (va_c);
 
-  wclear (CONTENT_WINDOW.win);
-  bold_message (CONTENT_WINDOW, 1, 1, str);
+  wclear (CONTENT_VIEW_WINDOW.window);
+  bold_message (CONTENT_VIEW_WINDOW, 1, 1, str);
   update_status_bar ("Press q or F1 to continue");
-  wrefresh (CONTENT_WINDOW.win);
+  wrefresh (CONTENT_VIEW_WINDOW.window);
 
-  while ((ch = wgetch (CONTENT_WINDOW.win)))
+  while ((ch = wgetch (CONTENT_VIEW_WINDOW.window)))
   {
     if (ch == 'q' || ch == KEY_F(1))
       break;
@@ -230,12 +230,11 @@ exit_atomix (int errno, char *fmt, ...)
   logfile_flush();
   cleanup_ncurses_stdscr ();
 
-  printf (":-(\n");
-  printf ("Fatal Error: ");
+  printf ("Fatal Error: errno = %i: ", errno);
   va_start (va, fmt);
   vprintf (fmt, va);
   va_end (va);
-  printf ("\nerrno = %i\n", errno);
+  printf ("\n");
 
   exit (errno);
 }
@@ -269,7 +268,7 @@ menu_exit_atomix (void)
  * ************************************************************************** */
 
 char *
-trim_whitespaces(char *str)
+trim_whitespaces (char *str)
 {
   char *end;
 
@@ -304,7 +303,7 @@ void
 count (int ndash, int count)
 {
   add_sep_display (ndash);
-  display_add ("%i entries", count);
+  display_add (" %i entries", count);
   add_sep_display (ndash);
 }
 

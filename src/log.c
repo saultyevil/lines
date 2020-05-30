@@ -65,6 +65,7 @@ logfile_init (filename)
 int
 logfile_close ()
 {
+  logfile_flush ();
   fclose (diagptr);
   init_log = 0;           // Release the error summary structure
   return (0);

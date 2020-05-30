@@ -8,21 +8,23 @@ void bound_bound_ion(void);
 /* buffer.c */
 void clean_up_display(Display_t *buffer);
 void add_display(Display_t *buffer, char *fmt, ...);
-void add_sep_display(const int len);
 void scroll_display(Display_t *buffer, Window_t win);
+void add_sep_display(const int len);
 void display_buffer(Display_t *buffer, int scroll);
 /* main.c */
 int main(int argc, char *argv[]);
 /* menu.c */
 void clean_up_menu(MENU *menu, ITEM **items, int nitems);
 int control_menu(MENU *menu, int c);
-int create_main_menu(char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
-int create_menu(Window_t win, char *menu_message, const MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
+int create_main_menu(char *menu_message, MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
+int create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
 void main_menu(int control);
 void bound_bound_main_menu(void);
 void bound_free_main_menu(void);
 void elements_main_menu(void);
 void ions_main_menu(void);
+void inner_shell_main_menu(void);
+void levels_main_menu(void);
 /* tools.c */
 void get_element_name(int z, char *element);
 int find_element(int z);
@@ -41,6 +43,7 @@ void draw_window_boundaries(void);
 void redraw_screen(int sig);
 void bold_message(Window_t win, int y, int x, char *fmt, ...);
 void update_status_bar(char *fmt, ...);
+void home_screen(void);
 /* photoionization.c */
 void bound_free_header(void);
 void bound_free_line(int nphot);
@@ -82,6 +85,12 @@ void single_ion_atomic_z(void);
 void single_ion_nion(void);
 void ions_for_element(void);
 /* levels.c */
-void levels_main_menu(void);
 /* subtitle.c */
 char *get_random_subtitle(void);
+/* inner.c */
+void inner_shell_header(void);
+void inner_shell_line(int nphot);
+void all_inner_shell(void);
+void inner_shell_wavelength_range(void);
+void inner_shell_element(void);
+void inner_shell_ion(void);

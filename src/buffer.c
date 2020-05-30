@@ -1,4 +1,4 @@
-/** ************************************************************************* */
+/* ************************************************************************** */
 /**
  * @file     buffer.c
  * @author   Edward Parkinson
@@ -7,11 +7,13 @@
  * @brief
  *
  * Functions for adding and display various text buffers.
- * 
+ *
  * ************************************************************************** */
 
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+#include <stdbool.h>
 
 #include "atomix.h"
 
@@ -20,7 +22,7 @@
  * @brief  Clean up a text buffer, generally once it has been printed.
  *
  * @details
- * 
+ *
  * Free the memory for all of the lines in the DISPLAY buffer, before freeing
  * the memory for DISPLAY.lines and re-initialising DISPLAY.
  *
@@ -109,6 +111,9 @@ add_display (Display_t *buffer, char *fmt, ...)
  *
  * @details
  *
+ * TODO add header bar if given
+ * TODO add line count on status bar
+ *
  * ************************************************************************** */
 
 void
@@ -118,74 +123,93 @@ scroll_display (Display_t *buffer, Window_t win)
   int ch;
   int line_start, col_start;
   int current_row, current_col;
-  WINDOW *window = win.win;
+  bool position_updated;
+  WINDOW *window = win.window;
 
   line_start = col_start = 0;
+  position_updated = false;
 
-  update_status_bar ("Press q of F1 to exit text view or use UP, DOWN, PG UP or PG DN to scroll the text");
+  update_status_bar ("press q or F1 to exit text view or use the ARROW KEYS to navigate");
 
   while ((ch = wgetch (window)))
   {
     if (ch == 'q' || ch == KEY_F(1))
       break;
 
-    if (buffer->nlines > win.rows - 2)
+    if (buffer->nlines > win.nrows - 2)
     {
-      wclear (window);
-
       switch (ch)
       {
+        case KEY_RESIZE:
+          redraw_screen (SIGWINCH);
+          position_updated = true;
+          break;
         case KEY_UP:
           line_start--;
+          position_updated = true;
           break;
         case KEY_DOWN:
           line_start++;
+          position_updated = true;
           break;
         case KEY_RIGHT:
           col_start++;
+          position_updated = true;
           break;
         case KEY_LEFT:
           col_start--;
+          position_updated = true;
           break;
         case KEY_NPAGE:
-          line_start += win.rows - 2;
+          line_start += win.nrows - 2;
+          position_updated = true;
           break;
         case KEY_PPAGE:
-          line_start -= win.rows - 2;
+          line_start -= win.nrows - 2;
+          position_updated = true;
           break;
         case KEY_HOME:
           line_start = 0;
+          position_updated = true;
           break;
         case KEY_END:
-          line_start = buffer->nlines - win.rows + 2;
+          line_start = buffer->nlines - win.nrows + 2;
+          position_updated = true;
           break;
         default:
           break;
       }
 
-      if (line_start < 0)
-        line_start = 0;
-      if (line_start + win.rows - 2 > buffer->nlines)
-        line_start = buffer->nlines - win.rows + 2;
-
-      if (col_start < 0)
-        col_start = 0;
-      if (col_start + win.cols - 2 > buffer->maxlen)
-        col_start = AtomixConfiguration.current_col;
-
-      AtomixConfiguration.current_line = line_start;
-      AtomixConfiguration.current_col = col_start;
-
-      for (i = line_start, current_row = 1; i < buffer->nlines && current_row < win.rows - 1; ++i, ++current_row)
+      if (position_updated)
       {
-        for (j = col_start, current_col = 1; j < buffer->lines[i].len && current_col < win.cols - 1; ++j, ++current_col)
-        {
-          mvwprintw (window, current_row, current_col, "%c", buffer->lines[i].chars[j]);
-        }
-      }
-    }
+        wclear (window);
 
-    wrefresh (window);
+        if (line_start < 0)
+          line_start = 0;
+        if (line_start + win.nrows - 2 > buffer->nlines)
+          line_start = buffer->nlines - win.nrows + 2;
+
+        if (col_start < 0)
+          col_start = 0;
+        if (col_start + win.ncols - 2 > buffer->maxlen)
+          col_start = AtomixConfiguration.current_col;
+
+        AtomixConfiguration.current_line = line_start;
+        AtomixConfiguration.current_col = col_start;
+
+        for (i = line_start, current_row = 1; i < buffer->nlines && current_row < win.nrows - 1; ++i, ++current_row)
+        {
+          for (j = col_start, current_col = 1; j < buffer->lines[i].len && current_col < win.ncols - 1; ++j, ++current_col)
+          {
+            mvwprintw (window, current_row, current_col, "%c", buffer->lines[i].chars[j]);
+          }
+        }
+
+        wrefresh (window);
+      }
+
+      position_updated = false;
+    }
   }
 }
 
@@ -224,7 +248,7 @@ add_sep_display (const int len)
  * Simply iterates through all of the lines and prints them one by one before
  * refreshing the screen. If DISPLAY.nlines is zero, or if the lines pointer in
  * DISPLAY is NULL, an error message is displayed instead.
- * 
+ *
  * ************************************************************************** */
 
 void
@@ -232,21 +256,21 @@ display_buffer (Display_t *buffer, int scroll)
 {
   int i, j;
   int line_index;
-  WINDOW *window = CONTENT_WINDOW.win;
+  WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
   wclear (window);
 
   if (buffer->nlines == 0 || buffer->lines == NULL)
   {
-    bold_message (CONTENT_WINDOW, 1, 1, "No text in %s buffer to show", buffer->name);
+    bold_message (CONTENT_VIEW_WINDOW, 1, 1, "No text in %s buffer to show", buffer->name);
     wrefresh (window);
   }
   else
   {
-    for (i = 0; i < buffer->nlines && i < CONTENT_WINDOW.rows - 2; ++i)
-    { 
+    for (i = 0; i < buffer->nlines && i < CONTENT_VIEW_WINDOW.nrows - 2; ++i)
+    {
       line_index = i;
-      for (j = 0; j < buffer->lines[line_index].len && j < CONTENT_WINDOW.cols - 2; ++j)
+      for (j = 0; j < buffer->lines[line_index].len && j < CONTENT_VIEW_WINDOW.ncols - 2; ++j)
       {
         mvwprintw (window, i + 1, j + 1, "%c", buffer->lines[line_index].chars[j]);
       }
@@ -255,6 +279,6 @@ display_buffer (Display_t *buffer, int scroll)
     wrefresh (window);
 
     if (scroll == SCROLL_ENABLE)
-      scroll_display (buffer, CONTENT_WINDOW);
+      scroll_display (buffer, CONTENT_VIEW_WINDOW);
   }
 }

@@ -1,4 +1,4 @@
-/** ************************************************************************* */
+/* ************************************************************************** */
 /**
  * @file     main.c
  * @author   Edward Parkinson
@@ -24,10 +24,10 @@
  * @return    EXIT_SUCCESS
  *
  * @details
- * 
- * The way atomic data is read in and the diagnostics printed at the beginning 
+ *
+ * The way atomic data is read in and the diagnostics printed at the beginning
  * of the program is a bit spaghetti-ish.
- * 
+ *
  * ************************************************************************** */
 
 int
@@ -42,12 +42,13 @@ main (int argc, char *argv[])
     exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
 
   atexit (cleanup_ncurses_stdscr);
-  // signal (SIGWINCH, redraw_screen);
 
+  AtomixConfiguration.current_screen = sc_unassigned;
   AtomixConfiguration.rows = AtomixConfiguration.cols = 0;
   AtomixConfiguration.current_line = AtomixConfiguration.current_col = 0;
   AtomixConfiguration.atomic_data_loaded = FALSE;
   AtomixConfiguration.atomic_data[0] = '\0';
+  AtomixConfiguration.status_message[0] = '\0';
 
   DISPLAY_BUFFER.nlines = 0;
   DISPLAY_BUFFER.maxlen = 0;
@@ -79,14 +80,8 @@ main (int argc, char *argv[])
 
   main_menu (MENU_DRAW);
 
-  if (AtomixConfiguration.atomic_data_loaded)
-  {
-    atomic_summary_show (SCROLL_DISBALE);
-  }
-  else
-  {
+  if (!AtomixConfiguration.atomic_data_loaded)
     switch_atomic_data ();
-  }
 
   main_menu (MENU_CONTROL);
 

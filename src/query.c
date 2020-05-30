@@ -1,4 +1,4 @@
-/** ************************************************************************* */
+/* ************************************************************************** */
 /**
  * @file     query.c
  * @author   Edward Parkinson
@@ -10,11 +10,28 @@
  *
  * ************************************************************************** */
 
-#include <form.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "atomix.h"
+
+// const
+MenuItem_t ATOMIC_DATA_CHOICES[] = {
+  {NULL, 0          , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 1          , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
+  {NULL, 2          , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
+  {NULL, 3          , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
+  {NULL, 4          , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
+  {NULL, 5          , "h10_standard80"            , ": 10 Level H Macro-atom"},
+  {NULL, 6          , "h20"                       , ": 20 Level H Macro-atom"},
+  {NULL, 7          , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
+  {NULL, 8          , "standard80"                , ": Standard Simple-atom"},
+  {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
+  {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
+  {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
+  {NULL, INDEX_OTHER, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"}
+};
 
 /* ************************************************************************** */
 /**
@@ -67,6 +84,9 @@ control_form (FORM *form, int ch, int exit_index)
 
   switch (ch)
   {
+    case KEY_RESIZE:
+      redraw_screen (SIGWINCH);
+      break;
     case '\t':  // This catches the tab key
     case KEY_DOWN:
       form_driver (form, REQ_NEXT_FIELD);
@@ -134,14 +154,14 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
   int ch;
   int form_return = FORM_CONTINUE;
   FORM *form;
-  WINDOW *the_win = w.win;
+  WINDOW *the_win = w.window;
   FIELD **fields;
 
+  AtomixConfiguration.current_screen = sc_form;
   wclear (the_win);
-  keypad (the_win, TRUE);
   curs_set (1);
 
-  bold_message (CONTENT_WINDOW, 1, 1, title_message);
+  bold_message (CONTENT_VIEW_WINDOW, 1, 1, title_message);
 
   fields = calloc (nfields + 1, sizeof (FIELD *));
   if (fields == NULL)
@@ -163,11 +183,14 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
 
   form = new_form (fields);
   set_form_win (form, the_win);
-  set_form_sub (form, derwin (the_win, w.rows - 4, w.cols - 2, 3, 1));
+  set_form_sub (form, derwin (the_win, w.nrows - 4, w.ncols - 2, 3, 1));
   set_current_field (form, fields[1]);  // Always assume first input is default field
   update_status_bar ("Press F1 to cancel input");
   post_form (form);
+  form_driver (form, REQ_END_LINE);
   wrefresh (the_win);
+
+  AtomixConfiguration.current_form = form;
 
   /*
    * Control the menu. Should exit when the enter key is pressed, or when
@@ -312,7 +335,7 @@ query_wavelength_range (double *wmin, double *wmax)
 {
   int form_return;
   int valid = FALSE;
-  WINDOW *the_win = CONTENT_WINDOW.win;
+  WINDOW *the_win = CONTENT_VIEW_WINDOW.window;
 
   static int init_default = FALSE;
   static char string_wmin[FIELD_INPUT_LEN];
@@ -331,7 +354,7 @@ query_wavelength_range (double *wmin, double *wmax)
     wclear (the_win); 
     init_two_question_form (wavelength_query, "Minimum Wavelength : ", "Maximum Wavelength : ", string_wmin,
                             string_wmax);
-    form_return = query_user (CONTENT_WINDOW, wavelength_query, 4, "Input the wavelength range");
+    form_return = query_user (CONTENT_VIEW_WINDOW, wavelength_query, 4, "Input the wavelength range");
 
     if (form_return == FORM_QUIT)
       return form_return;
@@ -372,7 +395,7 @@ query_atomic_number (int *z)
 {
   int form_return;
   int valid_input = FALSE;
-  WINDOW *window = CONTENT_WINDOW.win;
+  WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
   static int init_query = FALSE;
   static char default_element[FIELD_INPUT_LEN];
@@ -388,7 +411,7 @@ query_atomic_number (int *z)
   {
     wclear (window);
     init_single_question_form (element_query, "Atomic number : ", default_element);
-    form_return = query_user (CONTENT_WINDOW, element_query, 2, "Please input the atomic number of the element");
+    form_return = query_user (CONTENT_VIEW_WINDOW, element_query, 2, "Please input the atomic number of the element");
 
     if (form_return == FORM_QUIT)
       return form_return;
@@ -435,7 +458,7 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
   int nfields;
   int form_return;
   int valid_input = FALSE;
-  WINDOW *window = CONTENT_WINDOW.win;
+  WINDOW *window = CONTENT_VIEW_WINDOW.window;
   Query_t *q;
 
   static int init_name = FALSE;
@@ -471,7 +494,7 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
       nfields = 4;
     }
 
-    form_return = query_user (CONTENT_WINDOW, q, nfields, "Please select an ion");
+    form_return = query_user (CONTENT_VIEW_WINDOW, q, nfields, "Please select an ion");
 
     if (form_return == FORM_QUIT)
       return form_return;
@@ -523,23 +546,6 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
  *
  * ************************************************************************** */
 
-const
-MenuItem_t ATOMIC_DATA_CHOICES[] = {
-  {NULL, 0          , "CIIICIVCV_c10"             , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 1          , "CIIICIVCV_c10_CV1LVL"      , ": Carbon III, IV and V Macro-atom"},
-  {NULL, 2          , "CIIICIV_c10"               , ": Carbon III and IV Macro-atom"},
-  {NULL, 3          , "h10_hetop_lohe1_standard80", ": 10 Level H and He Macro-atom"},
-  {NULL, 4          , "h10_hetop_standard80"      , ": 10 Level H and He Macro-atom"},
-  {NULL, 5          , "h10_standard80"            , ": 10 Level H Macro-atom"},
-  {NULL, 6          , "h20"                       , ": 20 Level H Macro-atom"},
-  {NULL, 7          , "h20_hetop_standard80"      , ": 20 Level H and He Macro-atoms"},
-  {NULL, 8          , "standard80"                , ": Standard Simple-atom"},
-  {NULL, 9          , "standard80_reduced"        , ": Reduced Simple-atom"},
-  {NULL, 10         , "standard80_sn_kurucz"      , ": Standard Supernova Simple-atom"},
-  {NULL, ATOMIC_TEST, "standard80_test"           , ": Standard Test Simple-atom"},
-  {NULL, INDEX_OTHER, "Other"                     , ": Custom data, needs to be in $PYTHON/xdata"}
-};
-
 void
 switch_atomic_data (void)
 {
@@ -547,7 +553,7 @@ switch_atomic_data (void)
   int atomic_data_error;
   int relative = FALSE;
   char atomic_data_name[FIELD_INPUT_LEN];
-  WINDOW *window = CONTENT_WINDOW.win;
+  WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
   static int menu_index = 8;
   static int init_name = FALSE;
@@ -565,7 +571,7 @@ switch_atomic_data (void)
 
   while (valid_input != TRUE)
   {
-    menu_index = create_menu (CONTENT_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
+    menu_index = create_menu (CONTENT_VIEW_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
                               ARRAY_SIZE (ATOMIC_DATA_CHOICES), menu_index, MENU_CONTROL);
 
     if (menu_index == MENU_QUIT)
@@ -588,7 +594,7 @@ switch_atomic_data (void)
       {
         relative = TRUE;
         init_single_question_form (atomic_data_query, "Master file : ", atomic_data_name);
-        query_user (CONTENT_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file");
+        query_user (CONTENT_VIEW_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file");
         strcpy (atomic_data_name, atomic_data_query[1].buffer);
       }
     }
@@ -609,7 +615,7 @@ switch_atomic_data (void)
     wrefresh (window);
   }
 
-  atomic_summary_show (SCROLL_DISBALE);
+  // atomic_summary_show (SCROLL_ENABLE);
   logfile ("\n");
   logfile_flush();
 }
