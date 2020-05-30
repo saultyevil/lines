@@ -41,4 +41,4 @@ endif()
 
 # Create the atomix executable and link the libraries
 add_executable(atomix ${SOURCE_FILES})
-target_link_libraries(atomix m ncursesw menu form)
+target_link_libraries(atomix m curses menu form)
