@@ -12,7 +12,7 @@ disc winds in Tidal Disruption Events.
 
 ## Features
 
-* Scrolling windows (!!!)
+* Scrolling windows
 * Change the atomic data files on the fly
 * Look at the bound-bound transitions over a provided wavelength range
 * Find all the photoionization edges over a provided wavelength range
@@ -29,7 +29,10 @@ variable is set, for `atomix` to work.
 As of current `atomix` will, or should, work on both linux and macOS. For Linux,
 please use the most up-to-date development version of `libncurses5-dev` and
 `libncursesw5-dev`. On macOS, install the `ncurses` package in Homebrew (or your
-other favourite package manager).
+other favourite package manager). Also, if you are using the default macOS terminal,
+then you may notice some visual hiccups. This will most likely due to the choice of
+text enconding and what the terminal has been delcared as. So far, I haven't seen
+any problems on iTerm2.
 
 You can use CMake to build this program, usually as follows:
 

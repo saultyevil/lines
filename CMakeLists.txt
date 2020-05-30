@@ -26,6 +26,7 @@ set(SOURCE_FILES
         src/ions.c
         src/levels.c
         src/inner.c
+        src/parse.c
 )
 
 # The curses library is stored in various places depending on system
@@ -40,4 +41,4 @@ endif()
 
 # Create the atomix executable and link the libraries
 add_executable(atomix ${SOURCE_FILES})
-target_link_libraries(atomix m curses menu form)
+target_link_libraries(atomix m ncursesw menu form)
