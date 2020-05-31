@@ -129,7 +129,7 @@ error_atomix (char *fmt, ...)
 
   wclear (CONTENT_VIEW_WINDOW.window);
   bold_message (CONTENT_VIEW_WINDOW, 1, 1, str);
-  update_status_bar ("Press q or F1 to continue");
+  update_status_bar ("press q or F1 to continue");
   wrefresh (CONTENT_VIEW_WINDOW.window);
 
   while ((ch = wgetch (CONTENT_VIEW_WINDOW.window)))
