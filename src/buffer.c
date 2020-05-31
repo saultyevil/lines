@@ -379,7 +379,7 @@ display_buffer (Display_t *buffer, int scroll, bool persisent_header, int header
       }
     }
 
-    update_current_line_progress (CONTENT_VIEW_WINDOW, 1, buffer->nlines);
+    update_current_line_progress (CONTENT_VIEW_WINDOW, 1, buffer->nlines - header_rows);
     wrefresh (window);
 
     if (scroll == SCROLL_ENABLE)
