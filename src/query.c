@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <stdbool.h>
 
 #include "atomix.h"
 
@@ -158,6 +159,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
   FIELD **fields;
 
   AtomixConfiguration.current_screen = sc_form;
+
   wclear (the_win);
   curs_set (1);
 
@@ -334,24 +336,24 @@ int
 query_wavelength_range (double *wmin, double *wmax)
 {
   int form_return;
-  int valid = FALSE;
-  WINDOW *the_win = CONTENT_VIEW_WINDOW.window;
+  int valid_input = false;
+  WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
-  static int init_default = FALSE;
+  static int init_default = false;
   static char string_wmin[FIELD_INPUT_LEN];
   static char string_wmax[FIELD_INPUT_LEN];
   static Query_t wavelength_query[5];
 
-  if (init_default == FALSE)
+  if (init_default == false)
   {
     strcpy (string_wmin, "");
     strcpy (string_wmax, "");
-    init_default = TRUE;
+    init_default = true;
   }
 
-  while (valid != TRUE)
+  while (valid_input == false)
   {
-    wclear (the_win); 
+    wclear (window);
     init_two_question_form (wavelength_query, "Minimum Wavelength : ", "Maximum Wavelength : ", string_wmin,
                             string_wmax);
     form_return = query_user (CONTENT_VIEW_WINDOW, wavelength_query, 4, "Input the wavelength range");
@@ -359,13 +361,14 @@ query_wavelength_range (double *wmin, double *wmax)
     if (form_return == FORM_QUIT)
       return form_return;
 
-    strcpy (string_wmin, wavelength_query[1].buffer);
-    strcpy (string_wmax, wavelength_query[3].buffer);
     *wmin = strtod (wavelength_query[1].buffer, NULL);
     *wmax = strtod (wavelength_query[3].buffer, NULL);
+    strcpy (string_wmin, wavelength_query[1].buffer);
+    strcpy (string_wmax, wavelength_query[3].buffer);
+
     if (*wmax > *wmin)
     {
-      valid = TRUE;
+      valid_input = true;
     }
     else
     {
@@ -394,20 +397,20 @@ int
 query_atomic_number (int *z)
 {
   int form_return;
-  int valid_input = FALSE;
+  int valid_input = false;
   WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
-  static int init_query = FALSE;
+  static int init_query = false;
   static char default_element[FIELD_INPUT_LEN];
   static Query_t element_query[2];
 
-  if (init_query == FALSE)
+  if (init_query == false)
   {
-    strcpy (default_element, "");
-    init_query = TRUE;
+    default_element[0] = '\0';
+    init_query = true;
   }
 
-  while (valid_input != TRUE)
+  while (valid_input != true)
   {
     wclear (window);
     init_single_question_form (element_query, "Atomic number : ", default_element);
@@ -417,13 +420,14 @@ query_atomic_number (int *z)
       return form_return;
 
     *z = (int) strtol (element_query[1].buffer, NULL, 10);
+    strcpy (default_element, element_query[1].buffer);
 
     if (*z < 0)
       *z *= -1;
 
     if (*z > 0 && *z < 118)  // TODO: make constants in atomic.h
     {
-      valid_input = TRUE;
+      valid_input = true;
       strcpy (default_element, element_query[1].buffer);
     }
     else
@@ -440,7 +444,7 @@ query_atomic_number (int *z)
  * @brief  Query the user for atomic number and ionisation state or an ion
  *         number.
  *
- * @param[in]   nion_or_z  If TRUE, query the ion number
+ * @param[in]   nion_or_z  If true, query the ion number
  * @param[out]  z          The atomic number to return
  * @param[out]  istate     The ionisation state to return
  * @param[out]  nion       The ion number to return
@@ -457,26 +461,26 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
 {
   int nfields;
   int form_return;
-  int valid_input = FALSE;
+  int valid_input = false;
   WINDOW *window = CONTENT_VIEW_WINDOW.window;
-  Query_t *q;
+  Query_t *ion_query;  // alias for nion_query or z_istate_query
 
-  static int init_name = FALSE;
+  static int init_name = false;
   static char string_z[FIELD_INPUT_LEN];
-  static char string_istat[FIELD_INPUT_LEN];
+  static char string_istate[FIELD_INPUT_LEN];
   static char string_nion[FIELD_INPUT_LEN];
   static Query_t nion_query[2];
   static Query_t z_istate_query[4];
 
-  if (init_name == FALSE)
+  if (init_name == false)
   {
-    strcpy (string_z, "");
-    strcpy (string_istat, "");
-    strcpy (string_nion, "");
-    init_name = TRUE;
+    string_z[0] = '\0';
+    string_istate[0] = '\0';
+    string_nion[0] = '\0';
+    init_name = true;
   }
 
-  while (valid_input != TRUE)
+  while (valid_input == false)
   {
 
     wclear (window);
@@ -484,37 +488,41 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
     if (nion_or_z)
     {
       init_single_question_form (nion_query, "Ion Number : ", string_nion);
-      q = nion_query;
+      ion_query = nion_query;
       nfields = 2;
     }
     else
     {
-      init_two_question_form (z_istate_query, "Atomic number : ", "Ionisation State : ", string_z, string_istat);
-      q = z_istate_query;
+      init_two_question_form (z_istate_query, "Atomic number : ", "Ionisation State : ", string_z, string_istate);
+      ion_query = z_istate_query;
       nfields = 4;
     }
 
-    form_return = query_user (CONTENT_VIEW_WINDOW, q, nfields, "Please select an ion");
+    form_return = query_user (CONTENT_VIEW_WINDOW, ion_query, nfields, "Please select an ion");
 
     if (form_return == FORM_QUIT)
       return form_return;
 
     if (nion_or_z)
     {
-      *nion = (int) strtol (q[1].buffer, NULL, 10);
+      *nion = (int) strtol (ion_query[1].buffer, NULL, 10);
+      strcpy (string_nion, ion_query[1].buffer);
+
       if (*nion >= 0 && *nion < nions)
       {
-        valid_input = TRUE;
+        valid_input = true;
       }
       else
       {
         update_status_bar ("Invalid ion number %i when there are %i ions", *nion, nions);
       }
-    } 
+    }
     else
     {
-      *z = (int) strtol (q[1].buffer, NULL, 10);
-      *istate = (int) strtol (q[3].buffer, NULL, 10);
+      *z = (int) strtol (ion_query[1].buffer, NULL, 10);
+      *istate = (int) strtol (ion_query[3].buffer, NULL, 10);
+      strcpy (string_z, ion_query[1].buffer);
+      strcpy (string_istate, ion_query[3].buffer);
 
       if (*z < 0)
         *z *= -1;
@@ -523,7 +531,7 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
 
       if (*z > 0 && *istate > 0)
       {
-        valid_input = TRUE;
+        valid_input = true;
       }
       else
       {
@@ -549,27 +557,27 @@ query_ion_input (int nion_or_z, int *z, int *istate, int *nion)
 void
 switch_atomic_data (void)
 {
-  int valid_input = FALSE;
+  int valid_input = false;
   int atomic_data_error;
-  int relative = FALSE;
+  int relative = false;
   char atomic_data_name[FIELD_INPUT_LEN];
   WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
   static int menu_index = 8;
-  static int init_name = FALSE;
+  static int init_name = false;
   static Query_t atomic_data_query[2];
 
-  if (init_name == FALSE)
+  if (init_name == false)
   {
-    strcpy (atomic_data_name, "");
-    init_name = TRUE;
+    atomic_data_name[0] = '\0';
+    init_name = true;
   }
 
   /*
    * Continue to loop until valid atomic data has been loaded
    */
 
-  while (valid_input != TRUE)
+  while (valid_input == false)
   {
     menu_index = create_menu (CONTENT_VIEW_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
                               ARRAY_SIZE (ATOMIC_DATA_CHOICES), menu_index, MENU_CONTROL);
@@ -583,7 +591,7 @@ switch_atomic_data (void)
       if (ATOMIC_DATA_CHOICES[menu_index].index == ATOMIC_TEST)  // Special hardcoded case
       {
         strcpy (atomic_data_name, "../data/standard80_test.dat");
-        relative = TRUE;
+        relative = true;
       }
       else if (ATOMIC_DATA_CHOICES[menu_index].index != INDEX_OTHER)
       {
@@ -592,7 +600,7 @@ switch_atomic_data (void)
       }
       else
       {
-        relative = TRUE;
+        relative = true;
         init_single_question_form (atomic_data_query, "Master file : ", atomic_data_name);
         query_user (CONTENT_VIEW_WINDOW, atomic_data_query, 2, "Please input the name of the atomic data master file");
         strcpy (atomic_data_name, atomic_data_query[1].buffer);
@@ -608,14 +616,13 @@ switch_atomic_data (void)
     }
     else
     {
-      valid_input = TRUE;
+      valid_input = true;
       strcpy (AtomixConfiguration.atomic_data, atomic_data_name);
     }
 
     wrefresh (window);
   }
 
-  // atomic_summary_show (SCROLL_ENABLE);
   logfile ("\n");
   logfile_flush();
 }

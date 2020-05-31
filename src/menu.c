@@ -146,7 +146,7 @@ create_main_menu (char *menu_message, MenuItem_t *menu_items, int nitems, int cu
     exit_atomix (EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
   len = (int) strlen (menu_message);
-  bold_message (MAIN_MENU_WINDOW, 1, (MAIN_MENU_WINDOW.ncols - len) / 2 - 1, menu_message);
+  bold_message (MAIN_MENU_WINDOW, 1, (MAIN_MENU_WINDOW.ncols - len) / 2, menu_message);
 
   for (i = 0; i < nitems; i++)
   {
@@ -482,4 +482,3 @@ levels_main_menu (void)
 {
   error_atomix ("Not implemented yet, soz!");
 }
-

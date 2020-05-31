@@ -17,7 +17,28 @@
 #include "atomix.h"
 
 static const
-int ndash = 40;
+int ndash = 45;
+
+static const
+int ndash_line = 94;
+
+/* ************************************************************************** */
+/**
+ * @brief
+ *
+ * @details
+ *
+ *
+ * ************************************************************************** */
+
+void
+elements_header (void)
+{
+  add_sep_display (ndash_line);
+  display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Element", "Z", "Abundance", "Ions", "First Ion",
+               "Last Ion", "Max Ionisation");
+  add_sep_display (ndash_line);
+}
 
 /* ************************************************************************** */
 /**
@@ -32,8 +53,30 @@ int ndash = 40;
  * ************************************************************************** */
 
 void
-element_line (struct elements e, int detailed)
+element_line (struct elements e)
 {
+  display_add (" %-12s %-12i %-12.2f %-12i %-12i %-12i %-12i", e.name, e.z, log10 (e.abun) + 12, e.nions, e.firstion,
+               e.firstion + e.nions - 1, e.istate_max);
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  Print standard information about an element to screen.
+ *
+ * @param[in]  e  The element to print to screen
+ *
+ * @details
+ *
+ * Prints an element to screen using a standardised output.
+ *
+ * ************************************************************************** */
+
+void
+single_element_info (struct elements e, int detailed)
+{
+  int i, n;
+  double wavelength;
+
   display_add (" Element: %s", e.name);
   add_sep_display (ndash);
   display_add (" Z                        : %i", e.z);
@@ -47,7 +90,69 @@ element_line (struct elements e, int detailed)
   if (!detailed)
     return;
 
-  // TODO: add all bb and bf transitions
+  display_add (" Bound-bound transitions for this element");
+  add_sep_display (ndash);
+  display_add (" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "levu", "levl");
+
+  n = 0;
+
+  for (i = 0; i < nlines; ++i)
+  {
+    if (lin_ptr[i]->z == e.z)
+    {
+      n++;
+      wavelength = C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
+      display_add (" %-12i %-12.2f %-12i %-12i", lin_ptr[i]->istate, wavelength, lin_ptr[i]->levu, lin_ptr[i]->levl);
+    }
+  }
+
+  add_sep_display (ndash);
+  display_add (" %i lines", n);
+
+  add_sep_display (ndash);
+  display_add (" Bound-free transitions for this element ");
+  add_sep_display (ndash);
+  display_add (" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
+
+  n = 0;
+
+  for (i = 0; i < nphot_total; ++i)
+  {
+    if (phot_top_ptr[i]->z == e.z)
+    {
+      n++;
+      wavelength = C_SI / phot_top_ptr[i]->freq[0] / ANGSTROM / 1e-2;
+      display_add (" %-12i %-12.2f %-12i %-12i", phot_top_ptr[i]->istate, wavelength, phot_top_ptr[i]->n,
+                   phot_top_ptr[i]->l);
+    }
+  }
+
+  add_sep_display (ndash);
+  display_add (" %i photoionization edges", n);
+  add_sep_display (ndash);
+
+  add_sep_display (ndash);
+  display_add (" Inner Shell transitions for this element ");
+  add_sep_display (ndash);
+  display_add (" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
+
+  n = 0;
+
+  for (i = 0; i < n_inner_tot; ++i)
+  {
+    if (inner_cross_ptr[i]->z == e.z)
+    {
+      n++;
+      wavelength = C_SI / inner_cross_ptr[i]->freq[0] / ANGSTROM / 1e-2;
+      display_add (" %-12i %-12.2f %-12i %-12i", inner_cross_ptr[i]->istate, wavelength, inner_cross_ptr[i]->n,
+                   inner_cross_ptr[i]->l);
+    }
+  }
+
+  add_sep_display (ndash);
+  display_add (" %i inner shell edges", n);
+  add_sep_display (ndash);
+
 }
 
 /* ************************************************************************** */
@@ -65,14 +170,14 @@ all_elements (void)
 {
   int i;
 
-  add_sep_display (ndash);
+  elements_header ();
 
   for (i = 0; i < nelements; ++i)
-    element_line (ele[i], FALSE);
+    element_line (ele[i]);
 
-  count (ndash, nelements);
+  count (ndash_line, nelements);
 
-  display_show (SCROLL_ENABLE, false, 0);
+  display_show (SCROLL_ENABLE, true, 3);
 }
 
 /* ************************************************************************** */
@@ -92,7 +197,7 @@ single_element (void)
 {
   int i;
   int atomic_z;
-  int found = FALSE;
+  int found = false;
 
   if (query_atomic_number (&atomic_z) == FORM_QUIT)
     return;
@@ -101,7 +206,7 @@ single_element (void)
   {
     if (ele[i].z == atomic_z)
     {
-      found = TRUE;
+      found = true;
       break;
     }
   }
@@ -113,6 +218,6 @@ single_element (void)
   }
 
   add_sep_display (ndash);
-  element_line (ele[i], TRUE);
+  single_element_info (ele[i], true);
   display_show (SCROLL_ENABLE, false, 0);
 }

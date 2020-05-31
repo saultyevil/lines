@@ -8,9 +8,10 @@ void bound_bound_ion(void);
 /* buffer.c */
 void clean_up_display(Display_t *buffer);
 void add_display(Display_t *buffer, char *fmt, ...);
-void scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int header_rows);
 void add_sep_display(const int len);
-void display_buffer (Display_t *buffer, int scroll, bool persisent_header, int header_rows);
+void update_current_line_progress(Window_t win, int current_line, int total_lines);
+void scroll_display(Display_t *buffer, Window_t win, _Bool persistent_header, int header_rows);
+void display_buffer(Display_t *buffer, int scroll, _Bool persisent_header, int header_rows);
 /* main.c */
 int main(int argc, char *argv[]);
 /* menu.c */
@@ -28,7 +29,6 @@ void levels_main_menu(void);
 /* tools.c */
 void get_element_name(int z, char *element);
 int find_element(int z);
-int check_command_line(int argc, char **argv);
 void error_atomix(char *fmt, ...);
 void exit_atomix(int errno, char *fmt, ...);
 void menu_exit_atomix(void);
@@ -75,18 +75,18 @@ int query_atomic_number(int *z);
 int query_ion_input(int nion_or_z, int *z, int *istate, int *nion);
 void switch_atomic_data(void);
 /* elements.c */
-void element_line(struct elements e, int detailed);
+void elements_header(void);
+void element_line(struct elements e);
+void single_element_info(struct elements e, int detailed);
 void all_elements(void);
 void single_element(void);
 /* ions.c */
-void ion_line(int nion, int detailed, int basic);
+void single_ion_info (int nion, int detailed);
 void all_ions(void);
 void single_ion_atomic_z(void);
 void single_ion_nion(void);
 void ions_for_element(void);
 /* levels.c */
-/* subtitle.c */
-char *get_random_subtitle(void);
 /* inner.c */
 void inner_shell_header(void);
 void inner_shell_line(int nphot);
@@ -94,3 +94,5 @@ void all_inner_shell(void);
 void inner_shell_wavelength_range(void);
 void inner_shell_element(void);
 void inner_shell_ion(void);
+/* parse.c */
+int check_command_line(int argc, char **argv);

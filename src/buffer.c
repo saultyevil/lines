@@ -196,14 +196,14 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
 {
   int i, j;
   int ch;
-  int srow_origin, scol_origin;
-  int bline_start, bcol_start;
+  int row_origin, col_origin;
+  int current_line, current_col;
   int srow, scol;
   bool screen_position_moved;
   WINDOW *window = win.window;
 
-  bline_start = bcol_start = 0;
-  srow_origin = scol_origin = 1;
+  current_line = current_col = 0;
+  row_origin = col_origin = 1;
   screen_position_moved = false;
 
   /*
@@ -222,8 +222,8 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
 
   if (persistent_header)
   {
-    bline_start += header_rows;
-    srow_origin += header_rows;
+    current_line = header_rows;
+    row_origin += header_rows;
   }
 
   update_status_bar ("press q or F1 to exit text view or use the ARROW KEYS to navigate");
@@ -240,45 +240,38 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
 
     if (buffer->nlines > win.nrows - 2)
     {
+      screen_position_moved = true;
       switch (ch)
       {
         case KEY_RESIZE:
           redraw_screen (SIGWINCH);
-          screen_position_moved = true;
           break;
         case KEY_UP:
-          bline_start--;
-          screen_position_moved = true;
+          current_line--;
           break;
         case KEY_DOWN:
-          bline_start++;
-          screen_position_moved = true;
+          current_line++;
           break;
         case KEY_RIGHT:
-          bcol_start++;
-          screen_position_moved = true;
+          current_col++;
           break;
         case KEY_LEFT:
-          bcol_start--;
-          screen_position_moved = true;
+          current_col--;
           break;
         case KEY_NPAGE:
-          bline_start += win.nrows - 2;
-          screen_position_moved = true;
+          current_line += win.nrows - 2;
           break;
         case KEY_PPAGE:
-          bline_start -= win.nrows - 2;
-          screen_position_moved = true;
+          current_line -= win.nrows - 2;
           break;
         case KEY_HOME:
-          bline_start = 0;
-          screen_position_moved = true;
+          current_line = header_rows;
           break;
         case KEY_END:
-          bline_start = buffer->nlines - win.nrows + 2;
-          screen_position_moved = true;
+          current_line = header_rows + buffer->nlines - (win.nrows - 2);
           break;
         default:
+          screen_position_moved = false;
           break;
       }
 
@@ -286,18 +279,18 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
       {
         wclear (window);
 
-        if (bline_start < header_rows)
-          bline_start = header_rows;
-        if (bline_start + win.nrows - 2 > buffer->nlines)
-          bline_start = buffer->nlines - win.nrows + 2;
+        if (current_line < header_rows)
+          current_line = header_rows;
+        if (current_line + (win.nrows - row_origin - 2) > buffer->nlines - 1)
+          current_line = header_rows + buffer->nlines - (win.nrows - 2);
 
-        if (bcol_start < 0)
-          bcol_start = 0;
-        if (bcol_start + win.ncols - 2 > buffer->maxlen)
-          bcol_start = AtomixConfiguration.current_col;
+        if (current_col < 0)
+          current_col = 0;
+        if (current_col + (win.ncols - col_origin - 2) > buffer->maxlen - 1)
+          current_col = AtomixConfiguration.current_col;
 
-        AtomixConfiguration.current_line = bline_start;
-        AtomixConfiguration.current_col = bcol_start;
+        AtomixConfiguration.current_line = current_line;
+        AtomixConfiguration.current_col = current_col;
 
         /*
          * Draw a persistent header as the user scrolls if enabled
@@ -307,7 +300,7 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
         {
           for (i = 0, srow = 1; i < header_rows && srow < win.nrows - 1; ++i, ++srow)
           {
-            for (j = bcol_start, scol = scol_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
+            for (j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
             {
               mvwprintw (window, srow, scol, "%c", buffer->lines[i].chars[j]);
             }
@@ -318,15 +311,15 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
          * Write the buffer to screen, taking into account any header
          */
 
-        for (i = bline_start, srow = srow_origin; i < buffer->nlines && srow < win.nrows - 1; ++i, ++srow)
+        for (i = current_line, srow = row_origin; i < buffer->nlines && srow < win.nrows - 1; ++i, ++srow)
         {
-          for (j = bcol_start, scol = scol_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
+          for (j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
           {
             mvwprintw (window, srow, scol, "%c", buffer->lines[i].chars[j]);
           }
         }
 
-        update_current_line_progress (win, bline_start + 1 - header_rows, buffer->nlines - header_rows);
+        update_current_line_progress (win, current_line + 1 - header_rows, buffer->nlines - header_rows);
         wrefresh (window);
       }
 

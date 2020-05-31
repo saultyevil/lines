@@ -97,7 +97,7 @@ typedef struct MenuDump_t
 #define FORM_QUIT -1
 #define FORM_BREAK -2
 #define FORM_CONTINUE -3
-#define FIELD_INPUT_LEN 30
+#define FIELD_INPUT_LEN 50
 #define FIELD_SKIP -1
 #define FIELD_NO_BKG 999
 
