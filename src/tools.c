@@ -200,6 +200,10 @@ menu_exit_atomix (void)
  *
  * @return     str  The trimmed string
  *
+ * @details
+ *
+ * TODO: return spaces removed with int pointer
+ *
  * ************************************************************************** */
 
 char *

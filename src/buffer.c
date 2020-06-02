@@ -94,6 +94,8 @@ add_display (Display_t *buffer, char *fmt, ...)
   buffer->lines[line_index].chars = malloc (len * sizeof (char) + 1);
   len = vsprintf (buffer->lines[line_index].chars, fmt, va_c);
   buffer->lines[line_index].chars[len] = '\0';  // Redundant, but just in case
+  trim_whitespaces (buffer->lines[line_index].chars);
+  len = strlen (buffer->lines[line_index].chars);
   buffer->lines[line_index].len = len;
 
   if (buffer->maxlen < len)

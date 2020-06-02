@@ -187,7 +187,7 @@ query_user (Window_t w, Query_t *q, int nfields, char *title_message)
   set_form_win (form, the_win);
   set_form_sub (form, derwin (the_win, w.nrows - 4, w.ncols - 2, 3, 1));
   set_current_field (form, fields[1]);  // Always assume first input is default field
-  update_status_bar ("Press F1 to cancel input");
+  update_status_bar ("press F1 to cancel input");
   post_form (form);
   form_driver (form, REQ_END_LINE);
   wrefresh (the_win);

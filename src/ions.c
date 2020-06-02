@@ -211,8 +211,8 @@ single_ion_atomic_z (void)
   for (nion = 0; nion < nions; ++nion)
   {
     if (ions[nion].z == z && ions[nion].istate == istate)
-    { 
-      found = true; 
+    {
+      found = true;
       break;
     }
   }
@@ -281,15 +281,12 @@ ions_for_element (void)
     return;
 
   firstion = ele[n].firstion;
-  lastion = ele[n].firstion + ele[n].nions - 1;
+  lastion = ele[n].firstion + ele[n].nions;
 
-  add_sep_display (ndash);
-  display_add (" There are %i ions for %s", lastion - firstion, ele[n].name);
-
+  ion_header ();
   for (nion = firstion; nion < lastion; ++nion)
-    single_ion_info (nion, false);
+    ion_line (nion);
 
-  add_sep_display (ndash);
-
-  display_show (SCROLL_ENABLE, false, 0);
+  count (ndash_line, ele[n].nions);
+  display_show (SCROLL_ENABLE, true, 4);
 }
