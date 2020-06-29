@@ -14,8 +14,7 @@
 
 #include "atomix.h"
 
-static const
-int ndash = 88;
+static const int ndash = 99;
 
 /* ************************************************************************** */
 /**
@@ -26,11 +25,11 @@ int ndash = 88;
  * ************************************************************************** */
 
 void
-bound_free_header (void)
+bound_free_header(void)
 {
-  display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "n", "l",
-               "PhotInfo");
-  add_sep_display (ndash);
+  display_add(" %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Wavelength", "Element", "Z", "istate", "n", "l",
+              "PhotInfo", "nres");
+  add_sep_display(ndash);
 }
 
 /* ************************************************************************** */
@@ -45,16 +44,16 @@ bound_free_header (void)
  * ************************************************************************** */
 
 void
-bound_free_line (int nphot)
+bound_free_line(int nphot)
 {
   double wavelength;
   char element[LINELEN];
 
-  get_element_name (phot_top_ptr[nphot]->z, element);
-  wavelength = C_SI / phot_top_ptr[nphot]->freq[0] / ANGSTROM / 1e-2;
-  display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i", wavelength, element, phot_top_ptr[nphot]->z,
-               phot_top_ptr[nphot]->istate, phot_top_ptr[nphot]->n, phot_top_ptr[nphot]->l,
-               ions[phot_top_ptr[nphot]->nion].phot_info);
+  get_element_name(phot_top[nphot].z, element);
+  wavelength = C_SI / phot_top[nphot].freq[0] / ANGSTROM / 1e-2;
+  display_add(" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i", wavelength, element, phot_top[nphot].z,
+              phot_top[nphot].istate, phot_top[nphot].n, phot_top[nphot].l,
+              ions[phot_top[nphot].nion].phot_info, 1 + NLINES + nphot);
 }
 
 /* ************************************************************************** */
@@ -66,7 +65,7 @@ bound_free_line (int nphot)
  * ************************************************************************** */
 
 void
-all_bound_free (void)
+all_bound_free(void)
 {
   int n, nphot;
   double wmin, wmax;
@@ -74,22 +73,22 @@ all_bound_free (void)
   wmin = C_SI / phot_top_ptr[0]->freq[0] / ANGSTROM / 1e-2;
   wmax = C_SI / phot_top_ptr[nphot_total - 1]->freq[0] / ANGSTROM / 1e-2;
 
-  display_add ("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
-  add_sep_display (ndash);
+  display_add("Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  add_sep_display(ndash);
 
-  bound_free_header ();
+  bound_free_header();
 
   n = 0;
 
   for (nphot = 0; nphot < nphot_total; ++nphot)
   {
     n++;
-    bound_free_line (nphot);
+    bound_free_line(nphot);
   }
 
-  count (ndash, n);
+  count(ndash, n);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -108,37 +107,37 @@ all_bound_free (void)
  * ************************************************************************** */
 
 void
-bound_free_wavelength_range (void)
-{ 
+bound_free_wavelength_range(void)
+{
   int n, nphot;
   double fmin, fmax, fthreshold;
   double wmin, wmax;
 
-  if (query_wavelength_range (&wmin, &wmax) == FORM_QUIT)
+  if (query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
     return;
 
   fmax = C / (wmin * ANGSTROM);
   fmin = C / (wmax * ANGSTROM);
 
   display_add(" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
-  add_sep_display (ndash);
-  bound_free_header ();
+  add_sep_display(ndash);
+  bound_free_header();
 
   n = 0;
 
   for (nphot = 0; nphot < nphot_total; ++nphot)
   {
-    fthreshold = phot_top_ptr[nphot]->freq[0];
+    fthreshold = phot_top[nphot].freq[0];
     if (fthreshold > fmin && fthreshold < fmax)
     {
-      bound_free_line (nphot);
+      bound_free_line(nphot);
       n++;
     }
   }
 
-  count (ndash, n);
+  count(ndash, n);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -150,36 +149,36 @@ bound_free_wavelength_range (void)
  * ************************************************************************** */
 
 void
-bound_free_element (void)
+bound_free_element(void)
 {
   int n, z;
   int nphot;
   char element[LINELEN];
 
-  if (query_atomic_number (&z) == FORM_QUIT)
+  if (query_atomic_number(&z) == FORM_QUIT)
     return;
 
-  if (find_element (z) == ELEMENT_NO_FOUND)
+  if (find_element(z) == ELEMENT_NO_FOUND)
     return;
 
-  get_element_name (z, element);
-  display_add ("Bound-free edges for %s", element);
-  add_sep_display (ndash);
-  bound_free_header ();
+  get_element_name(z, element);
+  display_add("Bound-free edges for %s", element);
+  add_sep_display(ndash);
+  bound_free_header();
 
   n = 0;
   for (nphot = 0; nphot < nphot_total; ++nphot)
   {
-    if (phot_top_ptr[nphot]->z == z)
+    if (phot_top[nphot].z == z)
     {
-      bound_free_line (nphot);
+      bound_free_line(nphot);
       n++;
     }
   }
 
-  count (ndash, n);
+  count(ndash, n);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -191,13 +190,13 @@ bound_free_element (void)
  * ************************************************************************** */
 
 void
-bound_free_ion (void)
+bound_free_ion(void)
 {
   int z, istate;
   int n, nion, nphot;
   char element[LINELEN];
 
-  if (query_ion_input (TRUE, NULL, NULL, &nion) == FORM_QUIT)
+  if (query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
   if (nion < 0)
@@ -205,30 +204,30 @@ bound_free_ion (void)
 
   if (nion > nions - 1)
   {
-    error_atomix ("Invaild ion number %i > nions %i", nion, nions);
+    error_atomix("Invaild ion number %i > nions %i", nion, nions);
     return;
   }
 
   z = ions[nion].z;
   istate = ions[nion].istate;
-  get_element_name (z, element);
+  get_element_name(z, element);
 
-  display_add ("Bound-free transitions for %s %i", element, istate);
-  add_sep_display (ndash);
-  bound_free_header ();
+  display_add("Bound-free transitions for %s %i", element, istate);
+  add_sep_display(ndash);
+  bound_free_header();
 
   n = 0;
   for (nphot = 0; nphot < nphot_total; ++nphot)
   {
-    if (phot_top_ptr[nphot]->z == z && phot_top_ptr[nphot]->istate == istate)
+    if (phot_top[nphot].z == z && phot_top[nphot].istate == istate)
     {
-      bound_free_line (nphot);
+      bound_free_line(nphot);
       n++;
     }
   }
 
-  count (ndash, n);
+  count(ndash, n);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 
 }

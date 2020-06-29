@@ -14,11 +14,9 @@
 
 #include "atomix.h"
 
-static const
-int ndash = 45;
+static const int ndash = 45;
 
-static const
-int ndash_line = 83;
+static const int ndash_line = 83;
 
 /* ************************************************************************** */
 /**
@@ -30,12 +28,12 @@ int ndash_line = 83;
  * ************************************************************************** */
 
 void
-ion_header (void)
+ion_header(void)
 {
-  add_sep_display (ndash_line);
-  display_add (" %-12s %-12s %-12s %-12s %-12s %-12s", "Ion Number", "Element", "Z", "Ionisation", "Phot Info",
-               "Ion Potential eV");
-  add_sep_display (ndash_line);
+  add_sep_display(ndash_line);
+  display_add(" %-12s %-12s %-12s %-12s %-12s %-12s", "Ion Number", "Element", "Z", "Ionisation", "Phot Info",
+              "Ion Potential eV");
+  add_sep_display(ndash_line);
 }
 
 /* ************************************************************************** */
@@ -51,14 +49,14 @@ ion_header (void)
  * ************************************************************************** */
 
 void
-ion_line (int nion)
+ion_line(int nion)
 {
   char element[LINELEN];
   struct ions ion = ions[nion];
 
-  get_element_name (ion.z, element);
-  display_add (" %-12i %-12s %-12i %-12i %-12i %-12.2e", nion, element, ion.z, ion.istate, ion.phot_info,
-               ion.ip / EV2ERGS);
+  get_element_name(ion.z, element);
+  display_add(" %-12i %-12s %-12i %-12i %-12i %-12.2e", nion, element, ion.z, ion.istate, ion.phot_info,
+              ion.ip / EV2ERGS);
 }
 
 /* ************************************************************************** */
@@ -77,7 +75,7 @@ ion_line (int nion)
  * ************************************************************************** */
 
 void
-single_ion_info (int nion, int detailed)
+single_ion_info(int nion, int detailed)
 {
   int i, n;
   double wavelength;
@@ -85,24 +83,24 @@ single_ion_info (int nion, int detailed)
   struct ions ion;
 
   ion = ions[nion];
-  get_element_name (ion.z, element);
+  get_element_name(ion.z, element);
 
-  display_add (" Ion                           : %s %i", element, ion.istate);
-  add_sep_display (ndash);
-  display_add (" Ion number                    : %i", nion);
-  display_add (" Atomic number                 : %i", ion.z);
-  display_add (" Ionisation state              : %i", ion.istate);
-  display_add (" Photionization info           : %i", ion.phot_info);
-  display_add (" Ionisation potential          : %.2e eV", ion.ip / EV2ERGS);
-  display_add (" Number of ions for element %-2s : %i", element, ele[ion.nelem].nions);
-  add_sep_display (ndash);
+  display_add(" Ion                           : %s %i", element, ion.istate);
+  add_sep_display(ndash);
+  display_add(" Ion number                    : %i", nion);
+  display_add(" Atomic number                 : %i", ion.z);
+  display_add(" Ionisation state              : %i", ion.istate);
+  display_add(" Photionization info           : %i", ion.phot_info);
+  display_add(" Ionisation potential          : %.2e eV", ion.ip / EV2ERGS);
+  display_add(" Number of ions for element %-2s : %i", element, ele[ion.nelem].nions);
+  add_sep_display(ndash);
 
   if (!detailed)
     return;
 
-  display_add (" Bound-bound transitions for this ion");
-  add_sep_display (ndash);
-  display_add (" %-12s %-12s %-12s", "Wavelength", "levu", "levl");
+  display_add(" Bound-bound transitions for this ion");
+  add_sep_display(ndash);
+  display_add(" %-12s %-12s %-12s", "Wavelength", "levu", "levl");
 
   n = 0;
 
@@ -112,17 +110,17 @@ single_ion_info (int nion, int detailed)
     {
       n++;
       wavelength = C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
-      display_add (" %-12.2f %-12i %-12i", wavelength, lin_ptr[i]->levu, lin_ptr[i]->levl);
+      display_add(" %-12.2f %-12i %-12i", wavelength, lin_ptr[i]->levu, lin_ptr[i]->levl);
     }
   }
 
-  add_sep_display (ndash);
-  display_add (" %i lines", n);
+  add_sep_display(ndash);
+  display_add(" %i lines", n);
 
-  add_sep_display (ndash);
-  display_add (" Bound-free transitions for this ion");
-  add_sep_display (ndash);
-  display_add (" %-12s %-12s %-12s", "Wavelength", "n", "l");
+  add_sep_display(ndash);
+  display_add(" Bound-free transitions for this ion");
+  add_sep_display(ndash);
+  display_add(" %-12s %-12s %-12s", "Wavelength", "n", "l");
 
   n = 0;
 
@@ -132,18 +130,18 @@ single_ion_info (int nion, int detailed)
     {
       n++;
       wavelength = C_SI / phot_top_ptr[i]->freq[0] / ANGSTROM / 1e-2;
-      display_add (" %-12.2f %-12i %-12i", wavelength, phot_top_ptr[i]->n, phot_top_ptr[i]->l);
+      display_add(" %-12.2f %-12i %-12i", wavelength, phot_top_ptr[i]->n, phot_top_ptr[i]->l);
     }
   }
 
-  add_sep_display (ndash);
-  display_add (" %i photoionization edges", n);
-  add_sep_display (ndash);
+  add_sep_display(ndash);
+  display_add(" %i photoionization edges", n);
+  add_sep_display(ndash);
 
-  add_sep_display (ndash);
-  display_add (" Inner Shell transitions for this ion");
-  add_sep_display (ndash);
-  display_add (" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
+  add_sep_display(ndash);
+  display_add(" Inner Shell transitions for this ion");
+  add_sep_display(ndash);
+  display_add(" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
 
   n = 0;
 
@@ -153,14 +151,14 @@ single_ion_info (int nion, int detailed)
     {
       n++;
       wavelength = C_SI / inner_cross_ptr[i]->freq[0] / ANGSTROM / 1e-2;
-      display_add (" %-12i %-12.2f %-12i %-12i", inner_cross_ptr[i]->istate, wavelength, inner_cross_ptr[i]->n,
-                   inner_cross_ptr[i]->l);
+      display_add(" %-12i %-12.2f %-12i %-12i", inner_cross_ptr[i]->istate, wavelength, inner_cross_ptr[i]->n,
+                  inner_cross_ptr[i]->l);
     }
   }
 
-  add_sep_display (ndash);
-  display_add (" %i inner shell edges", n);
-  add_sep_display (ndash);
+  add_sep_display(ndash);
+  display_add(" %i inner shell edges", n);
+  add_sep_display(ndash);
 
 }
 
@@ -173,16 +171,16 @@ single_ion_info (int nion, int detailed)
  * ************************************************************************** */
 
 void
-all_ions (void)
+all_ions(void)
 {
   int nion;
 
-  ion_header ();
+  ion_header();
   for (nion = 0; nion < nions; ++nion)
-    ion_line (nion);
+    ion_line(nion);
 
-  count (ndash_line, nions);
-  display_show (SCROLL_ENABLE, true, 3);
+  count(ndash_line, nions);
+  display_show(SCROLL_ENABLE, true, 3);
 }
 
 /* ************************************************************************** */
@@ -196,16 +194,16 @@ all_ions (void)
  * ************************************************************************** */
 
 void
-single_ion_atomic_z (void)
+single_ion_atomic_z(void)
 {
   int nion;
-	int z, istate;
+  int z, istate;
   int found = false;
 
-  if (query_ion_input (false, &z, &istate, NULL) == FORM_QUIT)
+  if (query_ion_input(false, &z, &istate, NULL) == FORM_QUIT)
     return;
 
-  if (find_element (z) == ELEMENT_NO_FOUND)
+  if (find_element(z) == ELEMENT_NO_FOUND)
     return;
 
   for (nion = 0; nion < nions; ++nion)
@@ -219,13 +217,13 @@ single_ion_atomic_z (void)
 
   if (!found)
   {
-    error_atomix ("Unknown ion configuration");
+    error_atomix("Unknown ion configuration");
     return;
   }
 
-  add_sep_display (ndash);
-  single_ion_info (nion, true);
-  display_show (SCROLL_ENABLE, false, 0);
+  add_sep_display(ndash);
+  single_ion_info(nion, true);
+  display_show(SCROLL_ENABLE, false, 0);
 }
 
 /* ************************************************************************** */
@@ -239,25 +237,25 @@ single_ion_atomic_z (void)
  * ************************************************************************** */
 
 void
-single_ion_nion (void)
+single_ion_nion(void)
 {
   int nion;
 
-  if (query_ion_input (true, NULL, NULL, &nion) == FORM_QUIT)
+  if (query_ion_input(true, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
   if (nion < 0)
     nion *= -1;
 
-  if(nion > nions - 1)
+  if (nion > nions - 1)
   {
-    error_atomix ("Invalid ion index choice %i when there are only %i ion indices", nion, nions);
+    error_atomix("Invalid ion index choice %i when there are only %i ion indices", nion, nions);
     return;
   }
 
-  add_sep_display (ndash);
-  single_ion_info (nion, true);
-  display_show (SCROLL_ENABLE, false, 0);
+  add_sep_display(ndash);
+  single_ion_info(nion, true);
+  display_show(SCROLL_ENABLE, false, 0);
 }
 
 /* ************************************************************************** */
@@ -269,24 +267,24 @@ single_ion_nion (void)
  * ************************************************************************** */
 
 void
-ions_for_element (void)
+ions_for_element(void)
 {
   int nion, n;
   int z, firstion, lastion;
 
-  if (query_atomic_number (&z) == FORM_QUIT)
+  if (query_atomic_number(&z) == FORM_QUIT)
     return;
 
-  if ((n = find_element (z)) == ELEMENT_NO_FOUND)
+  if ((n = find_element(z)) == ELEMENT_NO_FOUND)
     return;
 
   firstion = ele[n].firstion;
   lastion = ele[n].firstion + ele[n].nions;
 
-  ion_header ();
+  ion_header();
   for (nion = firstion; nion < lastion; ++nion)
-    ion_line (nion);
+    ion_line(nion);
 
-  count (ndash_line, ele[n].nions);
-  display_show (SCROLL_ENABLE, true, 4);
+  count(ndash_line, ele[n].nions);
+  display_show(SCROLL_ENABLE, true, 4);
 }

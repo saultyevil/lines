@@ -14,23 +14,21 @@
 
 #include "atomix.h"
 
-static const
-int ndash = 110;
+static const int ndash = 110;
 
 /* ************************************************************************** */
 /**
- * @brief  Add a header for a bound_bound_line table.
- *
- * @details
+ * @brief  Adds a generic header for bound bound transitions to the display
+ *         buffer.
  *
  * ************************************************************************** */
 
 void
-bound_bound_header (void)
+bound_bound_header(void)
 {
- display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s",
+  display_add(" %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s",
               "Wavelength", "Element", "Z", "istate", "levu", "levl", "nion", "macro info", "nres");
- add_sep_display (ndash);
+  add_sep_display(ndash);
 }
 
 /* ************************************************************************** */
@@ -45,15 +43,15 @@ bound_bound_header (void)
  * ************************************************************************** */
 
 void
-bound_bound_line (int n)
+bound_bound_line(int n)
 {
   double wl;
   char element[LINELEN];
 
-  get_element_name (lin_ptr[n]->z, element);
+  get_element_name(lin_ptr[n]->z, element);
   wl = C_SI / lin_ptr[n]->freq / ANGSTROM / 1e-2;
-  display_add (" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z,
-               lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info, n);
+  display_add(" %-12.2f %-12s %-12i %-12i %-12i %-12i %-12i %-12i %-12i", wl, element, lin_ptr[n]->z,
+              lin_ptr[n]->istate, lin_ptr[n]->levu, lin_ptr[n]->levl, lin_ptr[n]->nion, lin_ptr[n]->macro_info, n);
 }
 
 /* ************************************************************************** */
@@ -68,7 +66,7 @@ bound_bound_line (int n)
  * ************************************************************************** */
 
 void
-all_bound_bound (void)
+all_bound_bound(void)
 {
   int i;
   double wmin, wmax;
@@ -76,17 +74,17 @@ all_bound_bound (void)
   wmin = C_SI / lin_ptr[nlines - 1]->freq / ANGSTROM / 1e-2;
   wmax = C_SI / lin_ptr[0]->freq / ANGSTROM / 1e-2;
 
-  display_add (" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
-  add_sep_display (ndash);
+  display_add(" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  add_sep_display(ndash);
 
-  bound_bound_header ();
+  bound_bound_header();
 
   for (i = 0; i < nlines; ++i)
-    bound_bound_line (i);
+    bound_bound_line(i);
 
-  count (ndash, nlines);
+  count(ndash, nlines);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -103,27 +101,27 @@ all_bound_bound (void)
  * ************************************************************************** */
 
 void
-bound_bound_wavelength_range (void)
+bound_bound_wavelength_range(void)
 {
   int n, nline;
   double wmin, wmax;
 
-  if (query_wavelength_range (&wmin, &wmax) == FORM_QUIT)
+  if (query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
     return;
 
-  limit_lines (C / (wmax * ANGSTROM), C / (wmin * ANGSTROM));
+  limit_lines(C / (wmax * ANGSTROM), C / (wmin * ANGSTROM));
   n = nline_max - nline_min - 1;
 
-  display_add (" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
-  add_sep_display (ndash);
-  bound_bound_header ();
+  display_add(" Wavelength range: %.2f - %.2f Angstroms", wmin, wmax);
+  add_sep_display(ndash);
+  bound_bound_header();
 
   for (nline = nline_min + 1; nline < nline_max; ++nline)
-    bound_bound_line (nline);
+    bound_bound_line(nline);
 
-  count (ndash, n);
+  count(ndash, n);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -135,36 +133,36 @@ bound_bound_wavelength_range (void)
  * ************************************************************************** */
 
 void
-bound_bound_element (void)
+bound_bound_element(void)
 {
   int n, z;
   int nline;
   char element[LINELEN];
 
-  if (query_atomic_number (&z) == FORM_QUIT)
+  if (query_atomic_number(&z) == FORM_QUIT)
     return;
 
-  if (find_element (z) == ELEMENT_NO_FOUND)
+  if (find_element(z) == ELEMENT_NO_FOUND)
     return;
 
-  get_element_name (z, element);
-  display_add ("Bound-bound transitions for %s", element);
-  add_sep_display (ndash);
-  bound_bound_header ();
+  get_element_name(z, element);
+  display_add("Bound-bound transitions for %s", element);
+  add_sep_display(ndash);
+  bound_bound_header();
 
   n = 0;
   for (nline = 0; nline < nlines; ++nline)
   {
     if (lin_ptr[nline]->z == z)
     {
-      bound_bound_line (nline);
+      bound_bound_line(nline);
       n++;
     }
   }
 
-  count (ndash, n);
+  count(ndash, n);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 }
 
 /* ************************************************************************** */
@@ -180,13 +178,13 @@ bound_bound_element (void)
  * ************************************************************************** */
 
 void
-bound_bound_ion (void)
+bound_bound_ion(void)
 {
   int z, istate;
   int n, nion, nline;
   char element[LINELEN];
 
-  if (query_ion_input (TRUE, NULL, NULL, &nion) == FORM_QUIT)
+  if (query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
   if (nion < 0)
@@ -194,29 +192,29 @@ bound_bound_ion (void)
 
   if (nion > nions - 1)
   {
-    error_atomix ("Invaild ion number %i > nions %i", nion, nions);
+    error_atomix("Invaild ion number %i > nions %i", nion, nions);
     return;
   }
 
   z = ions[nion].z;
   istate = ions[nion].istate;
-  get_element_name (z, element);
+  get_element_name(z, element);
 
-  display_add ("Bound-bound transitions for %s %i", element, istate);
-  add_sep_display (ndash);
-  bound_bound_header ();
+  display_add("Bound-bound transitions for %s %i", element, istate);
+  add_sep_display(ndash);
+  bound_bound_header();
 
   n = 0;
   for (nline = 0; nline < nlines; ++nline)
   {
     if (lin_ptr[nline]->z == z && lin_ptr[nline]->istate == istate)
     {
-      bound_bound_line (nline);
+      bound_bound_line(nline);
       n++;
     }
   }
 
-  count (ndash, n);
+  count(ndash, n);
 
-  display_show (SCROLL_ENABLE, true, 4);
+  display_show(SCROLL_ENABLE, true, 4);
 }

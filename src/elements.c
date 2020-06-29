@@ -11,16 +11,12 @@
  * ************************************************************************** */
 
 #include <stdbool.h>
-
 #include <math.h>
 
 #include "atomix.h"
 
-static const
-int ndash = 45;
-
-static const
-int ndash_line = 94;
+static const int ndash = 45;
+static const int ndash_line = 94;
 
 /* ************************************************************************** */
 /**
@@ -32,12 +28,12 @@ int ndash_line = 94;
  * ************************************************************************** */
 
 void
-elements_header (void)
+elements_header(void)
 {
-  add_sep_display (ndash_line);
-  display_add (" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Element", "Z", "Abundance", "Ions", "First Ion",
-               "Last Ion", "Max Ionisation");
-  add_sep_display (ndash_line);
+  add_sep_display(ndash_line);
+  display_add(" %-12s %-12s %-12s %-12s %-12s %-12s %-12s", "Element", "Z", "Abundance", "Ions", "First Ion",
+              "Last Ion", "Max Ionisation");
+  add_sep_display(ndash_line);
 }
 
 /* ************************************************************************** */
@@ -53,10 +49,10 @@ elements_header (void)
  * ************************************************************************** */
 
 void
-element_line (struct elements e)
+element_line(struct elements e)
 {
-  display_add (" %-12s %-12i %-12.2f %-12i %-12i %-12i %-12i", e.name, e.z, log10 (e.abun) + 12, e.nions, e.firstion,
-               e.firstion + e.nions - 1, e.istate_max);
+  display_add(" %-12s %-12i %-12.2f %-12i %-12i %-12i %-12i", e.name, e.z, log10(e.abun) + 12, e.nions, e.firstion,
+              e.firstion + e.nions - 1, e.istate_max);
 }
 
 /* ************************************************************************** */
@@ -72,27 +68,27 @@ element_line (struct elements e)
  * ************************************************************************** */
 
 void
-single_element_info (struct elements e, int detailed)
+single_element_info(struct elements e, int detailed)
 {
   int i, n;
   double wavelength;
 
-  display_add (" Element: %s", e.name);
-  add_sep_display (ndash);
-  display_add (" Z                        : %i", e.z);
-  display_add (" Abundance relative to H  : %3.2f", log10 (e.abun) + 12);
-  display_add (" Number of Ions           : %i", e.nions);
-  display_add (" First Ion Index          : %i", e.firstion);
-  display_add (" Last Ion Index           : %i", e.firstion + e.nions - 1);
-  display_add (" Highest Ionisation state : %i", e.istate_max);
-  add_sep_display (ndash);
+  display_add(" Element: %s", e.name);
+  add_sep_display(ndash);
+  display_add(" Z                        : %i", e.z);
+  display_add(" Abundance relative to H  : %3.2f", log10(e.abun) + 12);
+  display_add(" Number of Ions           : %i", e.nions);
+  display_add(" First Ion Index          : %i", e.firstion);
+  display_add(" Last Ion Index           : %i", e.firstion + e.nions - 1);
+  display_add(" Highest Ionisation state : %i", e.istate_max);
+  add_sep_display(ndash);
 
   if (!detailed)
     return;
 
-  display_add (" Bound-bound transitions for this element");
-  add_sep_display (ndash);
-  display_add (" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "levu", "levl");
+  display_add(" Bound-bound transitions for this element");
+  add_sep_display(ndash);
+  display_add(" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "levu", "levl");
 
   n = 0;
 
@@ -102,17 +98,17 @@ single_element_info (struct elements e, int detailed)
     {
       n++;
       wavelength = C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
-      display_add (" %-12i %-12.2f %-12i %-12i", lin_ptr[i]->istate, wavelength, lin_ptr[i]->levu, lin_ptr[i]->levl);
+      display_add(" %-12i %-12.2f %-12i %-12i", lin_ptr[i]->istate, wavelength, lin_ptr[i]->levu, lin_ptr[i]->levl);
     }
   }
 
-  add_sep_display (ndash);
-  display_add (" %i lines", n);
+  add_sep_display(ndash);
+  display_add(" %i lines", n);
 
-  add_sep_display (ndash);
-  display_add (" Bound-free transitions for this element ");
-  add_sep_display (ndash);
-  display_add (" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
+  add_sep_display(ndash);
+  display_add(" Bound-free transitions for this element ");
+  add_sep_display(ndash);
+  display_add(" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
 
   n = 0;
 
@@ -122,19 +118,19 @@ single_element_info (struct elements e, int detailed)
     {
       n++;
       wavelength = C_SI / phot_top_ptr[i]->freq[0] / ANGSTROM / 1e-2;
-      display_add (" %-12i %-12.2f %-12i %-12i", phot_top_ptr[i]->istate, wavelength, phot_top_ptr[i]->n,
-                   phot_top_ptr[i]->l);
+      display_add(" %-12i %-12.2f %-12i %-12i", phot_top_ptr[i]->istate, wavelength, phot_top_ptr[i]->n,
+                  phot_top_ptr[i]->l);
     }
   }
 
-  add_sep_display (ndash);
-  display_add (" %i photoionization edges", n);
-  add_sep_display (ndash);
+  add_sep_display(ndash);
+  display_add(" %i photoionization edges", n);
+  add_sep_display(ndash);
 
-  add_sep_display (ndash);
-  display_add (" Inner Shell transitions for this element ");
-  add_sep_display (ndash);
-  display_add (" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
+  add_sep_display(ndash);
+  display_add(" Inner Shell transitions for this element ");
+  add_sep_display(ndash);
+  display_add(" %-12s %-12s %-12s %-12s", "Ionisation", "Wavelength", "n", "l");
 
   n = 0;
 
@@ -144,14 +140,14 @@ single_element_info (struct elements e, int detailed)
     {
       n++;
       wavelength = C_SI / inner_cross_ptr[i]->freq[0] / ANGSTROM / 1e-2;
-      display_add (" %-12i %-12.2f %-12i %-12i", inner_cross_ptr[i]->istate, wavelength, inner_cross_ptr[i]->n,
-                   inner_cross_ptr[i]->l);
+      display_add(" %-12i %-12.2f %-12i %-12i", inner_cross_ptr[i]->istate, wavelength, inner_cross_ptr[i]->n,
+                  inner_cross_ptr[i]->l);
     }
   }
 
-  add_sep_display (ndash);
-  display_add (" %i inner shell edges", n);
-  add_sep_display (ndash);
+  add_sep_display(ndash);
+  display_add(" %i inner shell edges", n);
+  add_sep_display(ndash);
 
 }
 
@@ -166,18 +162,18 @@ single_element_info (struct elements e, int detailed)
  * ************************************************************************** */
 
 void
-all_elements (void)
+all_elements(void)
 {
   int i;
 
-  elements_header ();
+  elements_header();
 
   for (i = 0; i < nelements; ++i)
-    element_line (ele[i]);
+    element_line(ele[i]);
 
-  count (ndash_line, nelements);
+  count(ndash_line, nelements);
 
-  display_show (SCROLL_ENABLE, true, 3);
+  display_show(SCROLL_ENABLE, true, 3);
 }
 
 /* ************************************************************************** */
@@ -193,13 +189,13 @@ all_elements (void)
  * ************************************************************************** */
 
 void
-single_element (void)
+single_element(void)
 {
   int i;
   int atomic_z;
   int found = false;
 
-  if (query_atomic_number (&atomic_z) == FORM_QUIT)
+  if (query_atomic_number(&atomic_z) == FORM_QUIT)
     return;
 
   for (i = 0; i < nelements; ++i)
@@ -213,11 +209,11 @@ single_element (void)
 
   if (!found)
   {
-    error_atomix ("Element Z = %i is not in the atomic data", atomic_z);
+    error_atomix("Element Z = %i is not in the atomic data", atomic_z);
     return;
   }
 
-  add_sep_display (ndash);
-  single_element_info (ele[i], true);
-  display_show (SCROLL_ENABLE, false, 0);
+  add_sep_display(ndash);
+  single_element_info(ele[i], true);
+  display_show(SCROLL_ENABLE, false, 0);
 }

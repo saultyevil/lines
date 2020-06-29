@@ -39,7 +39,7 @@
  * ************************************************************************** */
 
 int
-check_command_line (int argc, char **argv)
+check_command_line(int argc, char **argv)
 {
   int provided = false;
   int atomic_data_error;
@@ -54,34 +54,34 @@ check_command_line (int argc, char **argv)
     "   atomic_data  [optional]  the name of the atomic data to explore\n"
     "   h            [optional]  print this help message\n";
 
-  if (argc == 2 && strncmp (argv[1], "-h", 2) == 0)
+  if (argc == 2 && strncmp(argv[1], "-h", 2) == 0)
   {
-    printf ("%s", help);
-    exit (EXIT_SUCCESS);
+    printf("%s", help);
+    exit(EXIT_SUCCESS);
   }
   else if (argc == 2)
   {
-    strcpy (atomic_data_name, argv[1]);
-    if (strcmp (&atomic_data_name[strlen (atomic_data_name) - 4], ".dat") != 0)
-      strcat (atomic_data_name, ".dat");
+    strcpy(atomic_data_name, argv[1]);
+    if (strcmp(&atomic_data_name[strlen(atomic_data_name) - 4], ".dat") != 0)
+      strcat(atomic_data_name, ".dat");
 
-    atomic_data_error = get_atomic_data (atomic_data_name, false);
+    atomic_data_error = get_atomic_data(atomic_data_name, false);
 
     if (atomic_data_error)
     {
       logfile_close();
-      printf ("Fatal error: error when reading atomic data : errno = %i\n", atomic_data_error);
-      exit (EXIT_FAILURE);
+      printf("Fatal error: error when reading atomic data : errno = %i\n", atomic_data_error);
+      exit(EXIT_FAILURE);
     }
 
     provided = true;
-    strcpy (AtomixConfiguration.atomic_data, atomic_data_name);
+    strcpy(AtomixConfiguration.atomic_data, atomic_data_name);
   }
   else if (argc > 2)
   {
-    printf ("Unknown arguments. Seek help!\n");
-    printf ("\n%s", help);
-    exit (EXIT_FAILURE);
+    printf("Unknown arguments. Seek help!\n");
+    printf("\n%s", help);
+    exit(EXIT_FAILURE);
   }
 
   return provided;

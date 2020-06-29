@@ -18,7 +18,8 @@ int main(int argc, char *argv[]);
 void clean_up_menu(MENU *menu, ITEM **items, int nitems);
 int control_menu(MENU *menu, int c);
 int create_main_menu(char *menu_message, MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
-int create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
+int create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems, int current_index,
+                int control_this_menu);
 void main_menu(int control);
 void bound_bound_main_menu(void);
 void bound_free_main_menu(void);
@@ -81,7 +82,7 @@ void single_element_info(struct elements e, int detailed);
 void all_elements(void);
 void single_element(void);
 /* ions.c */
-void single_ion_info (int nion, int detailed);
+void single_ion_info(int nion, int detailed);
 void all_ions(void);
 void single_ion_atomic_z(void);
 void single_ion_nion(void);

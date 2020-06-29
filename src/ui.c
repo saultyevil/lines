@@ -32,17 +32,17 @@
  * ************************************************************************** */
 
 void
-initialise_ncurses_stdscr (void)
+initialise_ncurses_stdscr(void)
 {
-  initscr ();
-  getmaxyx (stdscr, AtomixConfiguration.rows, AtomixConfiguration.cols);
+  initscr();
+  getmaxyx(stdscr, AtomixConfiguration.rows, AtomixConfiguration.cols);
 
-  noecho ();
-  cbreak ();
-  keypad (stdscr, false);
-  curs_set (0);
+  noecho();
+  cbreak();
+  keypad(stdscr, false);
+  curs_set(0);
 
-  refresh ();
+  refresh();
 }
 
 /* ************************************************************************** */
@@ -57,13 +57,13 @@ initialise_ncurses_stdscr (void)
  * ************************************************************************** */
 
 void
-cleanup_ncurses_stdscr (void)
+cleanup_ncurses_stdscr(void)
 {
   logfile_close();
-  delwin (MAIN_MENU_WINDOW.window);
-  delwin (STATUS_BAR_WINDOW.window);
-  delwin (CONTENT_VIEW_WINDOW.window);
-  endwin ();
+  delwin(MAIN_MENU_WINDOW.window);
+  delwin(STATUS_BAR_WINDOW.window);
+  delwin(CONTENT_VIEW_WINDOW.window);
+  endwin();
 }
 
 /* ************************************************************************** */
@@ -85,7 +85,7 @@ cleanup_ncurses_stdscr (void)
  * ************************************************************************** */
 
 void
-initialise_main_windows (void)
+initialise_main_windows(void)
 {
   int max_rows, max_cols;
   int origin_row, origin_col;
@@ -102,9 +102,10 @@ initialise_main_windows (void)
   STATUS_BAR_WINDOW.ncols = max_cols;
   STATUS_BAR_WINDOW.start_y = origin_row + max_rows - STATUS_BAR_WINDOW.nrows;
   STATUS_BAR_WINDOW.start_x = origin_col;
-  STATUS_BAR_WINDOW.window = newwin (STATUS_BAR_WINDOW.nrows, STATUS_BAR_WINDOW.ncols, STATUS_BAR_WINDOW.start_y, STATUS_BAR_WINDOW.start_x);
+  STATUS_BAR_WINDOW.window =
+    newwin(STATUS_BAR_WINDOW.nrows, STATUS_BAR_WINDOW.ncols, STATUS_BAR_WINDOW.start_y, STATUS_BAR_WINDOW.start_x);
   if (STATUS_BAR_WINDOW.window == NULL)
-    exit_atomix (EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for STATUS_WINDOW");
+    exit_atomix(EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for STATUS_WINDOW");
 
   /*
    * Main menu: vertical bar on the left
@@ -114,11 +115,12 @@ initialise_main_windows (void)
   MAIN_MENU_WINDOW.ncols = MENU_WIDTH;
   MAIN_MENU_WINDOW.start_y = origin_row;
   MAIN_MENU_WINDOW.start_x = origin_col;
-  MAIN_MENU_WINDOW.window = newwin (MAIN_MENU_WINDOW.nrows, MAIN_MENU_WINDOW.ncols, MAIN_MENU_WINDOW.start_y, MAIN_MENU_WINDOW.start_x);
+  MAIN_MENU_WINDOW.window =
+    newwin(MAIN_MENU_WINDOW.nrows, MAIN_MENU_WINDOW.ncols, MAIN_MENU_WINDOW.start_y, MAIN_MENU_WINDOW.start_x);
   if (MAIN_MENU_WINDOW.window == NULL)
-    exit_atomix (EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for MENU_WINDOW");
-  keypad (MAIN_MENU_WINDOW.window, true);
-  nodelay (MAIN_MENU_WINDOW.window, true);
+    exit_atomix(EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for MENU_WINDOW");
+  keypad(MAIN_MENU_WINDOW.window, true);
+  // nodelay(MAIN_MENU_WINDOW.window, true);
 
   /*
    * The content window: the workhorse where everything is displayed
@@ -128,11 +130,13 @@ initialise_main_windows (void)
   CONTENT_VIEW_WINDOW.ncols = max_cols - MAIN_MENU_WINDOW.ncols;
   CONTENT_VIEW_WINDOW.start_y = origin_row;
   CONTENT_VIEW_WINDOW.start_x = origin_col + MAIN_MENU_WINDOW.ncols;
-  CONTENT_VIEW_WINDOW.window = newwin (CONTENT_VIEW_WINDOW.nrows, CONTENT_VIEW_WINDOW.ncols, CONTENT_VIEW_WINDOW.start_y, CONTENT_VIEW_WINDOW.start_x);
+  CONTENT_VIEW_WINDOW.window =
+    newwin(CONTENT_VIEW_WINDOW.nrows, CONTENT_VIEW_WINDOW.ncols, CONTENT_VIEW_WINDOW.start_y,
+           CONTENT_VIEW_WINDOW.start_x);
   if (CONTENT_VIEW_WINDOW.window == NULL)
-    exit_atomix (EXIT_FAILURE, "initialise_main_windows: unable to allocate memory for CONTENT_WINDOW");
-  keypad (CONTENT_VIEW_WINDOW.window, true);
-  nodelay (CONTENT_VIEW_WINDOW.window, true);
+    exit_atomix(EXIT_FAILURE, "initialise_main_windows: unable to allocate memory for CONTENT_WINDOW");
+  keypad(CONTENT_VIEW_WINDOW.window, true);
+  // nodelay(CONTENT_VIEW_WINDOW.window, true);
 }
 
 /* ************************************************************************** */
@@ -148,15 +152,15 @@ initialise_main_windows (void)
  * ************************************************************************** */
 
 void
-draw_window_boundaries (void)
+draw_window_boundaries(void)
 {
   int len;
   char title[LINELEN];
 
-  box (stdscr, 0, 0);
-	len = sprintf (title, "| atomix : version %s |", ATOMIX_VERSION_NUMBER);
-  mvprintw (0, AtomixConfiguration.cols - len - 2, title);
-  wrefresh (stdscr);
+  box(stdscr, 0, 0);
+  len = sprintf(title, "| atomix : version %s |", ATOMIX_VERSION_NUMBER);
+  mvprintw(0, AtomixConfiguration.cols - len - 2, title);
+  wrefresh(stdscr);
 }
 
 /* ************************************************************************** */
@@ -170,28 +174,28 @@ draw_window_boundaries (void)
  * ************************************************************************** */
 
 void
-redraw_screen (int sig)
+redraw_screen(int sig)
 {
-  (void) sig;  // Suppress unused variable warning
+  (void) sig;                   // Suppress unused variable warning
 
-  delwin (MAIN_MENU_WINDOW.window);
-  delwin (CONTENT_VIEW_WINDOW.window);
-  delwin (STATUS_BAR_WINDOW.window);
-  endwin ();
+  delwin(MAIN_MENU_WINDOW.window);
+  delwin(CONTENT_VIEW_WINDOW.window);
+  delwin(STATUS_BAR_WINDOW.window);
+  endwin();
 
-  initialise_ncurses_stdscr ();
-  initialise_main_windows ();
+  initialise_ncurses_stdscr();
+  initialise_main_windows();
 
-  clear ();
-  wclear (MAIN_MENU_WINDOW.window);
-  wclear (CONTENT_VIEW_WINDOW.window);
-  wclear (STATUS_BAR_WINDOW.window);
+  clear();
+  wclear(MAIN_MENU_WINDOW.window);
+  wclear(CONTENT_VIEW_WINDOW.window);
+  wclear(STATUS_BAR_WINDOW.window);
 
-  draw_window_boundaries ();
-  main_menu (MENU_DRAW);
-  update_status_bar (AtomixConfiguration.status_message);
+  draw_window_boundaries();
+  main_menu(MENU_DRAW);
+  update_status_bar(AtomixConfiguration.status_message);
 
-  exit_atomix (EXIT_FAILURE, "Terminal resizing is not yet supported");
+  exit_atomix(EXIT_FAILURE, "Terminal resizing is not yet supported");
 
   /*
    * The problem seems to happen in menus -- when the menu is resized, it is
@@ -218,31 +222,31 @@ redraw_screen (int sig)
  * ************************************************************************** */
 
 void
-bold_message (Window_t win, int y, int x, char *fmt, ...)
+bold_message(Window_t win, int y, int x, char *fmt, ...)
 {
   int len;
   char *msg;
   va_list va, va_c;
   WINDOW *window = win.window;
 
-  va_start (va, fmt);
-  va_copy (va_c, va);
+  va_start(va, fmt);
+  va_copy(va_c, va);
 
-  len = vsnprintf (NULL, 0, fmt, va);
-  msg = malloc (len * sizeof (char));
-  len = vsprintf (msg, fmt, va_c);
+  len = vsnprintf(NULL, 0, fmt, va);
+  msg = malloc(len * sizeof(char));
+  len = vsprintf(msg, fmt, va_c);
 
   if (x == LINE_CENTER)
     x = (win.ncols - len) / 2;
 
-  wattron (window, A_BOLD);
-  mvwprintw (window, y, x, "%s", msg);
-  wattroff (window, A_BOLD);
+  wattron(window, A_BOLD);
+  mvwprintw(window, y, x, "%s", msg);
+  wattroff(window, A_BOLD);
 
-  va_end (va);
-  va_end (va_c);
+  va_end(va);
+  va_end(va_c);
 
-  free (msg);
+  free(msg);
 }
 
 /* ************************************************************************** */
@@ -259,35 +263,35 @@ bold_message (Window_t win, int y, int x, char *fmt, ...)
  * ************************************************************************** */
 
 void
-update_status_bar (char *fmt, ...)
+update_status_bar(char *fmt, ...)
 {
   int len;
   char *tmpmsg;
   char *msg;
   va_list va, va_c;
 
-  wclear (STATUS_BAR_WINDOW.window);
+  wclear(STATUS_BAR_WINDOW.window);
 
-  va_start (va, fmt);
-  va_copy (va_c, va);
+  va_start(va, fmt);
+  va_copy(va_c, va);
 
-  len = vsnprintf (NULL, 0, fmt, va);
-  tmpmsg = malloc (len * sizeof (char) + 1);
-  len = vsprintf (tmpmsg, fmt, va_c);
+  len = vsnprintf(NULL, 0, fmt, va);
+  tmpmsg = malloc(len * sizeof(char) + 1);
+  len = vsprintf(tmpmsg, fmt, va_c);
 
-  va_end (va);
-  va_end (va_c);
+  va_end(va);
+  va_end(va_c);
 
-  msg = malloc (len * sizeof (char) + 5);
-  len = sprintf (msg, "| %s |", tmpmsg);
-  msg[len] = '\0';  // I don't trust sprintf (sometimes)
+  msg = malloc(len * sizeof(char) + 5);
+  len = sprintf(msg, "| %s |", tmpmsg);
+  msg[len] = '\0';              // I don't trust sprintf (sometimes)
 
-  mvwprintw (STATUS_BAR_WINDOW.window, 0, 1, msg);
-  wrefresh (STATUS_BAR_WINDOW.window);
-  strcpy (AtomixConfiguration.status_message, tmpmsg);
+  mvwprintw(STATUS_BAR_WINDOW.window, 0, 1, msg);
+  wrefresh(STATUS_BAR_WINDOW.window);
+  strcpy(AtomixConfiguration.status_message, tmpmsg);
 
-  free (tmpmsg);
-  free (msg);
+  free(tmpmsg);
+  free(msg);
 }
 
 /* ************************************************************************** */
@@ -299,7 +303,7 @@ update_status_bar (char *fmt, ...)
  * ************************************************************************** */
 
 void
-home_screen (void)
+home_screen(void)
 {
   int i, crow;
   int nlines;
@@ -313,18 +317,18 @@ home_screen (void)
     "  \\__,_|\\__\\___/|_| |_| |_|_/_/\\_\\"
   };
 
-  wclear (window);
-  nlines = ARRAY_SIZE (logo);
+  wclear(window);
+  nlines = ARRAY_SIZE(logo);
   crow = 2;
 
   for (i = 0; i < nlines; ++i)
-    mvwprintw (window, crow++, (CONTENT_VIEW_WINDOW.ncols - strlen (logo[i])) / 2, logo[i]);
+    mvwprintw(window, crow++, (CONTENT_VIEW_WINDOW.ncols - strlen(logo[i])) / 2, logo[i]);
 
   crow++;
-  bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Version %s", ATOMIX_VERSION_NUMBER);
-  bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Author: Edward J. Parkinson");
-  bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Contact: e.j.parkinson@soton.ac.uk");
+  bold_message(CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Version %s", ATOMIX_VERSION_NUMBER);
+  bold_message(CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Author: Edward J. Parkinson");
+  bold_message(CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "Contact: e.j.parkinson@soton.ac.uk");
   crow += 2;
-  bold_message (CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "A summary of the atomic data is in 'Atomic Summary'");
-  wrefresh (window);
+  bold_message(CONTENT_VIEW_WINDOW, crow++, LINE_CENTER, "A summary of the atomic data is in 'Atomic Summary'");
+  wrefresh(window);
 }

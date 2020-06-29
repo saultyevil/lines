@@ -36,13 +36,13 @@ int init_log = 0;
  **********************************************************/
 
 int
-logfile_init (filename)
+logfile_init(filename)
      char *filename;
 {
-  if ((diagptr = fopen (filename, "w")) == NULL)
+  if ((diagptr = fopen(filename, "w")) == NULL)
   {
-    printf ("Yikes: could not even open log file %s\n", filename);
-    exit (EXIT_FAILURE);
+    printf("Yikes: could not even open log file %s\n", filename);
+    exit(EXIT_FAILURE);
   }
   init_log = 1;
 
@@ -63,11 +63,11 @@ logfile_init (filename)
  **********************************************************/
 
 int
-logfile_close ()
+logfile_close()
 {
-  logfile_flush ();
-  fclose (diagptr);
-  init_log = 0;           // Release the error summary structure
+  logfile_flush();
+  fclose(diagptr);
+  init_log = 0;                 // Release the error summary structure
   return (0);
 }
 
@@ -88,7 +88,7 @@ logfile_close ()
  **********************************************************/
 
 int
-logfile (char *format, ...)
+logfile(char *format, ...)
 {
   va_list ap, ap2;
   int result;
@@ -96,11 +96,11 @@ logfile (char *format, ...)
   if (init_log == 0)
     logfile_init("logfile");
 
-  va_start (ap, format);
-  va_copy (ap2, ap);            /* ap is not necessarily preserved by vprintf */
-  result = vfprintf (diagptr, format, ap2);
-  va_end (ap);
-  va_end (ap);
+  va_start(ap, format);
+  va_copy(ap2, ap);             /* ap is not necessarily preserved by vprintf */
+  result = vfprintf(diagptr, format, ap2);
+  va_end(ap);
+  va_end(ap);
   return (result);
 }
 
@@ -124,7 +124,7 @@ logfile (char *format, ...)
  **********************************************************/
 
 int
-logfile_error (char *format, ...)
+logfile_error(char *format, ...)
 {
   va_list ap, ap2;
   int result = 0;
@@ -132,12 +132,12 @@ logfile_error (char *format, ...)
   if (init_log == 0)
     logfile_init("logfile");
 
-  va_start (ap, format);
-  va_copy (ap2, ap);
+  va_start(ap, format);
+  va_copy(ap2, ap);
 //  fprintf (diagptr, "Error: ")
 //  result = vfprintf (diagptr, format, ap2);
-  va_end (ap);
-  va_end (ap2);
+  va_end(ap);
+  va_end(ap2);
 
   return (result);
 }
@@ -158,11 +158,11 @@ logfile_error (char *format, ...)
  **********************************************************/
 
 int
-logfile_flush ()
+logfile_flush()
 {
   if (init_log == 0)
     logfile_init("logfile");
 
-  fflush (diagptr);
+  fflush(diagptr);
   return (0);
 }

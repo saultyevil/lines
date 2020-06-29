@@ -31,17 +31,17 @@
  * ************************************************************************** */
 
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
   /*
    * Start by checking everything is as it should be, and initialise the global
    * variables, logfile and check the command lines for input
    */
 
-  if (getenv ("PYTHON") == NULL)
-    exit_atomix (EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
+  if (getenv("PYTHON") == NULL)
+    exit_atomix(EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
 
-  atexit (cleanup_ncurses_stdscr);
+  atexit(cleanup_ncurses_stdscr);
 
   AtomixConfiguration.current_screen = sc_unassigned;
   AtomixConfiguration.rows = AtomixConfiguration.cols = 0;
@@ -53,23 +53,23 @@ main (int argc, char *argv[])
   DISPLAY_BUFFER.nlines = 0;
   DISPLAY_BUFFER.maxlen = 0;
   DISPLAY_BUFFER.lines = NULL;
-  strcpy (DISPLAY_BUFFER.name, "display");
+  strcpy(DISPLAY_BUFFER.name, "display");
 
   ATOMIC_BUFFER.nlines = 0;
   ATOMIC_BUFFER.maxlen = 0;
   ATOMIC_BUFFER.lines = NULL;
-  strcpy (ATOMIC_BUFFER.name, "atomic");
+  strcpy(ATOMIC_BUFFER.name, "atomic");
 
-  logfile_init ("atomix.log.txt");
-  check_command_line (argc, argv);
+  logfile_init("atomix.log.txt");
+  check_command_line(argc, argv);
 
   /*
    * Initialise ncurses, the window panels and draw the window borders
    */
 
-  initialise_ncurses_stdscr ();
-  initialise_main_windows ();
-  draw_window_boundaries ();
+  initialise_ncurses_stdscr();
+  initialise_main_windows();
+  draw_window_boundaries();
 
   /*
    * Query the user for the atomic data file name, and read in that atomic
@@ -78,12 +78,12 @@ main (int argc, char *argv[])
    * the main menu to complete the look of the UI
    */
 
-  main_menu (MENU_DRAW);
+  main_menu(MENU_DRAW);
 
   if (!AtomixConfiguration.atomic_data_loaded)
-    switch_atomic_data ();
+    switch_atomic_data();
 
-  main_menu (MENU_CONTROL);
+  main_menu(MENU_CONTROL);
 
-  return EXIT_SUCCESS;  // Don't need to clean up at exit due to atexit()
+  return EXIT_SUCCESS;          // Don't need to clean up at exit due to atexit()
 }

@@ -29,13 +29,13 @@
  * ************************************************************************** */
 
 void
-clean_up_display (Display_t *buffer)
+clean_up_display(Display_t *buffer)
 {
   int i;
 
   for (i = 0; i < buffer->nlines; ++i)
-    free (buffer->lines[i].chars);
-  free (buffer->lines);
+    free(buffer->lines[i].chars);
+  free(buffer->lines);
 
   buffer->nlines = buffer->maxlen = 0;
   buffer->lines = NULL;
@@ -51,60 +51,59 @@ clean_up_display (Display_t *buffer)
  * @details
  *
  * This function assumes that the string being added is a single, entire, line.
- * A new line character is required at the end, but isn't mandatory. I think
- * this way you can slowly construct a single "display" line over multiple
- * strings stored in DISPLAY ... though, this isn't the intended way to use this
- * function.
+ * Do not provide a new line character at the end, it probably will break
+ * something.
  *
- * Uses a bit of a hack, vsnprintf, to figure out the storage requirement for
+ * Uses a bit of a hack of vsnprintf to figure out the storage requirement for
  * the string. The pointer for the new string is added to the DISPLAY buffer.
- *
- * PLS PLS PLS DO NOT HAVE A \n NEWLINE CHARACTER IN *fmt
  *
  * TODO check for \n or \r\n etc.
  *
  * ************************************************************************** */
 
 void
-add_display (Display_t *buffer, char *fmt, ...)
+add_display(Display_t *buffer, char *fmt, ...)
 {
-  int line_index;
   int len;
+  int line_index;
   va_list va, va_c;
 
   buffer->nlines++;
-  buffer->lines = realloc (buffer->lines, buffer->nlines * sizeof (Line_t));
+  buffer->lines = realloc(buffer->lines, buffer->nlines * sizeof(Line_t));
   line_index = buffer->nlines - 1;
 
-   if (buffer->lines == NULL)
-    exit_atomix (EXIT_FAILURE, "Unable to add additional line to the display buffer");
+  if (buffer->lines == NULL)
+    exit_atomix(EXIT_FAILURE, "Unable to add additional line to the display buffer");
 
   buffer->lines[line_index].len = 0;
   buffer->lines[line_index].chars = NULL;
 
   /*
    * May be playing it extra safe here, but make a copy of va as va is not
-   * necessarily preserved after vsnprintf...
+   * necessarily preserved after vsnprintf (apparently)
    */
 
-  va_start (va, fmt);
-  va_copy (va_c, va);
+  va_start(va, fmt);
+  va_copy(va_c, va);
 
-  len = vsnprintf (NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
-  buffer->lines[line_index].chars = malloc (len * sizeof (char) + 1);
-  len = vsprintf (buffer->lines[line_index].chars, fmt, va_c);
-  buffer->lines[line_index].chars[len] = '\0';  // Redundant, but just in case
-  trim_whitespaces (buffer->lines[line_index].chars);
-  len = strlen (buffer->lines[line_index].chars);
-  buffer->lines[line_index].len = len;
+  len = vsnprintf(NULL, 0, fmt, va);  // Hack: write 0 to NULL to determine length :-)
+  buffer->lines[line_index].chars = malloc(len * sizeof(char) + 1);
+  len = vsprintf(buffer->lines[line_index].chars, fmt, va_c);
+  buffer->lines[line_index].chars[len] = '\0';  // I believe this is redundant, but just in case
 
-  if (buffer->maxlen < len)
+  /*
+   * Remove whitespace to stop being able to overscroll the buffer
+   */
+
+  trim_whitespaces(buffer->lines[line_index].chars);
+  buffer->lines[line_index].len = strlen(buffer->lines[line_index].chars);;
+
+  if (buffer->maxlen < buffer->lines[line_index].len)
     buffer->maxlen = len + 1;
 
-  logfile ("%s\n", buffer->lines[line_index].chars);
-
-  va_end (va);
-  va_end (va_c);
+  va_end(va);
+  va_end(va_c);
+  logfile("%s\n", buffer->lines[line_index].chars);
 }
 
 /* ************************************************************************* */
@@ -118,7 +117,7 @@ add_display (Display_t *buffer, char *fmt, ...)
  * ************************************************************************** */
 
 void
-add_sep_display (const int len)
+add_sep_display(const int len)
 {
   int i;
   char line[len + 1];
@@ -126,8 +125,7 @@ add_sep_display (const int len)
   for (i = 0; i < len; ++i)
     line[i] = '-';
   line[len] = '\0';
-
-  display_add (line);
+  display_add(line);
 }
 
 /* ************************************************************************** */
@@ -149,21 +147,21 @@ add_sep_display (const int len)
  * ************************************************************************** */
 
 void
-update_current_line_progress (Window_t win, int current_line, int total_lines)
+update_current_line_progress(Window_t win, int current_line, int total_lines)
 {
   int len;
   char line_message[LINELEN];
 
   if (current_line + win.nrows - 2 > total_lines)
   {
-    len = sprintf (line_message, "| END  / %-4d |", total_lines);
+    len = sprintf(line_message, "| END  / %-4d |", total_lines);
   }
   else
   {
-    len = sprintf (line_message, "| %-4d / %-4d |", current_line, total_lines);
+    len = sprintf(line_message, "| %-4d / %-4d |", current_line, total_lines);
   }
 
-  mvwprintw (win.window, win.nrows - 1, win.ncols - len - 2, line_message);
+  mvwprintw(win.window, win.nrows - 1, win.ncols - len - 2, line_message);
 
 }
 
@@ -194,7 +192,7 @@ update_current_line_progress (Window_t win, int current_line, int total_lines)
  * ************************************************************************** */
 
 void
-scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int header_rows)
+scroll_display(Display_t *buffer, Window_t win, bool persistent_header, int header_rows)
 {
   int i, j;
   int ch;
@@ -209,17 +207,10 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
   screen_position_moved = false;
 
   /*
-   * If there is no header, then for safety we set the number of rows to
-   * 0
-   */
-
-  if (!persistent_header)
-    header_rows = 0;
-
-  /*
-   * The buffer and row origin have to be incremented otherwise the persistent
+  * The buffer and row origin have to be incremented otherwise the persistent
    * header will be shown twice or will be overwritten by some other text in
-   * the buffer
+   * the buffer.
+   * If there is no header, then for safety we set the number of rows to 0.
    */
 
   if (persistent_header)
@@ -227,10 +218,14 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
     current_line = header_rows;
     row_origin += header_rows;
   }
+  else
+  {
+    header_rows = 0;
+  }
 
-  update_status_bar ("press q or F1 to exit text view or use the ARROW KEYS to navigate");
+  update_status_bar("press q or F1 to exit text view or use the ARROW KEYS to navigate");
 
-  while ((ch = wgetch (window)))
+  while ((ch = wgetch(window)))
   {
     if (ch == 'q' || ch == KEY_F(1))
       break;
@@ -246,7 +241,7 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
       switch (ch)
       {
         case KEY_RESIZE:
-          redraw_screen (SIGWINCH);
+          redraw_screen(SIGWINCH);
           break;
         case KEY_UP:
           current_line--;
@@ -277,9 +272,14 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
           break;
       }
 
+      /*
+       * Only update the screen if the view has been moved, this is to avoid
+       * problems if wgetch has nodelay moved enabled
+       */
+
       if (screen_position_moved)
       {
-        wclear (window);
+        wclear(window);
 
         if (current_line < header_rows)
           current_line = header_rows;
@@ -295,7 +295,7 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
         AtomixConfiguration.current_col = current_col;
 
         /*
-         * Draw a persistent header as the user scrolls if enabled
+         * Write the header to screen, char by car
          */
 
         if (persistent_header)
@@ -304,25 +304,26 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
           {
             for (j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
             {
-              mvwprintw (window, srow, scol, "%c", buffer->lines[i].chars[j]);
+              mvwprintw(window, srow, scol, "%c", buffer->lines[i].chars[j]);
             }
           }
         }
 
         /*
-         * Write the buffer to screen, taking into account any header
+         * Write the buffer to screen, taking into account any header, char
+         * by char
          */
 
         for (i = current_line, srow = row_origin; i < buffer->nlines && srow < win.nrows - 1; ++i, ++srow)
         {
           for (j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
           {
-            mvwprintw (window, srow, scol, "%c", buffer->lines[i].chars[j]);
+            mvwprintw(window, srow, scol, "%c", buffer->lines[i].chars[j]);
           }
         }
 
-        update_current_line_progress (win, current_line + 1 - header_rows, buffer->nlines - header_rows);
-        wrefresh (window);
+        update_current_line_progress(win, current_line + 1 - header_rows, buffer->nlines - header_rows);
+        wrefresh(window);
       }
 
       screen_position_moved = false;
@@ -357,18 +358,18 @@ scroll_display (Display_t *buffer, Window_t win, bool persistent_header, int hea
  * ************************************************************************** */
 
 void
-display_buffer (Display_t *buffer, int scroll, bool persisent_header, int header_rows)
+display_buffer(Display_t *buffer, int scroll, bool persisent_header, int header_rows)
 {
   int i, j;
   int line_index;
   WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
-  wclear (window);
+  wclear(window);
 
   if (buffer->nlines == 0 || buffer->lines == NULL)
   {
-    bold_message (CONTENT_VIEW_WINDOW, 1, 1, "No text in %s buffer to show", buffer->name);
-    wrefresh (window);
+    bold_message(CONTENT_VIEW_WINDOW, 1, 1, "No text in %s buffer to show", buffer->name);
+    wrefresh(window);
   }
   else
   {
@@ -377,14 +378,14 @@ display_buffer (Display_t *buffer, int scroll, bool persisent_header, int header
       line_index = i;
       for (j = 0; j < buffer->lines[line_index].len && j < CONTENT_VIEW_WINDOW.ncols - 2; ++j)
       {
-        mvwprintw (window, i + 1, j + 1, "%c", buffer->lines[line_index].chars[j]);
+        mvwprintw(window, i + 1, j + 1, "%c", buffer->lines[line_index].chars[j]);
       }
     }
 
-    update_current_line_progress (CONTENT_VIEW_WINDOW, 1, buffer->nlines - header_rows);
-    wrefresh (window);
+    update_current_line_progress(CONTENT_VIEW_WINDOW, 1, buffer->nlines - header_rows);
+    wrefresh(window);
 
     if (scroll == SCROLL_ENABLE)
-      scroll_display (buffer, CONTENT_VIEW_WINDOW, persisent_header, header_rows);
+      scroll_display(buffer, CONTENT_VIEW_WINDOW, persisent_header, header_rows);
   }
 }

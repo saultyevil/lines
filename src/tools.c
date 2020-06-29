@@ -34,7 +34,7 @@
  * ************************************************************************** */
 
 void
-get_element_name (int z, char *element)
+get_element_name(int z, char *element)
 {
   int i;
 
@@ -48,7 +48,7 @@ get_element_name (int z, char *element)
   {
     if (ele[i].z == z)
     {
-      strcpy (element, ele[i].name);
+      strcpy(element, ele[i].name);
       break;
     }
   }
@@ -71,7 +71,7 @@ get_element_name (int z, char *element)
  * ************************************************************************** */
 
 int
-find_element (int z)
+find_element(int z)
 {
   int i;
   int found = FALSE;
@@ -87,7 +87,7 @@ find_element (int z)
 
   if (!found)
   {
-    error_atomix ("Element Z = %i is not in the atomic data", z);
+    error_atomix("Element Z = %i is not in the atomic data", z);
     return ELEMENT_NO_FOUND;
   }
 
@@ -109,36 +109,36 @@ find_element (int z)
  * ************************************************************************** */
 
 void
-error_atomix (char *fmt, ...)
+error_atomix(char *fmt, ...)
 {
   int ch;
   int len;
   char *str;
   va_list va, va_c;
 
-  va_start (va, fmt);
-  va_copy (va_c, va);
+  va_start(va, fmt);
+  va_copy(va_c, va);
 
-  len = vsnprintf (NULL, 0, fmt, va);
-  str = malloc (len * sizeof (char) + 1);
-  len = vsprintf (str, fmt, va_c);
+  len = vsnprintf(NULL, 0, fmt, va);
+  str = malloc(len * sizeof(char) + 1);
+  len = vsprintf(str, fmt, va_c);
   str[len] = '\0';
 
-  va_end (va);
-  va_end (va_c);
+  va_end(va);
+  va_end(va_c);
 
-  wclear (CONTENT_VIEW_WINDOW.window);
-  bold_message (CONTENT_VIEW_WINDOW, 1, 1, str);
-  update_status_bar ("press q or F1 to continue");
-  wrefresh (CONTENT_VIEW_WINDOW.window);
+  wclear(CONTENT_VIEW_WINDOW.window);
+  bold_message(CONTENT_VIEW_WINDOW, 1, 1, str);
+  update_status_bar("press q or F1 to continue");
+  wrefresh(CONTENT_VIEW_WINDOW.window);
 
-  while ((ch = wgetch (CONTENT_VIEW_WINDOW.window)))
+  while ((ch = wgetch(CONTENT_VIEW_WINDOW.window)))
   {
     if (ch == 'q' || ch == KEY_F(1))
       break;
   }
 
-  free (str);
+  free(str);
 }
 
 /* ************************************************************************** */
@@ -158,20 +158,20 @@ error_atomix (char *fmt, ...)
  * ************************************************************************** */
 
 void
-exit_atomix (int errno, char *fmt, ...)
+exit_atomix(int errno, char *fmt, ...)
 {
   va_list va;
 
   logfile_flush();
-  cleanup_ncurses_stdscr ();
+  cleanup_ncurses_stdscr();
 
-  printf ("Fatal Error: errno = %i: ", errno);
-  va_start (va, fmt);
-  vprintf (fmt, va);
-  va_end (va);
-  printf ("\n");
+  printf("Fatal Error: errno = %i: ", errno);
+  va_start(va, fmt);
+  vprintf(fmt, va);
+  va_end(va);
+  printf("\n");
 
-  exit (errno);
+  exit(errno);
 }
 
 /* ************************************************************************** */
@@ -186,10 +186,10 @@ exit_atomix (int errno, char *fmt, ...)
  * ************************************************************************** */
 
 void
-menu_exit_atomix (void)
+menu_exit_atomix(void)
 {
   logfile_flush();
-  exit (EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
 }
 
 /* ************************************************************************** */
@@ -207,11 +207,11 @@ menu_exit_atomix (void)
  * ************************************************************************** */
 
 char *
-trim_whitespaces (char *str)
+trim_whitespaces(char *str)
 {
   char *end;
 
-  while (isspace (*str))
+  while (isspace(*str))
     str++;
 
   if (*str == 0)
@@ -219,7 +219,7 @@ trim_whitespaces (char *str)
 
   end = str + strlen(str) - 1;
 
-  while (end > str && isspace (*end))
+  while (end > str && isspace(*end))
     end--;
 
   *(end + 1) = '\0';
@@ -239,11 +239,11 @@ trim_whitespaces (char *str)
  * ************************************************************************** */
 
 void
-count (int ndash, int count)
+count(int ndash, int count)
 {
-  add_sep_display (ndash);
-  display_add (" %i entries", count);
-  add_sep_display (ndash);
+  add_sep_display(ndash);
+  display_add(" %i entries", count);
+  add_sep_display(ndash);
 }
 
 /* ************************************************************************** */
@@ -270,21 +270,21 @@ count (int ndash, int count)
  * ************************************************************************** */
 
 int
-create_string (char *str, char *fmt, ...)
+create_string(char *str, char *fmt, ...)
 {
   int len;
   va_list va, va_c;
 
-  va_start (va, fmt);
-  va_copy (va_c, va);
+  va_start(va, fmt);
+  va_copy(va_c, va);
 
-  len = vsnprintf (NULL, 0, fmt, va);
-  str = malloc (len * sizeof (char) + 1);
-  len = vsprintf (str, fmt, va_c);
+  len = vsnprintf(NULL, 0, fmt, va);
+  str = malloc(len * sizeof(char) + 1);
+  len = vsprintf(str, fmt, va_c);
   str[len] = '\0';
 
-  va_end (va);
-  va_end (va_c);
+  va_end(va);
+  va_end(va_c);
 
   return len;
 }

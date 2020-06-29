@@ -1,16 +1,16 @@
 
 enum ERRORS
 {
-  ATOMIC_MEMORY_ISSUE_ERROR  = 1,
-  ATOMIC_ENVRIONMENT_ERROR   = 2,
-  ATOMIC_FILE_IO_ERROR       = 3,
-  ATOMIC_FILE_FORMAT_ERROR   = 4,
-  ATOMIC_MAX_NLTE_ERROR      = 5,
-  ATOMIC_MAX_NIONS_ERROR     = 6,
-  ATOMIC_MAX_LEVELS_ERROR    = 7,
-  ATOMIC_MACRO_ERROR         = 8,
-  ATOMIC_ERROR_TODO          = 9,
-  ATOMIC_NERRORS             = 10
+  ATOMIC_MEMORY_ISSUE_ERROR = 1,
+  ATOMIC_ENVRIONMENT_ERROR = 2,
+  ATOMIC_FILE_IO_ERROR = 3,
+  ATOMIC_FILE_FORMAT_ERROR = 4,
+  ATOMIC_MAX_NLTE_ERROR = 5,
+  ATOMIC_MAX_NIONS_ERROR = 6,
+  ATOMIC_MAX_LEVELS_ERROR = 7,
+  ATOMIC_MACRO_ERROR = 8,
+  ATOMIC_ERROR_TODO = 9,
+  ATOMIC_NERRORS = 10
 };
 
 #define MAXRAND 2147486748.
@@ -20,13 +20,13 @@ enum ERRORS
 
 #define H   				6.6262e-27
 #define HC  				1.98587e-16
-#define HEV				4.13620e-15     /* Planck's constant in eV */
-#define HRYD				3.04005e-16     /* NSH 1204 Planck's constant in Rydberg */
+#define HEV				4.13620e-15   /* Planck's constant in eV */
+#define HRYD				3.04005e-16 /* NSH 1204 Planck's constant in Rydberg */
 #define C   				2.997925e10
 #define C_SI        2.997925e8
 #define G				6.670e-8
 #define BOLTZMANN 			1.38062e-16
-#define WIEN				5.879e10        /* NSH 1208 Wien Disp Const in frequency units */
+#define WIEN				5.879e10    /* NSH 1208 Wien Disp Const in frequency units */
 #define H_OVER_K			4.799437e-11
 #define STEFAN_BOLTZMANN 		5.6696e-5
 #define THOMPSON			0.66524e-24
@@ -37,16 +37,16 @@ enum ERRORS
 #define MSOL 				1.989e33
 #define PC				3.08e18
 #define YR   				3.1556925e7
-#define PI_E2_OVER_MC			0.02655103      /* Classical cross-section */
+#define PI_E2_OVER_MC			0.02655103  /* Classical cross-section */
 #define PI_E2_OVER_M  			7.96e8
-#define ALPHA				7.297351e-3     /* Fine structure constant */
-#define BOHR				0.529175e-8     /* Bohr radius */
-#define	CR				3.288051e15     /*Rydberg frequency for H != Ryd freq for infinite mass */
-#define ANGSTROM                        1.e-8   /*Definition of an Angstrom in units of this code, e.g. cm */
+#define ALPHA				7.297351e-3 /* Fine structure constant */
+#define BOHR				0.529175e-8 /* Bohr radius */
+#define	CR				3.288051e15   /*Rydberg frequency for H != Ryd freq for infinite mass */
+#define ANGSTROM                        1.e-8 /*Definition of an Angstrom in units of this code, e.g. cm */
 
 #define EV2ERGS   			1.602192e-12
 #define RADIAN				57.29577951308232
-#define RYD2ERGS                        2.1798741e-11   /* Rydberg in units of ergs */
+#define RYD2ERGS                        2.1798741e-11 /* Rydberg in units of ergs */
 
 
 /* The next term attempts gloabally to define a minimum density to prevent zero devides in some routines */
@@ -66,17 +66,17 @@ enum ERRORS
  */
 
 
-#define NELEMENTS		50      /* Maximum number of elements to consider */
+#define NELEMENTS		50          /* Maximum number of elements to consider */
 int nelements;                  /* The actual number of ions read from the data file */
-#define NIONS		500     /* Maximum number of ions to consider */
+#define NIONS		500             /* Maximum number of ions to consider */
 int nions;                      /*The actual number of ions read from the datafile */
-#define NLEVELS 	12000   /* Maximum number of levels for all elements and ions */
+#define NLEVELS 	12000         /* Maximum number of levels for all elements and ions */
 int nlevels;                    /*These are the actual number of levels which were read in */
-#define NLTE_LEVELS	12000   /* Maximum number of levels to treat explicitly */
+#define NLTE_LEVELS	12000       /* Maximum number of levels to treat explicitly */
 int nlte_levels;                /* Actual number of levels to treat explicityly */
 #define NLEVELS_MACRO   200     /* Maximum number of macro atom levels. (SS, June 04) */
 int nlevels_macro;              /* Actual number of macro atom levels. (SS, June 04) */
-#define NLINES 		200000  /* Maximum number of lines to be read */
+#define NLINES 		200000        /* Maximum number of lines to be read */
 int nlines;                     /* Actual number of lines that were read in */
 int nlines_macro;               /* Actual number of Macro Atom lines that were read in.  New version of get_atomic
                                    data assumes that macro lines are read in before non-macro lines */
@@ -88,8 +88,8 @@ int n_inner_tot;                /*The actual number of inner shell ionization cr
 
 #define NBFJUMPS         100    /* Maximum number of Macro Atom Bound-free jumps from any one configuration (SS) */
 
-#define MAXJUMPS          1000000       /* The maximum number of Macro Atom jumps before emission (if this is exceeded
-                                           it gives up (SS) */
+#define MAXJUMPS          1000000 /* The maximum number of Macro Atom jumps before emission (if this is exceeded
+                                     it gives up (SS) */
 #define NAUGER 2                /*Maximum number of "auger" processes */
 int nauger;                     /*Actual number of innershell edges for which autoionization is to be computed */
 
@@ -273,18 +273,18 @@ LinePtr line, lin_ptr[NLINES];  /* line[] is the actual structure array that con
                                    rapid transition used in the macro atoms to stabilise level populations */
 struct lines fast_line;
 
-int nline_min, nline_max, nline_delt;   /* Used to select a range of lines in a frequency band from the lin_ptr array 
-                                           in situations where the frequency range of interest is limited, including for defining which
-                                           lines come into play for resonant scattering along a line of sight, and in
-                                           calculating band_limit luminosities.  The limits are established by the
-                                           routine limit_lines.
-                                         */
+int nline_min, nline_max, nline_delt; /* Used to select a range of lines in a frequency band from the lin_ptr array 
+                                         in situations where the frequency range of interest is limited, including for defining which
+                                         lines come into play for resonant scattering along a line of sight, and in
+                                         calculating band_limit luminosities.  The limits are established by the
+                                         routine limit_lines.
+                                       */
 
 
         /* coll_stren is the collision strength interpolation data extracted from Chianti */
 
 
-#define N_COLL_STREN_PTS	20      //The maximum number of parameters in the interpolations
+#define N_COLL_STREN_PTS	20    //The maximum number of parameters in the interpolations
 int n_coll_stren;
 
 typedef struct coll_stren
@@ -299,7 +299,7 @@ typedef struct coll_stren
   int type;                     //The type of fit, this defines how one computes the scaled temperature and scaled coll strength
   float scaling_param;          //The scaling parameter C used in the Burgess and Tully calculations
   double sct[N_COLL_STREN_PTS]; //The scaled temperature points in the fit
-  double scups[N_COLL_STREN_PTS];       //The sclaed coll sttengths in ythe fit.
+  double scups[N_COLL_STREN_PTS]; //The sclaed coll sttengths in ythe fit.
 } Coll_stren, *Coll_strenptr;
 
 Coll_stren coll_stren[NLINES];  //Set up the structure - we could in principle have as many of these as we have lines
@@ -349,7 +349,7 @@ typedef struct topbase_phot
 } Topbase_phot, *TopPhotPtr;
 
 Topbase_phot phot_top[NLEVELS];
-TopPhotPtr phot_top_ptr[NLEVELS];       /* Pointers to phot_top in threshold frequency order - this */
+TopPhotPtr phot_top_ptr[NLEVELS]; /* Pointers to phot_top in threshold frequency order - this */
 Topbase_phot inner_cross[N_INNER * NIONS];
 TopPhotPtr inner_cross_ptr[N_INNER * NIONS];
 
@@ -467,8 +467,8 @@ int n_bad_gs_rr;
 typedef struct badnell_gs_rr
 {
   int nion;                     //Internal cross reference to the ion that this refers to
-  double temps[BAD_GS_RR_PARAMS];       //temperatures at which the rate is tabulated
-  double rates[BAD_GS_RR_PARAMS];       //rates corresponding to those temperatures
+  double temps[BAD_GS_RR_PARAMS]; //temperatures at which the rate is tabulated
+  double rates[BAD_GS_RR_PARAMS]; //rates corresponding to those temperatures
 } Bad_gs_rr, *Bad_gs_rrptr;
 
 Bad_gs_rr bad_gs_rr[NIONS];     //Set up the structure
@@ -486,7 +486,7 @@ typedef struct dere_di_rate
   double min_temp;
 } Dere_di_rate, *Dere_di_rateptr;
 
-Dere_di_rate dere_di_rate[NIONS];       //Set up the structure
+Dere_di_rate dere_di_rate[NIONS]; //Set up the structure
 
 double di_coeffs[NIONS];        //This is an array to store the di_coeffs 
 double qrecomb_coeffs[NIONS];   //JM 1508 analogous array for three body recombination 
@@ -502,7 +502,7 @@ typedef struct gaunt_total
   float s1, s2, s3;
 } Gaunt_total, *Gaunt_totalptr;
 
-Gaunt_total gaunt_total[MAX_GAUNT_N_GSQRD];     //Set up the structure
+Gaunt_total gaunt_total[MAX_GAUNT_N_GSQRD]; //Set up the structure
 
 /* a variable which controls whether to save a summary of atomic data
    this is defined in atomic.h, rather than the modes structure */

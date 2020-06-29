@@ -15,7 +15,7 @@ set(SOURCE_FILES
         src/log.c
         src/main.c
         src/atomic_data.c
-        src/bound.c
+        src/lines.c
         src/photoionization.c
         src/tools.c
         src/ui.c
