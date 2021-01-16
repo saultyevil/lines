@@ -27,7 +27,7 @@ set(SOURCE_FILES
         src/levels.c
         src/inner.c
         src/parse.c
-)
+        )
 
 # The curses library is stored in various places depending on system
 if(UNIX AND NOT APPLE)

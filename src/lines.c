@@ -79,7 +79,7 @@ all_bound_bound(void)
 
   bound_bound_header();
 
-  for (i = 0; i < nlines; ++i)
+  for(i = 0; i < nlines; ++i)
     bound_bound_line(i);
 
   count(ndash, nlines);
@@ -106,7 +106,7 @@ bound_bound_wavelength_range(void)
   int n, nline;
   double wmin, wmax;
 
-  if (query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
+  if(query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
     return;
 
   limit_lines(C / (wmax * ANGSTROM), C / (wmin * ANGSTROM));
@@ -116,7 +116,7 @@ bound_bound_wavelength_range(void)
   add_sep_display(ndash);
   bound_bound_header();
 
-  for (nline = nline_min + 1; nline < nline_max; ++nline)
+  for(nline = nline_min + 1; nline < nline_max; ++nline)
     bound_bound_line(nline);
 
   count(ndash, n);
@@ -139,10 +139,10 @@ bound_bound_element(void)
   int nline;
   char element[LINELEN];
 
-  if (query_atomic_number(&z) == FORM_QUIT)
+  if(query_atomic_number(&z) == FORM_QUIT)
     return;
 
-  if (find_element(z) == ELEMENT_NO_FOUND)
+  if(find_element(z) == ELEMENT_NO_FOUND)
     return;
 
   get_element_name(z, element);
@@ -151,9 +151,9 @@ bound_bound_element(void)
   bound_bound_header();
 
   n = 0;
-  for (nline = 0; nline < nlines; ++nline)
+  for(nline = 0; nline < nlines; ++nline)
   {
-    if (lin_ptr[nline]->z == z)
+    if(lin_ptr[nline]->z == z)
     {
       bound_bound_line(nline);
       n++;
@@ -184,13 +184,13 @@ bound_bound_ion(void)
   int n, nion, nline;
   char element[LINELEN];
 
-  if (query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
+  if(query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
-  if (nion < 0)
+  if(nion < 0)
     nion *= -1;
 
-  if (nion > nions - 1)
+  if(nion > nions - 1)
   {
     error_atomix("Invaild ion number %i > nions %i", nion, nions);
     return;
@@ -205,9 +205,9 @@ bound_bound_ion(void)
   bound_bound_header();
 
   n = 0;
-  for (nline = 0; nline < nlines; ++nline)
+  for(nline = 0; nline < nlines; ++nline)
   {
-    if (lin_ptr[nline]->z == z && lin_ptr[nline]->istate == istate)
+    if(lin_ptr[nline]->z == z && lin_ptr[nline]->istate == istate)
     {
       bound_bound_line(nline);
       n++;

@@ -39,20 +39,86 @@ get_element_name(int z, char *element)
   int i;
 
   // Probably not the best
-  if (element == NULL)
-    return;
-  if (ele == NULL)
+  if(element == NULL)
     return;
 
-  for (i = 0; i < nelements; ++i)
+  if(ele == NULL)
   {
-    if (ele[i].z == z)
+    error_atomix("No elements have been read in, unable to query");
+    return;
+  }
+
+  for(i = 0; i < nelements; ++i)
+  {
+    if(ele[i].z == z)
     {
       strcpy(element, ele[i].name);
       break;
     }
   }
 }
+
+/* ************************************************************************** */
+/**
+ * @brief  Convert a element name into an atomic number
+ *
+ * @param[in]   element  The name of the element
+ * @param[out]  z        The atomic number of the element
+ *
+ * @return  void
+ *
+ * @details
+ *
+ * The input element is converted to lower case first. The function loops over
+ * the elements array and compares the input element name to the names in the
+ * element array until it finds a match. If a match is found, then
+ * atomic_number is updated, otherwise -1 is returned.
+ *
+ * ************************************************************************** */
+
+void
+get_atomic_number(const char *element, int *atomic_number)
+{
+  int i, j;
+  const int nletters = 20;
+  char input_name[nletters];
+  char ele_name[nletters];
+
+  *atomic_number = -1;
+
+  // Return if an empty string is passed
+  if(element[0] == '\0' || element == NULL)
+    return;
+
+  if(ele == NULL)
+  {
+    error_atomix("No elements have been read in, unable to query");
+    return;
+  }
+
+  /*
+   * Convert the name to lower characters to avoid situation where strcmp will
+   * not be able to match the strings due to different letter cases
+   */
+
+  strcpy(input_name, element);
+  for(i = 0; i < (int) strlen(element); i++)
+    input_name[i] = (char) tolower(element[i]);
+
+  for(i = 0; i < nelements; ++i)
+  {
+    strcpy(ele_name, ele[i].name);
+    // Convert to lower case again
+    for(j = 0; j < nletters; ++j)
+      ele_name[j] = (char) tolower(ele_name[j]);
+    if(strcmp(input_name, ele_name) == 0)
+    {
+      *atomic_number = ele[i].z;
+      break;
+    }
+  }
+}
+
 
 /* ************************************************************************** */
 /**
@@ -76,16 +142,16 @@ find_element(int z)
   int i;
   int found = FALSE;
 
-  for (i = 0; i < nelements; ++i)
+  for(i = 0; i < nelements; ++i)
   {
-    if (ele[i].z == z)
+    if(ele[i].z == z)
     {
       found = TRUE;
       break;
     }
   }
 
-  if (!found)
+  if(!found)
   {
     error_atomix("Element Z = %i is not in the atomic data", z);
     return ELEMENT_NO_FOUND;
@@ -132,9 +198,9 @@ error_atomix(char *fmt, ...)
   update_status_bar("press q or F1 to continue");
   wrefresh(CONTENT_VIEW_WINDOW.window);
 
-  while ((ch = wgetch(CONTENT_VIEW_WINDOW.window)))
+  while((ch = wgetch(CONTENT_VIEW_WINDOW.window)))
   {
-    if (ch == 'q' || ch == KEY_F(1))
+    if(ch == 'q' || ch == KEY_F(1))
       break;
   }
 
@@ -211,15 +277,15 @@ trim_whitespaces(char *str)
 {
   char *end;
 
-  while (isspace(*str))
+  while(isspace(*str))
     str++;
 
-  if (*str == 0)
+  if(*str == 0)
     return str;
 
   end = str + strlen(str) - 1;
 
-  while (end > str && isspace(*end))
+  while(end > str && isspace(*end))
     end--;
 
   *(end + 1) = '\0';

@@ -95,7 +95,7 @@ single_ion_info(int nion, int detailed)
   display_add(" Number of ions for element %-2s : %i", element, ele[ion.nelem].nions);
   add_sep_display(ndash);
 
-  if (!detailed)
+  if(!detailed)
     return;
 
   display_add(" Bound-bound transitions for this ion");
@@ -104,9 +104,9 @@ single_ion_info(int nion, int detailed)
 
   n = 0;
 
-  for (i = 0; i < nlines; ++i)
+  for(i = 0; i < nlines; ++i)
   {
-    if (lin_ptr[i]->z == ion.z && lin_ptr[i]->istate == ion.istate)
+    if(lin_ptr[i]->z == ion.z && lin_ptr[i]->istate == ion.istate)
     {
       n++;
       wavelength = C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
@@ -124,9 +124,9 @@ single_ion_info(int nion, int detailed)
 
   n = 0;
 
-  for (i = 0; i < nphot_total; ++i)
+  for(i = 0; i < nphot_total; ++i)
   {
-    if (phot_top_ptr[i]->z == ion.z && phot_top_ptr[i]->istate == ion.istate)
+    if(phot_top_ptr[i]->z == ion.z && phot_top_ptr[i]->istate == ion.istate)
     {
       n++;
       wavelength = C_SI / phot_top_ptr[i]->freq[0] / ANGSTROM / 1e-2;
@@ -145,9 +145,9 @@ single_ion_info(int nion, int detailed)
 
   n = 0;
 
-  for (i = 0; i < n_inner_tot; ++i)
+  for(i = 0; i < n_inner_tot; ++i)
   {
-    if (inner_cross_ptr[i]->z == ion.z && inner_cross_ptr[i]->istate == ion.istate)
+    if(inner_cross_ptr[i]->z == ion.z && inner_cross_ptr[i]->istate == ion.istate)
     {
       n++;
       wavelength = C_SI / inner_cross_ptr[i]->freq[0] / ANGSTROM / 1e-2;
@@ -176,7 +176,7 @@ all_ions(void)
   int nion;
 
   ion_header();
-  for (nion = 0; nion < nions; ++nion)
+  for(nion = 0; nion < nions; ++nion)
     ion_line(nion);
 
   count(ndash_line, nions);
@@ -200,22 +200,22 @@ single_ion_atomic_z(void)
   int z, istate;
   int found = false;
 
-  if (query_ion_input(false, &z, &istate, NULL) == FORM_QUIT)
+  if(query_ion_input(false, &z, &istate, NULL) == FORM_QUIT)
     return;
 
-  if (find_element(z) == ELEMENT_NO_FOUND)
+  if(find_element(z) == ELEMENT_NO_FOUND)
     return;
 
-  for (nion = 0; nion < nions; ++nion)
+  for(nion = 0; nion < nions; ++nion)
   {
-    if (ions[nion].z == z && ions[nion].istate == istate)
+    if(ions[nion].z == z && ions[nion].istate == istate)
     {
       found = true;
       break;
     }
   }
 
-  if (!found)
+  if(!found)
   {
     error_atomix("Unknown ion configuration");
     return;
@@ -241,13 +241,13 @@ single_ion_nion(void)
 {
   int nion;
 
-  if (query_ion_input(true, NULL, NULL, &nion) == FORM_QUIT)
+  if(query_ion_input(true, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
-  if (nion < 0)
+  if(nion < 0)
     nion *= -1;
 
-  if (nion > nions - 1)
+  if(nion > nions - 1)
   {
     error_atomix("Invalid ion index choice %i when there are only %i ion indices", nion, nions);
     return;
@@ -272,17 +272,17 @@ ions_for_element(void)
   int nion, n;
   int z, firstion, lastion;
 
-  if (query_atomic_number(&z) == FORM_QUIT)
+  if(query_atomic_number(&z) == FORM_QUIT)
     return;
 
-  if ((n = find_element(z)) == ELEMENT_NO_FOUND)
+  if((n = find_element(z)) == ELEMENT_NO_FOUND)
     return;
 
   firstion = ele[n].firstion;
   lastion = ele[n].firstion + ele[n].nions;
 
   ion_header();
-  for (nion = firstion; nion < lastion; ++nion)
+  for(nion = firstion; nion < lastion; ++nion)
     ion_line(nion);
 
   count(ndash_line, ele[n].nions);

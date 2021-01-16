@@ -1,4 +1,4 @@
-/* bound.c */
+/* lines.c */
 void bound_bound_header(void);
 void bound_bound_line(int n);
 void all_bound_bound(void);
@@ -18,8 +18,7 @@ int main(int argc, char *argv[]);
 void clean_up_menu(MENU *menu, ITEM **items, int nitems);
 int control_menu(MENU *menu, int c);
 int create_main_menu(char *menu_message, MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
-int create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems, int current_index,
-                int control_this_menu);
+int create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems, int current_index, int control_this_menu);
 void main_menu(int control);
 void bound_bound_main_menu(void);
 void bound_free_main_menu(void);
@@ -29,6 +28,7 @@ void inner_shell_main_menu(void);
 void levels_main_menu(void);
 /* tools.c */
 void get_element_name(int z, char *element);
+void get_atomic_number(const char *element, int *atomic_number);
 int find_element(int z);
 void error_atomix(char *fmt, ...);
 void exit_atomix(int errno, char *fmt, ...);
@@ -75,6 +75,7 @@ int query_wavelength_range(double *wmin, double *wmax);
 int query_atomic_number(int *z);
 int query_ion_input(int nion_or_z, int *z, int *istate, int *nion);
 void switch_atomic_data(void);
+int query_atomic_number_by_symbol(int *z);
 /* elements.c */
 void elements_header(void);
 void element_line(struct elements e);
@@ -82,12 +83,17 @@ void single_element_info(struct elements e, int detailed);
 void all_elements(void);
 void single_element(void);
 /* ions.c */
+void ion_header(void);
+void ion_line(int nion);
 void single_ion_info(int nion, int detailed);
 void all_ions(void);
 void single_ion_atomic_z(void);
 void single_ion_nion(void);
 void ions_for_element(void);
 /* levels.c */
+void atomic_level_header(void);
+void atomic_level_line(int n);
+void all_level_configurations(void);
 /* inner.c */
 void inner_shell_header(void);
 void inner_shell_line(int nphot);

@@ -33,7 +33,7 @@ clean_up_display(Display_t *buffer)
 {
   int i;
 
-  for (i = 0; i < buffer->nlines; ++i)
+  for(i = 0; i < buffer->nlines; ++i)
     free(buffer->lines[i].chars);
   free(buffer->lines);
 
@@ -72,7 +72,7 @@ add_display(Display_t *buffer, char *fmt, ...)
   buffer->lines = realloc(buffer->lines, buffer->nlines * sizeof(Line_t));
   line_index = buffer->nlines - 1;
 
-  if (buffer->lines == NULL)
+  if(buffer->lines == NULL)
     exit_atomix(EXIT_FAILURE, "Unable to add additional line to the display buffer");
 
   buffer->lines[line_index].len = 0;
@@ -98,7 +98,7 @@ add_display(Display_t *buffer, char *fmt, ...)
   trim_whitespaces(buffer->lines[line_index].chars);
   buffer->lines[line_index].len = strlen(buffer->lines[line_index].chars);;
 
-  if (buffer->maxlen < buffer->lines[line_index].len)
+  if(buffer->maxlen < buffer->lines[line_index].len)
     buffer->maxlen = len + 1;
 
   va_end(va);
@@ -122,7 +122,7 @@ add_sep_display(const int len)
   int i;
   char line[len + 1];
 
-  for (i = 0; i < len; ++i)
+  for(i = 0; i < len; ++i)
     line[i] = '-';
   line[len] = '\0';
   display_add(line);
@@ -152,7 +152,7 @@ update_current_line_progress(Window_t win, int current_line, int total_lines)
   int len;
   char line_message[LINELEN];
 
-  if (current_line + win.nrows - 2 > total_lines)
+  if(current_line + win.nrows - 2 > total_lines)
   {
     len = sprintf(line_message, "| END  / %-4d |", total_lines);
   }
@@ -207,13 +207,13 @@ scroll_display(Display_t *buffer, Window_t win, bool persistent_header, int head
   screen_position_moved = false;
 
   /*
-  * The buffer and row origin have to be incremented otherwise the persistent
+   * The buffer and row origin have to be incremented otherwise the persistent
    * header will be shown twice or will be overwritten by some other text in
    * the buffer.
    * If there is no header, then for safety we set the number of rows to 0.
    */
 
-  if (persistent_header)
+  if(persistent_header)
   {
     current_line = header_rows;
     row_origin += header_rows;
@@ -225,9 +225,9 @@ scroll_display(Display_t *buffer, Window_t win, bool persistent_header, int head
 
   update_status_bar("press q or F1 to exit text view or use the ARROW KEYS to navigate");
 
-  while ((ch = wgetch(window)))
+  while((ch = wgetch(window)))
   {
-    if (ch == 'q' || ch == KEY_F(1))
+    if(ch == 'q' || ch == KEY_F(1))
       break;
 
     /*
@@ -235,7 +235,7 @@ scroll_display(Display_t *buffer, Window_t win, bool persistent_header, int head
      * the screen
      */
 
-    if (buffer->nlines > win.nrows - 2)
+    if(buffer->nlines > win.nrows - 2)
     {
       screen_position_moved = true;
       switch (ch)
@@ -277,18 +277,18 @@ scroll_display(Display_t *buffer, Window_t win, bool persistent_header, int head
        * problems if wgetch has nodelay moved enabled
        */
 
-      if (screen_position_moved)
+      if(screen_position_moved)
       {
         wclear(window);
 
-        if (current_line < header_rows)
+        if(current_line < header_rows)
           current_line = header_rows;
-        if (current_line + (win.nrows - row_origin - 2) > buffer->nlines - 1)
+        if(current_line + (win.nrows - row_origin - 2) > buffer->nlines - 1)
           current_line = header_rows + buffer->nlines - (win.nrows - 2);
 
-        if (current_col < 0)
+        if(current_col < 0)
           current_col = 0;
-        if (current_col + (win.ncols - col_origin - 2) > buffer->maxlen - 1)
+        if(current_col + (win.ncols - col_origin - 2) > buffer->maxlen - 1)
           current_col = AtomixConfiguration.current_col;
 
         AtomixConfiguration.current_line = current_line;
@@ -298,11 +298,11 @@ scroll_display(Display_t *buffer, Window_t win, bool persistent_header, int head
          * Write the header to screen, char by car
          */
 
-        if (persistent_header)
+        if(persistent_header)
         {
-          for (i = 0, srow = 1; i < header_rows && srow < win.nrows - 1; ++i, ++srow)
+          for(i = 0, srow = 1; i < header_rows && srow < win.nrows - 1; ++i, ++srow)
           {
-            for (j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
+            for(j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
             {
               mvwprintw(window, srow, scol, "%c", buffer->lines[i].chars[j]);
             }
@@ -314,9 +314,9 @@ scroll_display(Display_t *buffer, Window_t win, bool persistent_header, int head
          * by char
          */
 
-        for (i = current_line, srow = row_origin; i < buffer->nlines && srow < win.nrows - 1; ++i, ++srow)
+        for(i = current_line, srow = row_origin; i < buffer->nlines && srow < win.nrows - 1; ++i, ++srow)
         {
-          for (j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
+          for(j = current_col, scol = col_origin; j < buffer->lines[i].len && scol < win.ncols - 1; ++j, ++scol)
           {
             mvwprintw(window, srow, scol, "%c", buffer->lines[i].chars[j]);
           }
@@ -366,17 +366,17 @@ display_buffer(Display_t *buffer, int scroll, bool persisent_header, int header_
 
   wclear(window);
 
-  if (buffer->nlines == 0 || buffer->lines == NULL)
+  if(buffer->nlines == 0 || buffer->lines == NULL)
   {
     bold_message(CONTENT_VIEW_WINDOW, 1, 1, "No text in %s buffer to show", buffer->name);
     wrefresh(window);
   }
   else
   {
-    for (i = 0; i < buffer->nlines && i < CONTENT_VIEW_WINDOW.nrows - 2; ++i)
+    for(i = 0; i < buffer->nlines && i < CONTENT_VIEW_WINDOW.nrows - 2; ++i)
     {
       line_index = i;
-      for (j = 0; j < buffer->lines[line_index].len && j < CONTENT_VIEW_WINDOW.ncols - 2; ++j)
+      for(j = 0; j < buffer->lines[line_index].len && j < CONTENT_VIEW_WINDOW.ncols - 2; ++j)
       {
         mvwprintw(window, i + 1, j + 1, "%c", buffer->lines[line_index].chars[j]);
       }
@@ -385,7 +385,7 @@ display_buffer(Display_t *buffer, int scroll, bool persisent_header, int header_
     update_current_line_progress(CONTENT_VIEW_WINDOW, 1, buffer->nlines - header_rows);
     wrefresh(window);
 
-    if (scroll == SCROLL_ENABLE)
+    if(scroll == SCROLL_ENABLE)
       scroll_display(buffer, CONTENT_VIEW_WINDOW, persisent_header, header_rows);
   }
 }

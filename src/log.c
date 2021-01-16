@@ -39,7 +39,7 @@ int
 logfile_init(filename)
      char *filename;
 {
-  if ((diagptr = fopen(filename, "w")) == NULL)
+  if((diagptr = fopen(filename, "w")) == NULL)
   {
     printf("Yikes: could not even open log file %s\n", filename);
     exit(EXIT_FAILURE);
@@ -93,7 +93,7 @@ logfile(char *format, ...)
   va_list ap, ap2;
   int result;
 
-  if (init_log == 0)
+  if(init_log == 0)
     logfile_init("logfile");
 
   va_start(ap, format);
@@ -129,7 +129,7 @@ logfile_error(char *format, ...)
   va_list ap, ap2;
   int result = 0;
 
-  if (init_log == 0)
+  if(init_log == 0)
     logfile_init("logfile");
 
   va_start(ap, format);
@@ -160,7 +160,7 @@ logfile_error(char *format, ...)
 int
 logfile_flush()
 {
-  if (init_log == 0)
+  if(init_log == 0)
     logfile_init("logfile");
 
   fflush(diagptr);

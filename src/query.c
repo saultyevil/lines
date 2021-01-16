@@ -51,7 +51,7 @@ clean_up_form(FORM *form, FIELD **fields, int nfields)
 
   unpost_form(form);
   free_form(form);
-  for (i = 0; i < nfields; ++i)
+  for(i = 0; i < nfields; ++i)
     free_field(fields[i]);
   free(fields);
 }
@@ -112,7 +112,7 @@ control_form(FORM *form, int ch, int exit_index)
       break;
     case 10:                   // This catches the enter/return key
       current_index = field_index(current_field(form));
-      if (current_index != exit_index)
+      if(current_index != exit_index)
       {
         form_driver(form, REQ_NEXT_FIELD);
         form_driver(form, REQ_END_LINE);
@@ -166,20 +166,20 @@ query_user(Window_t w, Query_t *q, int nfields, char *title_message)
   bold_message(CONTENT_VIEW_WINDOW, 1, 1, title_message);
 
   fields = calloc(nfields + 1, sizeof(FIELD *));
-  if (fields == NULL)
+  if(fields == NULL)
     exit_atomix(EXIT_FAILURE, "query_user_for_input : unable to allocate memory for fields");
 
   fields[nfields] = NULL;
 
-  for (i = 0; i < nfields; ++i)
+  for(i = 0; i < nfields; ++i)
   {
     fields[i] = q[i].field;
     set_field_buffer(q[i].field, q[i].buffer_number, q[i].buffer);
-    if (q[i].background != FIELD_NO_BKG)
+    if(q[i].background != FIELD_NO_BKG)
       set_field_back(q[i].field, q[i].background);
-    if (q[i].opts_on != FIELD_SKIP)
+    if(q[i].opts_on != FIELD_SKIP)
       set_field_opts(q[i].field, q[i].opts_on);
-    if (q[i].opts_off != FIELD_SKIP)
+    if(q[i].opts_off != FIELD_SKIP)
       field_opts_off(q[i].field, q[i].opts_off);
   }
 
@@ -199,9 +199,9 @@ query_user(Window_t w, Query_t *q, int nfields, char *title_message)
    * ch is (somehow) NULL.
    */
 
-  while ((ch = wgetch(the_win)) && form_return == FORM_CONTINUE)
+  while((ch = wgetch(the_win)) && form_return == FORM_CONTINUE)
   {
-    if (ch == KEY_F(1))
+    if(ch == KEY_F(1))
     {
       form_return = FORM_QUIT;
       break;
@@ -210,7 +210,7 @@ query_user(Window_t w, Query_t *q, int nfields, char *title_message)
     form_return = control_form(form, ch, nfields - 1);
     wrefresh(the_win);
 
-    if (form_return == FORM_BREAK)
+    if(form_return == FORM_BREAK)
       break;
   }
 
@@ -224,7 +224,7 @@ query_user(Window_t w, Query_t *q, int nfields, char *title_message)
    * This copies the field buffer into the Query_t buffer
    */
 
-  for (i = 0; i < nfields; ++i)
+  for(i = 0; i < nfields; ++i)
     strcpy(q[i].buffer, trim_whitespaces(field_buffer(fields[i], q[i].buffer_number)));
 
   clean_up_form(form, fields, nfields);
@@ -344,21 +344,21 @@ query_wavelength_range(double *wmin, double *wmax)
   static char string_wmax[FIELD_INPUT_LEN];
   static Query_t wavelength_query[5];
 
-  if (init_default == false)
+  if(init_default == false)
   {
     strcpy(string_wmin, "");
     strcpy(string_wmax, "");
     init_default = true;
   }
 
-  while (valid_input == false)
+  while(valid_input == false)
   {
     wclear(window);
     init_two_question_form(wavelength_query, "Minimum Wavelength : ", "Maximum Wavelength : ", string_wmin,
                            string_wmax);
     form_return = query_user(CONTENT_VIEW_WINDOW, wavelength_query, 4, "Input the wavelength range");
 
-    if (form_return == FORM_QUIT)
+    if(form_return == FORM_QUIT)
       return form_return;
 
     *wmin = strtod(wavelength_query[1].buffer, NULL);
@@ -366,7 +366,7 @@ query_wavelength_range(double *wmin, double *wmax)
     strcpy(string_wmin, wavelength_query[1].buffer);
     strcpy(string_wmax, wavelength_query[3].buffer);
 
-    if (*wmax > *wmin)
+    if(*wmax > *wmin)
     {
       valid_input = true;
     }
@@ -404,28 +404,28 @@ query_atomic_number(int *z)
   static char default_element[FIELD_INPUT_LEN];
   static Query_t element_query[2];
 
-  if (init_query == false)
+  if(init_query == false)
   {
     default_element[0] = '\0';
     init_query = true;
   }
 
-  while (valid_input != true)
+  while(valid_input != true)
   {
     wclear(window);
     init_single_question_form(element_query, "Atomic number : ", default_element);
     form_return = query_user(CONTENT_VIEW_WINDOW, element_query, 2, "Please input the atomic number of the element");
 
-    if (form_return == FORM_QUIT)
+    if(form_return == FORM_QUIT)
       return form_return;
 
     *z = (int) strtol(element_query[1].buffer, NULL, 10);
     strcpy(default_element, element_query[1].buffer);
 
-    if (*z < 0)
+    if(*z < 0)
       *z *= -1;
 
-    if (*z > 0 && *z < 118)     // TODO: make constants in atomic.h
+    if(*z > 0 && *z < 118)      // TODO: make constants in atomic.h
     {
       valid_input = true;
       strcpy(default_element, element_query[1].buffer);
@@ -472,7 +472,7 @@ query_ion_input(int nion_or_z, int *z, int *istate, int *nion)
   static Query_t nion_query[2];
   static Query_t z_istate_query[4];
 
-  if (init_name == false)
+  if(init_name == false)
   {
     string_z[0] = '\0';
     string_istate[0] = '\0';
@@ -480,12 +480,12 @@ query_ion_input(int nion_or_z, int *z, int *istate, int *nion)
     init_name = true;
   }
 
-  while (valid_input == false)
+  while(valid_input == false)
   {
 
     wclear(window);
 
-    if (nion_or_z)
+    if(nion_or_z)
     {
       init_single_question_form(nion_query, "Ion Number : ", string_nion);
       ion_query = nion_query;
@@ -500,15 +500,15 @@ query_ion_input(int nion_or_z, int *z, int *istate, int *nion)
 
     form_return = query_user(CONTENT_VIEW_WINDOW, ion_query, nfields, "Please select an ion");
 
-    if (form_return == FORM_QUIT)
+    if(form_return == FORM_QUIT)
       return form_return;
 
-    if (nion_or_z)
+    if(nion_or_z)
     {
       *nion = (int) strtol(ion_query[1].buffer, NULL, 10);
       strcpy(string_nion, ion_query[1].buffer);
 
-      if (*nion >= 0 && *nion < nions)
+      if(*nion >= 0 && *nion < nions)
       {
         valid_input = true;
       }
@@ -524,12 +524,12 @@ query_ion_input(int nion_or_z, int *z, int *istate, int *nion)
       strcpy(string_z, ion_query[1].buffer);
       strcpy(string_istate, ion_query[3].buffer);
 
-      if (*z < 0)
+      if(*z < 0)
         *z *= -1;
-      if (*istate < 0)
+      if(*istate < 0)
         *istate *= -1;
 
-      if (*z > 0 && *istate > 0)
+      if(*z > 0 && *istate > 0)
       {
         valid_input = true;
       }
@@ -563,11 +563,11 @@ switch_atomic_data(void)
   char atomic_data_name[FIELD_INPUT_LEN];
   WINDOW *window = CONTENT_VIEW_WINDOW.window;
 
-  static int menu_index = 8;
+  static int menu_index = 7;
   static int init_name = false;
   static Query_t atomic_data_query[2];
 
-  if (init_name == false)
+  if(init_name == false)
   {
     atomic_data_name[0] = '\0';
     init_name = true;
@@ -577,23 +577,23 @@ switch_atomic_data(void)
    * Continue to loop until valid atomic data has been loaded
    */
 
-  while (valid_input == false)
+  while(valid_input == false)
   {
     menu_index = create_menu(CONTENT_VIEW_WINDOW, "Please select the atomic data to use", ATOMIC_DATA_CHOICES,
                              ARRAY_SIZE(ATOMIC_DATA_CHOICES), menu_index, MENU_CONTROL);
 
-    if (menu_index == MENU_QUIT)
+    if(menu_index == MENU_QUIT)
     {
       break;
     }
-    else if (menu_index > MENU_QUIT)
+    else if(menu_index > MENU_QUIT)
     {
-      if (ATOMIC_DATA_CHOICES[menu_index].index == ATOMIC_TEST) // Special hardcoded case
+      if(ATOMIC_DATA_CHOICES[menu_index].index == ATOMIC_TEST)  // Special hardcoded case
       {
         strcpy(atomic_data_name, "../data/standard80_test.dat");
         relative = true;
       }
-      else if (ATOMIC_DATA_CHOICES[menu_index].index != INDEX_OTHER)
+      else if(ATOMIC_DATA_CHOICES[menu_index].index != INDEX_OTHER)
       {
         strcpy(atomic_data_name, ATOMIC_DATA_CHOICES[menu_index].name);
         strcat(atomic_data_name, ".dat");
@@ -610,7 +610,7 @@ switch_atomic_data(void)
     clean_up_display(&ATOMIC_BUFFER);
     atomic_data_error = get_atomic_data(atomic_data_name, relative);
 
-    if (atomic_data_error)
+    if(atomic_data_error)
     {
       error_atomix("Problem reading atomic data %s : errno = %i", atomic_data_name, atomic_data_error);
     }
@@ -625,4 +625,58 @@ switch_atomic_data(void)
 
   logfile("\n");
   logfile_flush();
+}
+
+/* ************************************************************************** */
+/**
+ * @brief  Query an atomic number from the user by given the symbol of the
+ *         element.
+ *
+ * @param[out]  z  The atomic number
+ *
+ * @details
+ *
+ * ************************************************************************** */
+
+int
+query_atomic_number_by_symbol(int *z)
+{
+  int form_return;
+  int valid_input = false;
+  WINDOW *window = CONTENT_VIEW_WINDOW.window;
+
+  static int init_query = false;
+  static char default_element[FIELD_INPUT_LEN];
+  static Query_t element_query[2];
+
+  if(init_query == false)
+  {
+    default_element[0] = '\0';
+    init_query = true;
+  }
+
+  while(valid_input != true)
+  {
+    wclear(window);
+    init_single_question_form(element_query, "Atomic symbol : ", default_element);
+    form_return = query_user(CONTENT_VIEW_WINDOW, element_query, 2, "Please input the atomic symbol of the element");
+
+    if(form_return == FORM_QUIT)
+      return form_return;
+
+    get_atomic_number(element_query[1].buffer, z);
+    strcpy(default_element, element_query[1].buffer);
+
+    if(*z > 0 && *z < 118)      // TODO: make constants in atomic.h
+    {
+      valid_input = true;
+      strcpy(default_element, element_query[1].buffer);
+    }
+    else
+    {
+      update_status_bar("Invalid atomic number %i", *z);
+    }
+  }
+
+  return EXIT_SUCCESS;
 }

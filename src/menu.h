@@ -68,3 +68,13 @@ MenuItem_t IONS_MENU_CHOICES[] = {
   {&single_ion_nion, 3, "By ion number", "Detailed output for a single ion by ion number"},
   {NULL, MENU_QUIT, "Return to main menu", ""},
 };
+
+// const
+MenuItem_t LEVELS_MENU_CHOICES[] = {
+  {&all_level_configurations, 0, "All", "Print all of the atomic configurations"},
+  {NULL, 1, "By element", "Print all the atomic configurations for an element"},
+  {NULL, 2, "By atomic number and ionisation state", ""},
+  {NULL, 3, "By ion number", ""},
+  {NULL, 4, "By level density", ""},
+  {NULL, MENU_QUIT, "Return to main menu", ""}
+};

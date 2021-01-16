@@ -83,7 +83,7 @@ single_element_info(struct elements e, int detailed)
   display_add(" Highest Ionisation state : %i", e.istate_max);
   add_sep_display(ndash);
 
-  if (!detailed)
+  if(!detailed)
     return;
 
   display_add(" Bound-bound transitions for this element");
@@ -92,9 +92,9 @@ single_element_info(struct elements e, int detailed)
 
   n = 0;
 
-  for (i = 0; i < nlines; ++i)
+  for(i = 0; i < nlines; ++i)
   {
-    if (lin_ptr[i]->z == e.z)
+    if(lin_ptr[i]->z == e.z)
     {
       n++;
       wavelength = C_SI / lin_ptr[i]->freq / ANGSTROM / 1e-2;
@@ -112,9 +112,9 @@ single_element_info(struct elements e, int detailed)
 
   n = 0;
 
-  for (i = 0; i < nphot_total; ++i)
+  for(i = 0; i < nphot_total; ++i)
   {
-    if (phot_top_ptr[i]->z == e.z)
+    if(phot_top_ptr[i]->z == e.z)
     {
       n++;
       wavelength = C_SI / phot_top_ptr[i]->freq[0] / ANGSTROM / 1e-2;
@@ -134,9 +134,9 @@ single_element_info(struct elements e, int detailed)
 
   n = 0;
 
-  for (i = 0; i < n_inner_tot; ++i)
+  for(i = 0; i < n_inner_tot; ++i)
   {
-    if (inner_cross_ptr[i]->z == e.z)
+    if(inner_cross_ptr[i]->z == e.z)
     {
       n++;
       wavelength = C_SI / inner_cross_ptr[i]->freq[0] / ANGSTROM / 1e-2;
@@ -168,7 +168,7 @@ all_elements(void)
 
   elements_header();
 
-  for (i = 0; i < nelements; ++i)
+  for(i = 0; i < nelements; ++i)
     element_line(ele[i]);
 
   count(ndash_line, nelements);
@@ -195,19 +195,19 @@ single_element(void)
   int atomic_z;
   int found = false;
 
-  if (query_atomic_number(&atomic_z) == FORM_QUIT)
+  if(query_atomic_number(&atomic_z) == FORM_QUIT)
     return;
 
-  for (i = 0; i < nelements; ++i)
+  for(i = 0; i < nelements; ++i)
   {
-    if (ele[i].z == atomic_z)
+    if(ele[i].z == atomic_z)
     {
       found = true;
       break;
     }
   }
 
-  if (!found)
+  if(!found)
   {
     error_atomix("Element Z = %i is not in the atomic data", atomic_z);
     return;

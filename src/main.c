@@ -38,7 +38,7 @@ main(int argc, char *argv[])
    * variables, logfile and check the command lines for input
    */
 
-  if (getenv("PYTHON") == NULL)
+  if(getenv("PYTHON") == NULL)
     exit_atomix(EXIT_FAILURE, "main : unable to find the required $PYTHON environment variable");
 
   atexit(cleanup_ncurses_stdscr);
@@ -80,7 +80,7 @@ main(int argc, char *argv[])
 
   main_menu(MENU_DRAW);
 
-  if (!AtomixConfiguration.atomic_data_loaded)
+  if(!AtomixConfiguration.atomic_data_loaded)
     switch_atomic_data();
 
   main_menu(MENU_CONTROL);

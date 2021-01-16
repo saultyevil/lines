@@ -104,7 +104,7 @@ initialise_main_windows(void)
   STATUS_BAR_WINDOW.start_x = origin_col;
   STATUS_BAR_WINDOW.window =
     newwin(STATUS_BAR_WINDOW.nrows, STATUS_BAR_WINDOW.ncols, STATUS_BAR_WINDOW.start_y, STATUS_BAR_WINDOW.start_x);
-  if (STATUS_BAR_WINDOW.window == NULL)
+  if(STATUS_BAR_WINDOW.window == NULL)
     exit_atomix(EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for STATUS_WINDOW");
 
   /*
@@ -117,7 +117,7 @@ initialise_main_windows(void)
   MAIN_MENU_WINDOW.start_x = origin_col;
   MAIN_MENU_WINDOW.window =
     newwin(MAIN_MENU_WINDOW.nrows, MAIN_MENU_WINDOW.ncols, MAIN_MENU_WINDOW.start_y, MAIN_MENU_WINDOW.start_x);
-  if (MAIN_MENU_WINDOW.window == NULL)
+  if(MAIN_MENU_WINDOW.window == NULL)
     exit_atomix(EXIT_FAILURE, "initialise_main_windows : unable to allocate memory for MENU_WINDOW");
   keypad(MAIN_MENU_WINDOW.window, true);
   // nodelay(MAIN_MENU_WINDOW.window, true);
@@ -133,7 +133,7 @@ initialise_main_windows(void)
   CONTENT_VIEW_WINDOW.window =
     newwin(CONTENT_VIEW_WINDOW.nrows, CONTENT_VIEW_WINDOW.ncols, CONTENT_VIEW_WINDOW.start_y,
            CONTENT_VIEW_WINDOW.start_x);
-  if (CONTENT_VIEW_WINDOW.window == NULL)
+  if(CONTENT_VIEW_WINDOW.window == NULL)
     exit_atomix(EXIT_FAILURE, "initialise_main_windows: unable to allocate memory for CONTENT_WINDOW");
   keypad(CONTENT_VIEW_WINDOW.window, true);
   // nodelay(CONTENT_VIEW_WINDOW.window, true);
@@ -236,7 +236,7 @@ bold_message(Window_t win, int y, int x, char *fmt, ...)
   msg = malloc(len * sizeof(char));
   len = vsprintf(msg, fmt, va_c);
 
-  if (x == LINE_CENTER)
+  if(x == LINE_CENTER)
     x = (win.ncols - len) / 2;
 
   wattron(window, A_BOLD);
@@ -321,7 +321,7 @@ home_screen(void)
   nlines = ARRAY_SIZE(logo);
   crow = 2;
 
-  for (i = 0; i < nlines; ++i)
+  for(i = 0; i < nlines; ++i)
     mvwprintw(window, crow++, (CONTENT_VIEW_WINDOW.ncols - strlen(logo[i])) / 2, logo[i]);
 
   crow++;

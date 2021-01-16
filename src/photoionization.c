@@ -80,7 +80,7 @@ all_bound_free(void)
 
   n = 0;
 
-  for (nphot = 0; nphot < nphot_total; ++nphot)
+  for(nphot = 0; nphot < nphot_total; ++nphot)
   {
     n++;
     bound_free_line(nphot);
@@ -113,7 +113,7 @@ bound_free_wavelength_range(void)
   double fmin, fmax, fthreshold;
   double wmin, wmax;
 
-  if (query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
+  if(query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
     return;
 
   fmax = C / (wmin * ANGSTROM);
@@ -125,10 +125,10 @@ bound_free_wavelength_range(void)
 
   n = 0;
 
-  for (nphot = 0; nphot < nphot_total; ++nphot)
+  for(nphot = 0; nphot < nphot_total; ++nphot)
   {
     fthreshold = phot_top[nphot].freq[0];
-    if (fthreshold > fmin && fthreshold < fmax)
+    if(fthreshold > fmin && fthreshold < fmax)
     {
       bound_free_line(nphot);
       n++;
@@ -155,10 +155,10 @@ bound_free_element(void)
   int nphot;
   char element[LINELEN];
 
-  if (query_atomic_number(&z) == FORM_QUIT)
+  if(query_atomic_number(&z) == FORM_QUIT)
     return;
 
-  if (find_element(z) == ELEMENT_NO_FOUND)
+  if(find_element(z) == ELEMENT_NO_FOUND)
     return;
 
   get_element_name(z, element);
@@ -167,9 +167,9 @@ bound_free_element(void)
   bound_free_header();
 
   n = 0;
-  for (nphot = 0; nphot < nphot_total; ++nphot)
+  for(nphot = 0; nphot < nphot_total; ++nphot)
   {
-    if (phot_top[nphot].z == z)
+    if(phot_top[nphot].z == z)
     {
       bound_free_line(nphot);
       n++;
@@ -196,13 +196,13 @@ bound_free_ion(void)
   int n, nion, nphot;
   char element[LINELEN];
 
-  if (query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
+  if(query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
-  if (nion < 0)
+  if(nion < 0)
     nion *= -1;
 
-  if (nion > nions - 1)
+  if(nion > nions - 1)
   {
     error_atomix("Invaild ion number %i > nions %i", nion, nions);
     return;
@@ -217,9 +217,9 @@ bound_free_ion(void)
   bound_free_header();
 
   n = 0;
-  for (nphot = 0; nphot < nphot_total; ++nphot)
+  for(nphot = 0; nphot < nphot_total; ++nphot)
   {
-    if (phot_top[nphot].z == z && phot_top[nphot].istate == istate)
+    if(phot_top[nphot].z == z && phot_top[nphot].istate == istate)
     {
       bound_free_line(nphot);
       n++;

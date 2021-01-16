@@ -80,7 +80,7 @@ all_inner_shell(void)
 
   n = 0;
 
-  for (nphot = 0; nphot < n_inner_tot; ++nphot)
+  for(nphot = 0; nphot < n_inner_tot; ++nphot)
   {
     n++;
     inner_shell_line(nphot);
@@ -113,7 +113,7 @@ inner_shell_wavelength_range(void)
   double fmin, fmax, fthreshold;
   double wmin, wmax;
 
-  if (query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
+  if(query_wavelength_range(&wmin, &wmax) == FORM_QUIT)
     return;
 
   fmax = C / (wmin * ANGSTROM);
@@ -125,10 +125,10 @@ inner_shell_wavelength_range(void)
 
   n = 0;
 
-  for (nphot = 0; nphot < n_inner_tot; ++nphot)
+  for(nphot = 0; nphot < n_inner_tot; ++nphot)
   {
     fthreshold = inner_cross_ptr[nphot]->freq[0];
-    if (fthreshold > fmin && fthreshold < fmax)
+    if(fthreshold > fmin && fthreshold < fmax)
     {
       inner_shell_line(nphot);
       n++;
@@ -155,10 +155,10 @@ inner_shell_element(void)
   int nphot;
   char element[LINELEN];
 
-  if (query_atomic_number(&z) == FORM_QUIT)
+  if(query_atomic_number(&z) == FORM_QUIT)
     return;
 
-  if (find_element(z) == ELEMENT_NO_FOUND)
+  if(find_element(z) == ELEMENT_NO_FOUND)
     return;
 
   get_element_name(z, element);
@@ -167,9 +167,9 @@ inner_shell_element(void)
   inner_shell_header();
 
   n = 0;
-  for (nphot = 0; nphot < n_inner_tot; ++nphot)
+  for(nphot = 0; nphot < n_inner_tot; ++nphot)
   {
-    if (inner_cross_ptr[nphot]->z == z)
+    if(inner_cross_ptr[nphot]->z == z)
     {
       inner_shell_line(nphot);
       n++;
@@ -196,13 +196,13 @@ inner_shell_ion(void)
   int n, nion, nphot;
   char element[LINELEN];
 
-  if (query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
+  if(query_ion_input(TRUE, NULL, NULL, &nion) == FORM_QUIT)
     return;
 
-  if (nion < 0)
+  if(nion < 0)
     nion *= -1;
 
-  if (nion > nions - 1)
+  if(nion > nions - 1)
   {
     error_atomix("Invaild ion number %i > nions %i", nion, nions);
     return;
@@ -217,9 +217,9 @@ inner_shell_ion(void)
   inner_shell_header();
 
   n = 0;
-  for (nphot = 0; nphot < n_inner_tot; ++nphot)
+  for(nphot = 0; nphot < n_inner_tot; ++nphot)
   {
-    if (inner_cross_ptr[nphot]->z == z && inner_cross_ptr[nphot]->istate == istate)
+    if(inner_cross_ptr[nphot]->z == z && inner_cross_ptr[nphot]->istate == istate)
     {
       inner_shell_line(nphot);
       n++;

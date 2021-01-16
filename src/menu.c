@@ -38,7 +38,7 @@ clean_up_menu(MENU *menu, ITEM **items, int nitems)
   int i;
 
   unpost_menu(menu);
-  for (i = 0; i < nitems; ++i)
+  for(i = 0; i < nitems; ++i)
     free_item(items[i]);
   free_menu(menu);
 }
@@ -95,7 +95,7 @@ control_menu(MENU *menu, int c)
       item = current_item(menu);
       current_index = item_index(item);
       item_usrptr = item_userptr(item);
-      if (item_usrptr != NULL)
+      if(item_usrptr != NULL)
         item_usrptr();
       pos_menu_cursor(menu);
       break;
@@ -141,13 +141,13 @@ create_main_menu(char *menu_message, MenuItem_t *menu_items, int nitems, int cur
   wclear(MAIN_MENU_WINDOW.window);
 
   items = calloc(nitems + 1, sizeof(ITEM *));
-  if (items == NULL)
+  if(items == NULL)
     exit_atomix(EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
   len = (int) strlen(menu_message);
   bold_message(MAIN_MENU_WINDOW, 1, (MAIN_MENU_WINDOW.ncols - len) / 2, menu_message);
 
-  for (i = 0; i < nitems; i++)
+  for(i = 0; i < nitems; i++)
   {
     items[i] = new_item(menu_items[i].name, menu_items[i].desc);
     set_item_userptr(items[i], menu_items[i].func);
@@ -162,9 +162,9 @@ create_main_menu(char *menu_message, MenuItem_t *menu_items, int nitems, int cur
   set_menu_format(menu, MAIN_MENU_WINDOW.nrows - 2, 1);
   set_menu_mark(menu, "* ");
 
-  if (current_index < 0)
+  if(current_index < 0)
     current_index = 0;
-  if (current_index > nitems - 1)
+  if(current_index > nitems - 1)
     current_index = nitems - 1;
 
   set_current_item(menu, items[current_index]);
@@ -173,12 +173,12 @@ create_main_menu(char *menu_message, MenuItem_t *menu_items, int nitems, int cur
 
   AtomixConfiguration.current_menu = menu;
 
-  if (control_this_menu == MENU_CONTROL)
+  if(control_this_menu == MENU_CONTROL)
   {
     update_status_bar("press q or F1 to exit atomix");
-    while ((c = wgetch(MAIN_MENU_WINDOW.window)))
+    while((c = wgetch(MAIN_MENU_WINDOW.window)))
     {
-      if (c == 'q' || c == KEY_F(1))
+      if(c == 'q' || c == KEY_F(1))
       {
         index = MENU_QUIT;
         break;
@@ -187,7 +187,7 @@ create_main_menu(char *menu_message, MenuItem_t *menu_items, int nitems, int cur
       index = control_menu(menu, c);
       wrefresh(MAIN_MENU_WINDOW.window);
 
-      if (index != MENU_CONTINUE)
+      if(index != MENU_CONTINUE)
         break;
     }
   }
@@ -234,10 +234,10 @@ create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems
   wclear(window);
 
   items = calloc(nitems + 1, sizeof(ITEM *));
-  if (items == NULL)
+  if(items == NULL)
     exit_atomix(EXIT_FAILURE, "create_menu : unable to allocate memory for menu items");
 
-  for (i = 0; i < nitems; i++)
+  for(i = 0; i < nitems; i++)
   {
     items[i] = new_item(menu_items[i].name, menu_items[i].desc);
     set_item_userptr(items[i], menu_items[i].func);
@@ -253,9 +253,9 @@ create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems
   set_menu_format(menu, win.nrows - 6, 1);
   set_menu_mark(menu, "* ");
 
-  if (current_index < 0)
+  if(current_index < 0)
     current_index = 0;
-  if (current_index > nitems - 1)
+  if(current_index > nitems - 1)
     current_index = nitems - 1;
 
   set_current_item(menu, items[current_index]);
@@ -266,11 +266,11 @@ create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems
 
   AtomixConfiguration.current_menu = menu;
 
-  if (control_this_menu == MENU_CONTROL)
+  if(control_this_menu == MENU_CONTROL)
   {
-    while ((c = wgetch(window)))
+    while((c = wgetch(window)))
     {
-      if (c == 'q' || c == (KEY_F(1)))
+      if(c == 'q' || c == (KEY_F(1)))
       {
         index = MENU_QUIT;
         break;
@@ -279,7 +279,7 @@ create_menu(Window_t win, char *menu_message, MenuItem_t *menu_items, int nitems
       index = control_menu(menu, c);
       wrefresh(window);
 
-      if (index != MENU_CONTINUE)
+      if(index != MENU_CONTINUE)
         break;
     }
   }
@@ -302,19 +302,19 @@ main_menu(int control)
 {
   static int menu_index = 0;
 
-  if (control == MENU_DRAW)
+  if(control == MENU_DRAW)
   {
     menu_index = create_main_menu("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE(MAIN_MENU_CHOICES), menu_index, MENU_DRAW);
   }
   else
   {
-    while (true)
+    while(true)
     {
       home_screen();
       menu_index = create_main_menu("Main Menu", MAIN_MENU_CHOICES, ARRAY_SIZE(MAIN_MENU_CHOICES), menu_index,
                                     MENU_CONTROL);
 
-      if (menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT)  // Safety really
+      if(menu_index == MENU_QUIT || MAIN_MENU_CHOICES[menu_index].index == MENU_QUIT) // Safety really
         break;
     }
   }
@@ -335,17 +335,17 @@ bound_bound_main_menu(void)
 {
   static int menu_index = 0;
 
-  if (nlines == 0)
+  if(nlines == 0)
   {
     error_atomix("No bound-bound transitions were read in");
     return;
   }
 
-  while (true)
+  while(true)
   {
     menu_index = create_menu(CONTENT_VIEW_WINDOW, "Bound-bound transitions", BOUND_MENU_CHOICES,
                              ARRAY_SIZE(BOUND_MENU_CHOICES), menu_index, MENU_CONTROL);
-    if (BOUND_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+    if(BOUND_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
 }
@@ -365,11 +365,11 @@ bound_free_main_menu(void)
 {
   int menu_index = 0;
 
-  while (true)
+  while(true)
   {
     menu_index = create_menu(CONTENT_VIEW_WINDOW, "Bound-free transitions", BOUND_FREE_MENU_CHOICES,
                              ARRAY_SIZE(BOUND_FREE_MENU_CHOICES), menu_index, MENU_CONTROL);
-    if (BOUND_FREE_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+    if(BOUND_FREE_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
 }
@@ -390,17 +390,17 @@ elements_main_menu(void)
 {
   static int menu_index = 0;
 
-  if (ele == NULL)
+  if(ele == NULL)
   {
     error_atomix("No elements have been read in. Unable to query!");
     return;
   }
 
-  while (true)
+  while(true)
   {
     menu_index = create_menu(CONTENT_VIEW_WINDOW, "Elements", ELEMENTS_MENU_CHOICES, ARRAY_SIZE(ELEMENTS_MENU_CHOICES),
                              menu_index, MENU_CONTROL);
-    if (ELEMENTS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+    if(ELEMENTS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
 }
@@ -420,17 +420,17 @@ ions_main_menu(void)
 {
   static int menu_index = 0;
 
-  if (nions == 0)
+  if(nions == 0)
   {
     error_atomix("No ions have been read in. Unable to query!");
     return;
   }
 
-  while (true)
+  while(true)
   {
     menu_index = create_menu(CONTENT_VIEW_WINDOW, "Ions", IONS_MENU_CHOICES, ARRAY_SIZE(IONS_MENU_CHOICES), menu_index,
                              MENU_CONTROL);
-    if (IONS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+    if(IONS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
 }
@@ -450,17 +450,17 @@ inner_shell_main_menu(void)
 {
   static int menu_index = 0;
 
-  if (n_inner_tot == 0)
+  if(n_inner_tot == 0)
   {
     error_atomix("No inner shell ionization data has been read in");
     return;
   }
 
-  while (true)
+  while(true)
   {
     menu_index = create_menu(CONTENT_VIEW_WINDOW, "Inner Shell", INNER_SHELL_MENU_CHOICES,
                              ARRAY_SIZE(INNER_SHELL_MENU_CHOICES), menu_index, MENU_CONTROL);
-    if (INNER_SHELL_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+    if(INNER_SHELL_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
       return;
   }
 }
@@ -478,5 +478,19 @@ inner_shell_main_menu(void)
 void
 levels_main_menu(void)
 {
-  error_atomix("Not implemented yet, soz!");
+  static int menu_index = 0;
+
+  if(nlevels == 0)
+  {
+    error_atomix("No atomic configurations have been read");
+    return;
+  }
+
+  while(true)
+  {
+    menu_index = create_menu(CONTENT_VIEW_WINDOW, "Atomic Configurations", LEVELS_MENU_CHOICES,
+                             ARRAY_SIZE(LEVELS_MENU_CHOICES), menu_index, MENU_CONTROL);
+    if(LEVELS_MENU_CHOICES[menu_index].index == MENU_QUIT || menu_index == MENU_QUIT)
+      return;
+  }
 }
