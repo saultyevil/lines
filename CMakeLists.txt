@@ -32,8 +32,6 @@ set(SOURCE_FILES
 # The curses library is stored in various places depending on system
 if(UNIX AND NOT APPLE)
         find_package(Curses REQUIRED)
-        find_library(menu REQUIRED)
-        find_library(form REQUIRED)
 elseif(APPLE)
         include_directories(/usr/local/opt/ncurses/include)
         link_directories(/usr/local/opt/ncurses/lib)
@@ -42,3 +40,4 @@ endif()
 # Create the atomix executable and link the libraries
 add_executable(atomix ${SOURCE_FILES})
 target_link_libraries(atomix m curses menu form)
+target_compile_options(atomix PRIVIATE -fcommon)
